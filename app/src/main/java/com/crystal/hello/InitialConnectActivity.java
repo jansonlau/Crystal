@@ -15,11 +15,9 @@ import com.plaid.client.request.AccountsGetRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.AccountsGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
-import com.plaid.client.response.ErrorResponse;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidProduct;
-import com.plaid.linkbase.models.connection.LinkAccount;
 import com.plaid.linkbase.models.connection.LinkConnection;
 import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
 
@@ -28,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import kotlin.Unit;
 import retrofit2.Call;
@@ -37,7 +34,7 @@ import retrofit2.Response;
 
 public class InitialConnectActivity extends AppCompatActivity {
     private static final int LINK_REQUEST_CODE = 1;
-    private String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
+    public static String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
     private PlaidClient plaidClient;
 
     @Override
@@ -84,7 +81,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(LINK_REQUEST_CODE,
-            /** Handle onSuccess */
+            // Handle onSuccess
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
 
@@ -98,7 +95,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
                 String publicToken = linkConnection.getPublicToken();
 
-                /**
+                /*
                 String accountId = metadata.getAccounts().get(0).getAccountId();
                 String accountName = metadata.getAccounts().get(0).getAccountName();
                 String accountNumber = metadata.getAccounts().get(0).getAccountNumber();
@@ -108,15 +105,11 @@ public class InitialConnectActivity extends AppCompatActivity {
                 String institutionName = metadata.getInstitutionName();
                  */
 
-                try {
-                    getAccessToken(publicToken);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                getAccessToken(publicToken);
                 return Unit.INSTANCE;
             },
 
-            /** Handle onCancelled (close button / Android back button) */
+            // Handle onCancelled (close button / Android back button)
             linkCancellation -> {
                 Log.i(InitialConnectActivity.class.getSimpleName(), getString(
                         R.string.content_cancelled,
@@ -127,7 +120,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             },
 
-            /** Handle onExit (close button???) */
+            // Handle onExit (close button???)
             plaidApiError -> {
                 Log.i(InitialConnectActivity.class.getSimpleName(), getString(
                         R.string.content_exit,
@@ -141,7 +134,7 @@ public class InitialConnectActivity extends AppCompatActivity {
             }
     );
 
-    private void getAccessToken(String publicToken) throws IOException {
+    private void getAccessToken(String publicToken) {
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret("5e9e830fd1ed690012c3be3c", "74cf176067e0712cc2eabdf800829e")
                 .publicKey("bbf9cf93da45517aa5283841dfc534") // optional. only needed to call endpoints that require a public key
@@ -167,14 +160,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                                 accessToken = response.body().getAccessToken();
                                 Log.i("access token: ", response.body().getAccessToken());
                                 Log.i("item ID: ", response.body().getItemId());
-
-                                try {
-//                                    getAccounts();
-                                    getTransactions();
-//                                    getItem();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                getTransactions();
                             }
                         }
                     }
@@ -191,26 +177,28 @@ public class InitialConnectActivity extends AppCompatActivity {
                 });
     }
 
-    private void getAccounts() throws IOException {
-        plaidClient.service()
-                .accountsGet(new AccountsGetRequest(accessToken))
-                .enqueue(new Callback<AccountsGetResponse>() {
-                    @Override
-                    public void onResponse(@NotNull Call<AccountsGetResponse> call,
-                                           @NotNull Response<AccountsGetResponse> response) {
-                        if (response.isSuccessful()) {
-                            Log.i("AccountsResponse: ", String.valueOf(response.body().getAccounts()));
-                        }
-                    }
+//    private void getAccounts() {
+//        plaidClient.service()
+//                .accountsGet(new AccountsGetRequest(accessToken))
+//                .enqueue(new Callback<AccountsGetResponse>() {
+//                    @Override
+//                    public void onResponse(@NotNull Call<AccountsGetResponse> call,
+//                                           @NotNull Response<AccountsGetResponse> response) {
+//                        if (response.isSuccessful()) {
+//                            if (response.body() != null) {
+//                                Log.i("AccountsResponse: ", String.valueOf(response.body().getAccounts()));
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NotNull Call<AccountsGetResponse> call, @NotNull Throwable t) {
+//
+//                    }
+//                });
+//    }
 
-                    @Override
-                    public void onFailure(Call<AccountsGetResponse> call, Throwable t) {
-
-                    }
-                });
-    }
-
-    private void getTransactions() throws IOException {
+    private void getTransactions() {
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100);
         Date endDate = new Date();
 
@@ -218,33 +206,24 @@ public class InitialConnectActivity extends AppCompatActivity {
                 new TransactionsGetRequest(accessToken, startDate, endDate)
                         .withCount(100);
 
-//        for (int i = 0; i < 5; i++) {
-            plaidClient.service().transactionsGet(request).enqueue(new Callback<TransactionsGetResponse>() {
-                @Override
-                public void onResponse(@NotNull Call<TransactionsGetResponse> call,
-                                       @NotNull Response<TransactionsGetResponse> response) {
-                    if (response.isSuccessful()) {
-                        if (response.body() != null) {
-                            for (TransactionsGetResponse.Transaction transaction : response.body().getTransactions()) {
+        plaidClient.service().transactionsGet(request).enqueue(new Callback<TransactionsGetResponse>() {
 
-                            }
+            @Override
+            public void onResponse(@NotNull Call<TransactionsGetResponse> call,
+                                   @NotNull Response<TransactionsGetResponse> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        for (TransactionsGetResponse.Transaction transaction : response.body().getTransactions()) {
+                            Log.d("Transactions", transaction.getName());
                         }
                     }
-//                    else {
-//                            try {
-//                                ErrorResponse errorResponse = plaidClient.parseError(response);
-//                                Thread.sleep(3000);
-//                            } catch(InterruptedException e) {
-//                                // catch error
-//                            }
-//                        }
                 }
+            }
 
-                @Override
-                public void onFailure(Call<TransactionsGetResponse> call, Throwable t) {
+            @Override
+            public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
 
-                }
-            });
-//        }
+            }
+        });
     }
 }
