@@ -9,9 +9,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.plaid.client.PlaidClient;
+import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.request.AccountsGetRequest;
+import com.plaid.client.response.CategoriesGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.AccountsGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
@@ -23,7 +25,6 @@ import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -158,8 +159,8 @@ public class InitialConnectActivity extends AppCompatActivity {
                         if (response.isSuccessful()) {
                             if (response.body() != null) {
                                 accessToken = response.body().getAccessToken();
-                                Log.i("access token: ", response.body().getAccessToken());
-                                Log.i("item ID: ", response.body().getItemId());
+                                Log.i("access token", response.body().getAccessToken());
+                                Log.i("item ID", response.body().getItemId());
                                 getTransactions();
                             }
                         }
@@ -177,28 +178,42 @@ public class InitialConnectActivity extends AppCompatActivity {
                 });
     }
 
-//    private void getAccounts() {
-//        plaidClient.service()
-//                .accountsGet(new AccountsGetRequest(accessToken))
-//                .enqueue(new Callback<AccountsGetResponse>() {
-//                    @Override
-//                    public void onResponse(@NotNull Call<AccountsGetResponse> call,
-//                                           @NotNull Response<AccountsGetResponse> response) {
-//                        if (response.isSuccessful()) {
-//                            if (response.body() != null) {
-//                                Log.i("AccountsResponse: ", String.valueOf(response.body().getAccounts()));
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(@NotNull Call<AccountsGetResponse> call, @NotNull Throwable t) {
-//
-//                    }
-//                });
-//    }
+    private void getAccounts() {
+        plaidClient.service()
+                .accountsGet(new AccountsGetRequest(accessToken))
+                .enqueue(new Callback<AccountsGetResponse>() {
+                    @Override
+                    public void onResponse(@NotNull Call<AccountsGetResponse> call,
+                                           @NotNull Response<AccountsGetResponse> response) {
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                Log.i("AccountsResponse: ", String.valueOf(response.body().getAccounts()));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NotNull Call<AccountsGetResponse> call, @NotNull Throwable t) {
+
+                    }
+                });
+    }
 
     private void getTransactions() {
+        /** Code for getting categories https://plaid.com/docs/#categories
+        plaidClient.service().categoriesGet(new CategoriesGetRequest()).enqueue(new Callback<CategoriesGetResponse>() {
+            @Override
+            public void onResponse(Call<CategoriesGetResponse> call, Response<CategoriesGetResponse> response) {
+                List<CategoriesGetResponse.Category> categories = response.body().getCategories();
+            }
+
+            @Override
+            public void onFailure(Call<CategoriesGetResponse> call, Throwable t) {
+
+            }
+        });
+         */
+
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100);
         Date endDate = new Date();
 
@@ -207,7 +222,6 @@ public class InitialConnectActivity extends AppCompatActivity {
                         .withCount(100);
 
         plaidClient.service().transactionsGet(request).enqueue(new Callback<TransactionsGetResponse>() {
-
             @Override
             public void onResponse(@NotNull Call<TransactionsGetResponse> call,
                                    @NotNull Response<TransactionsGetResponse> response) {
