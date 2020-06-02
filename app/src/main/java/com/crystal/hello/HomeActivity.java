@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -26,10 +27,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity {
-    public static PlaidClient plaidClient;
-    public static String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
+    private PlaidClient plaidClient;
+    private String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
     private String publicToken;
-//    private TransactionsResource transactionsResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +71,7 @@ public class HomeActivity extends AppCompatActivity {
                                 Log.i("access token", response.body().getAccessToken());
                                 Log.i("item ID", response.body().getItemId());
                                 getTransactions();
-//                                transactionsResource = new TransactionsResource();
-//                                transactionsResource.getTransactions();
+
                             }
                         }
                     }
@@ -122,11 +121,10 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("Transactions", transaction.getName());
                         }
 
-                        final ListView listNotes = findViewById(R.id.list);
-                        ArrayAdapter<TransactionsGetResponse.Transaction> arrayAdapter = new ArrayAdapter<>(HomeActivity.this,
-                                android.R.layout.simple_list_item_1, response.body().getTransactions());
-
-                        listNotes.setAdapter(arrayAdapter);
+//                        ListView listNotes = findViewById(R.id.list);
+//                        ArrayAdapter<TransactionsGetResponse.Transaction> arrayAdapter = new ArrayAdapter<>(HomeActivity.this,
+//                                android.R.layout.simple_list_item_1, response.body().getTransactions());
+//                        listNotes.setAdapter(arrayAdapter);
                     }
                 }
             }
