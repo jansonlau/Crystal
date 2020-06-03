@@ -1,4 +1,4 @@
-package com.crystal.hello.ui.dashboard;
+package com.crystal.hello.ui.saved;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.crystal.hello.R;
 
-public class DashboardFragment extends Fragment {
+public class SavedFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
+    private SavedViewModel savedViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                ViewModelProviders.of(this).get(DashboardViewModel.class);
+        savedViewModel =
+                ViewModelProviders.of(this).get(SavedViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
         final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        savedViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

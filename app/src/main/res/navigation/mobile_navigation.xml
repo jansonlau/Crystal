@@ -13,13 +13,13 @@
 
     <fragment
         android:id="@+id/navigation_saved"
-        android:name="com.crystal.hello.ui.dashboard.DashboardFragment"
+        android:name="com.crystal.hello.ui.saved.SavedFragment"
         android:label="@string/title_saved"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.crystal.hello.ui.notifications.NotificationsFragment"
+        android:name="com.crystal.hello.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
