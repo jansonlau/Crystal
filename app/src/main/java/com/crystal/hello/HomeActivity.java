@@ -1,13 +1,19 @@
 package com.crystal.hello;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.AccountsGetRequest;
@@ -19,6 +25,7 @@ import com.plaid.client.response.TransactionsGetResponse;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +42,15 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+//        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+//                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+//                .build();
+//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+//        NavigationUI.setupWithNavController(navView, navController);
 
         Intent intent = getIntent();
         publicToken = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -117,14 +133,17 @@ public class HomeActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         Log.d("Transaction count", String.valueOf(response.body().getTransactions().size()));
+
+                        List<String> transactionNames = new ArrayList<>();
                         for (TransactionsGetResponse.Transaction transaction : response.body().getTransactions()) {
                             Log.d("Transactions", transaction.getName());
+                            transactionNames.add(transaction.getName());
                         }
 
-//                        ListView listNotes = findViewById(R.id.list);
-//                        ArrayAdapter<TransactionsGetResponse.Transaction> arrayAdapter = new ArrayAdapter<>(HomeActivity.this,
-//                                android.R.layout.simple_list_item_1, response.body().getTransactions());
-//                        listNotes.setAdapter(arrayAdapter);
+                        ListView listTransactions = findViewById(R.id.list);
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(HomeActivity.this,
+                                android.R.layout.simple_list_item_1, transactionNames);
+                        listTransactions.setAdapter(arrayAdapter);
                     }
                 }
             }

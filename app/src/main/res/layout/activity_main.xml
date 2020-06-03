@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="250dp"
+        android:layout_marginTop="150dp"
         android:layout_marginRight="24dp"
         android:text="Welcome to Crystal"
         android:textAlignment="center"
