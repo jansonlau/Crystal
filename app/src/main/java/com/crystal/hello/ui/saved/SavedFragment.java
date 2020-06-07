@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.crystal.hello.R;
 
@@ -21,7 +21,7 @@ public class SavedFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         savedViewModel =
-                ViewModelProviders.of(this).get(SavedViewModel.class);
+                new ViewModelProvider(this).get(SavedViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
         final TextView textView = root.findViewById(R.id.text_dashboard);
         savedViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
