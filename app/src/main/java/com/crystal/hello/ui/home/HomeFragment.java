@@ -44,13 +44,14 @@ public class HomeFragment extends Fragment {
     // https://guides.codepath.com/android/Creating-and-Using-Fragments
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
         homeViewModel =
                 new ViewModelProvider(this).get(HomeViewModel.class);
         root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        homeViewModel.getList().observe(getViewLifecycleOwner(), new Observer<List>() {
+        homeViewModel.getList().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
             @Override
-            public void onChanged(List list) {
+            public void onChanged(List<String> list) {
                 if (getActivity() != null) {
                     ListView listView = root.findViewById(R.id.list_home);
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),

@@ -6,6 +6,7 @@ import android.widget.ListView;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
@@ -27,18 +28,21 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
-    private MutableLiveData<List> mList;
+//    private MutableLiveData<List<String>> mList;
     private PlaidClient plaidClient;
     private String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
+    private static final String TRANSACTION_KEY = "TRANSACTION";
+    private SavedStateHandle savedStateHandle;
 
-    public HomeViewModel() {
-        mList = new MutableLiveData<>();
+    public HomeViewModel(SavedStateHandle stateHandle) {
+        savedStateHandle = stateHandle;
+//        mList = new MutableLiveData<>();
         buildPlaidClient();
         exchangeAccessToken();
     }
 
-    public LiveData<List> getList() {
-        return mList;
+    public LiveData<List<String>> getList() {
+        return savedStateHandle.getLiveData(TRANSACTION_KEY);
     }
 
     private void buildPlaidClient() {
@@ -92,7 +96,12 @@ public class HomeViewModel extends ViewModel {
                         Log.d("Transactions", transaction.getName());
                         transactionNames.add(transaction.getName());
                     }
-                    mList.postValue(transactionNames);
+//                    mList.postValue(transactionNames);
+
+                    // Cases where you want to save the state so information is not lost if the
+                    // process happens to be killed.
+                    // https://codelabs.developers.google.com/codelabs/android-lifecycles/#6
+                    savedStateHandle.set(TRANSACTION_KEY, transactionNames);
                 }
             }
 
