@@ -28,21 +28,20 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
-//    private MutableLiveData<List<String>> mList;
+    // SAVING STATES https://developer.android.com/topic/libraries/architecture/saving-states
+
+    private MutableLiveData<List<String>> mList;
     private PlaidClient plaidClient;
     private String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
-    private static final String TRANSACTION_KEY = "TRANSACTION";
-    private SavedStateHandle savedStateHandle;
 
-    public HomeViewModel(SavedStateHandle stateHandle) {
-        savedStateHandle = stateHandle;
-//        mList = new MutableLiveData<>();
+    public HomeViewModel() {
+        mList = new MutableLiveData<>();
         buildPlaidClient();
         exchangeAccessToken();
     }
 
     public LiveData<List<String>> getList() {
-        return savedStateHandle.getLiveData(TRANSACTION_KEY);
+        return mList;
     }
 
     private void buildPlaidClient() {
@@ -80,7 +79,6 @@ public class HomeViewModel extends ViewModel {
     private void getTransactions() {
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100);
         Date endDate = new Date();
-
         TransactionsGetRequest request =
                 new TransactionsGetRequest(accessToken, startDate, endDate).withCount(100);
 
@@ -96,12 +94,7 @@ public class HomeViewModel extends ViewModel {
                         Log.d("Transactions", transaction.getName());
                         transactionNames.add(transaction.getName());
                     }
-//                    mList.postValue(transactionNames);
-
-                    // Cases where you want to save the state so information is not lost if the
-                    // process happens to be killed.
-                    // https://codelabs.developers.google.com/codelabs/android-lifecycles/#6
-                    savedStateHandle.set(TRANSACTION_KEY, transactionNames);
+                    mList.postValue(transactionNames);
                 }
             }
 
