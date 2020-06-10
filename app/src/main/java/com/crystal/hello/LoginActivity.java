@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -21,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
 
         final TextInputLayout passwordTextInput = findViewById(R.id.password);
         final TextInputEditText passwordEditText = findViewById(R.id.text_password);
-        Button nextButton = findViewById(R.id.login);
+        Button nextButton = findViewById(R.id.button_login);
 
         // Set an error if the password is less than 8 characters.
         nextButton.setOnClickListener(new View.OnClickListener() {

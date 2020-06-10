@@ -32,7 +32,7 @@ public class HomeViewModel extends ViewModel {
 
     private MutableLiveData<List<String>> mList;
     private PlaidClient plaidClient;
-    private String accessToken; // We store the accessToken in memory - in production, store it in a secure persistent data store.
+    private String accessToken; // In production, store it in a secure persistent data store.
 
     public HomeViewModel() {
         mList = new MutableLiveData<>();
@@ -53,7 +53,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     private void exchangeAccessToken() {
-        // Asynchronously do the same thing. Useful for potentially long-lived calls.
+        // Asynchronously get token
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
@@ -89,6 +89,8 @@ public class HomeViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("Transaction count", String.valueOf(response.body().getTransactions().size()));
 
+                    // Refactor by creating Transaction class
+                    // Might have to use LinkedList for faster adds to front of list
                     List<String> transactionNames = new ArrayList<>();
                     for (TransactionsGetResponse.Transaction transaction : response.body().getTransactions()) {
                         Log.d("Transactions", transaction.getName());
