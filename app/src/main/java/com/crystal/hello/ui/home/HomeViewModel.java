@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
+import com.crystal.hello.HomeRecyclerAdapter;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
@@ -66,8 +67,8 @@ public class HomeViewModel extends ViewModel {
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             accessToken = response.body().getAccessToken();
-                            Log.i("Access token", response.body().getAccessToken());
-                            Log.i("Item ID", response.body().getItemId());
+                            Log.i(HomeViewModel.class.getSimpleName() + " accessToken", response.body().getAccessToken());
+                            Log.i(HomeViewModel.class.getSimpleName() + " itemId", response.body().getItemId());
                             getTransactions(transactionOffset);
                         }
                     }
@@ -100,7 +101,11 @@ public class HomeViewModel extends ViewModel {
                     transactions.addAll(transactionsList);
                     transactionOffset += count;
 
-                    Log.d("Total transactions", String.valueOf(totalTransactions));
+                    Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions", String.valueOf(totalTransactions));
+                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount", String.valueOf(transactionsList.size()));
+                    for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
+                        Log.d(HomeViewModel.class.getSimpleName() + " transaction", transaction.getDate() + " " + transaction.getName());
+                    }
 
                     if (transactionOffset < totalTransactions) {
                         getTransactions(transactionOffset); // Get all transactions within the date period set
