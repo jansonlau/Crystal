@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.HomeRecyclerAdapter;
 import com.crystal.hello.R;
+import com.plaid.client.response.TransactionsGetResponse;
 
 import java.util.List;
 
@@ -37,9 +38,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void observeTransactionList() {
-        homeViewModel.getList().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+        homeViewModel.getList().observe(getViewLifecycleOwner(), new Observer<List<TransactionsGetResponse.Transaction>>() {
             @Override
-            public void onChanged(List<String> list) {
+            public void onChanged(List<TransactionsGetResponse.Transaction> list) {
                 final HomeRecyclerAdapter recyclerAdapter = new HomeRecyclerAdapter(getActivity(), list);
                 RecyclerView recyclerView = root.findViewById(R.id.recycler_home);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

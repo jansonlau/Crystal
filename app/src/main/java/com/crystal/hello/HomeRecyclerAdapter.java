@@ -1,6 +1,7 @@
 package com.crystal.hello;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.plaid.client.response.TransactionsGetResponse;
+
 import java.util.List;
 
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
     private final Context context; // Used for click listener in each transaction
-    private final List<String> transactionList;
+    private final List<TransactionsGetResponse.Transaction> transactionList;
     private final LayoutInflater layoutInflater;
 
-    public HomeRecyclerAdapter(Context activityContext, List<String> list) {
+    public HomeRecyclerAdapter(Context activityContext, List<TransactionsGetResponse.Transaction> list) {
         context = activityContext;
         transactionList = list;
         layoutInflater = LayoutInflater.from(context);
@@ -31,8 +34,9 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String transactionName = transactionList.get(position);
+        String transactionName = transactionList.get(position).getDate();
         holder.transactionItemView.setText(transactionName);
+        Log.d("Transaction date", String.valueOf(transactionName));
     }
 
     @Override
