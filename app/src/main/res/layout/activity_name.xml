@@ -8,7 +8,7 @@
     tools:context=".NameActivity">
 
     <TextView
-        android:id="@+id/text_name"
+        android:id="@+id/textName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -22,32 +22,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/edit_first_name"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutFirstName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:ems="16"
-        android:hint="First Name"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintEnd_toEndOf="@+id/text_name"
-        app:layout_constraintStart_toStartOf="@+id/text_name"
-        app:layout_constraintTop_toBottomOf="@+id/text_name" />
+        app:layout_constraintEnd_toEndOf="@+id/textName"
+        app:layout_constraintStart_toStartOf="@+id/textName"
+        app:layout_constraintTop_toBottomOf="@+id/textName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-    <EditText
-        android:id="@+id/edit_last_name"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:hint="First name"
+            android:inputType="textPersonName|textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutLastName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:ems="16"
-        android:hint="Last Name"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintEnd_toEndOf="@+id/edit_first_name"
-        app:layout_constraintStart_toStartOf="@+id/edit_first_name"
-        app:layout_constraintTop_toBottomOf="@+id/edit_first_name" />
+        app:layout_constraintEnd_toEndOf="@+id/inputLayoutFirstName"
+        app:layout_constraintStart_toStartOf="@+id/inputLayoutFirstName"
+        app:layout_constraintTop_toBottomOf="@+id/inputLayoutFirstName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Last name"
+            android:inputType="textPersonName|textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/button_name_continue"
+        android:id="@+id/buttonNameContinue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
@@ -58,7 +71,7 @@
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/corner_radius"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/edit_first_name"
-        app:layout_constraintStart_toStartOf="@+id/edit_first_name" />
+        app:layout_constraintEnd_toEndOf="@+id/inputLayoutFirstName"
+        app:layout_constraintStart_toStartOf="@+id/inputLayoutFirstName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

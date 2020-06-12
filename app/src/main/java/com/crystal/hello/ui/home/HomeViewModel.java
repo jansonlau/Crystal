@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,10 +102,15 @@ public class HomeViewModel extends ViewModel {
                     transactions.addAll(transactionsList);
                     transactionOffset += count;
 
-                    Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions", String.valueOf(totalTransactions));
-                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount", String.valueOf(transactionsList.size()));
+                    Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions",
+                            String.valueOf(totalTransactions));
+                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount",
+                            String.valueOf(transactionsList.size()));
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
-                        Log.d(HomeViewModel.class.getSimpleName() + " transaction", transaction.getDate() + " " + transaction.getName());
+                        Log.d(HomeViewModel.class.getSimpleName() + " transaction",
+                                transaction.getDate() + " "
+                                        + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
+                                        + transaction.getName());
                     }
 
                     if (transactionOffset < totalTransactions) {

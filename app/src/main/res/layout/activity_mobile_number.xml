@@ -8,7 +8,7 @@
     tools:context=".MobileNumberActivity">
 
     <TextView
-        android:id="@+id/text_mobile_number"
+        android:id="@+id/textMobileNumber"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -22,20 +22,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/edit_text_mobile_number"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputLayoutMobileNumber"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:ems="16"
-        android:hint="Mobile Number"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="@+id/text_mobile_number"
-        app:layout_constraintStart_toStartOf="@+id/text_mobile_number"
-        app:layout_constraintTop_toBottomOf="@+id/text_mobile_number" />
+        app:layout_constraintEnd_toEndOf="@+id/textMobileNumber"
+        app:layout_constraintStart_toStartOf="@+id/textMobileNumber"
+        app:layout_constraintTop_toBottomOf="@+id/textMobileNumber"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextMobileNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mobile number"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/button_mobile_number_continue"
+        android:id="@+id/buttonMobileNumberContinue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
@@ -46,7 +52,7 @@
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/corner_radius"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/edit_text_mobile_number"
-        app:layout_constraintStart_toStartOf="@+id/edit_text_mobile_number" />
+        app:layout_constraintEnd_toEndOf="@+id/inputLayoutMobileNumber"
+        app:layout_constraintStart_toStartOf="@+id/inputLayoutMobileNumber" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

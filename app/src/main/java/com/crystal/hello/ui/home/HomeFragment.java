@@ -42,7 +42,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(List<TransactionsGetResponse.Transaction> list) {
                 final HomeRecyclerAdapter recyclerAdapter = new HomeRecyclerAdapter(getActivity(), list);
-                RecyclerView recyclerView = root.findViewById(R.id.recycler_home);
+                RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 recyclerView.setAdapter(recyclerAdapter);
             }

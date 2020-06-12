@@ -13,7 +13,7 @@ public class PasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password);
 
-        Button button = findViewById(R.id.button_password_continue);
+        Button button = findViewById(R.id.buttonPasswordContinue);
         button.setOnClickListener(view -> {
             Intent intent = new Intent(PasswordActivity.this, MobileNumberActivity.class);
             startActivity(intent);

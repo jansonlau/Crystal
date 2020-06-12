@@ -59,10 +59,10 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            transactionNameText = itemView.findViewById(R.id.text_transaction_name);
-            transactionDateText = itemView.findViewById(R.id.text_transaction_date);
-            transactionAmountText = itemView.findViewById(R.id.text_transaction_amount);
-            transactionLocationText = itemView.findViewById(R.id.text_transaction_location);
+            transactionNameText = itemView.findViewById(R.id.textTransactionName);
+            transactionDateText = itemView.findViewById(R.id.textTransactionDate);
+            transactionAmountText = itemView.findViewById(R.id.textTransactionAmount);
+            transactionLocationText = itemView.findViewById(R.id.textTransactionLocation);
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
 //                @Override

@@ -13,7 +13,7 @@ public class NameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_name);
 
-        Button button = findViewById(R.id.button_name_continue);
+        Button button = findViewById(R.id.buttonNameContinue);
         button.setOnClickListener(view -> {
             Intent intent = new Intent(NameActivity.this, EmailActivity.class);
             startActivity(intent);

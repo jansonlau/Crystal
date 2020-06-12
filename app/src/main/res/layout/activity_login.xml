@@ -8,8 +8,7 @@
     tools:context=".LoginActivity">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/username"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:id="@+id/inputLayoutUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -18,10 +17,11 @@
         android:hint="Phone number or email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/text_username"
+            android:id="@+id/editTextUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textVisiblePassword"
@@ -29,7 +29,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/password"
+        android:id="@+id/inputLayoutPassword"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -41,10 +41,10 @@
         android:selectAllOnFocus="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username">
+        app:layout_constraintTop_toBottomOf="@+id/inputLayoutUsername">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/text_password"
+            android:id="@+id/textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
@@ -52,7 +52,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/button_login"
+        android:id="@+id/buttonLogin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -63,12 +63,12 @@
         android:textAllCaps="false"
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/corner_radius"
-        app:layout_constraintBottom_toTopOf="@+id/text_forgot_password"
-        app:layout_constraintEnd_toEndOf="@+id/password"
-        app:layout_constraintStart_toStartOf="@+id/password" />
+        app:layout_constraintBottom_toTopOf="@+id/textForgotPassword"
+        app:layout_constraintEnd_toEndOf="@+id/inputLayoutPassword"
+        app:layout_constraintStart_toStartOf="@+id/inputLayoutPassword" />
 
     <TextView
-        android:id="@+id/text_forgot_password"
+        android:id="@+id/textForgotPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
@@ -76,6 +76,6 @@
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/button_login"
-        app:layout_constraintStart_toStartOf="@+id/button_login" />
+        app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
+        app:layout_constraintStart_toStartOf="@+id/buttonLogin" />
 </androidx.constraintlayout.widget.ConstraintLayout>

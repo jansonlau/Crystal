@@ -13,7 +13,7 @@ public class MobileNumberActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mobile_number);
 
-        Button button = findViewById(R.id.button_mobile_number_continue);
+        Button button = findViewById(R.id.buttonMobileNumberContinue);
         button.setOnClickListener(view -> {
             Intent intent = new Intent(MobileNumberActivity.this, InitialConnectActivity.class);
             startActivity(intent);

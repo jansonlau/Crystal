@@ -18,9 +18,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final TextInputLayout passwordTextInput = findViewById(R.id.password);
-        final TextInputEditText passwordEditText = findViewById(R.id.text_password);
-        Button nextButton = findViewById(R.id.button_login);
+        final TextInputLayout passwordTextInput = findViewById(R.id.inputLayoutPassword);
+        final TextInputEditText passwordEditText = findViewById(R.id.textPassword);
+        Button nextButton = findViewById(R.id.buttonLogin);
 
         // Set an error if the password is less than 8 characters.
         nextButton.setOnClickListener(new View.OnClickListener() {

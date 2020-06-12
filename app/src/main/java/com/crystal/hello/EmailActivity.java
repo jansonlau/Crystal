@@ -14,7 +14,7 @@ public class EmailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email);
 
-        TextView signUp = findViewById(R.id.button_email_continue);
+        TextView signUp = findViewById(R.id.buttonEmailContinue);
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
