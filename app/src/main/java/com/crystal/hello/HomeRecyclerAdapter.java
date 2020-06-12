@@ -36,9 +36,21 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TransactionsGetResponse.Transaction transaction = transactionList.get(position);
         String transactionName = transaction.getName();
-        String transactionLocation = transaction.getLocation().getCity() + ", " + transaction.getLocation().getRegion();
         String transactionDate = transaction.getDate();
-        String transactionAmount = "$" + String.format(Locale.US,"%.2f", transaction.getAmount());
+        String transactionLocation;
+        String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
+
+        if (transaction.getAmount() >= 0.0) {
+            transactionAmount = "$" + transactionAmount;
+            transactionLocation = transaction.getLocation().getCity() + ", " + transaction.getLocation().getRegion();
+        } else { // Negative transactions
+            transactionAmount = new StringBuilder(transactionAmount).insert(1, "$").toString();
+            if (transactionName.toLowerCase().contains("pymnt") || transactionName.toLowerCase().contains("payment")) {
+                transactionLocation = "Payment";
+            } else {
+                transactionLocation = "Refund";
+            }
+        }
 
         holder.transactionNameText.setText(transactionName);
         holder.transactionLocationText.setText(transactionLocation);

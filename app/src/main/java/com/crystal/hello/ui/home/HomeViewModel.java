@@ -39,7 +39,7 @@ public class HomeViewModel extends ViewModel {
         mList = new MutableLiveData<>();
         transactions = new LinkedList<>();
         transactionOffset = 0;
-        count = 100;
+        count = 500;
 
         buildPlaidClient();
         exchangeAccessToken();
@@ -102,10 +102,8 @@ public class HomeViewModel extends ViewModel {
                     transactions.addAll(transactionsList);
                     transactionOffset += count;
 
-                    Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions",
-                            String.valueOf(totalTransactions));
-                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount",
-                            String.valueOf(transactionsList.size()));
+                    Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions", String.valueOf(totalTransactions));
+                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount", String.valueOf(transactionsList.size()));
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                         Log.d(HomeViewModel.class.getSimpleName() + " transaction",
                                 transaction.getDate() + " "
