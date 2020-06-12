@@ -11,6 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.plaid.client.response.TransactionsGetResponse;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,10 +40,21 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TransactionsGetResponse.Transaction transaction = transactionList.get(position);
         String transactionName = transaction.getName();
+
         String transactionDate = transaction.getDate();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        try {
+            Date date = dateFormat.parse(transactionDate);
+            dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
+            if (date != null) {
+                transactionDate = dateFormat.format(date);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         String transactionLocation;
         String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
-
         if (transaction.getAmount() >= 0.0) {
             transactionAmount = "$" + transactionAmount;
             transactionLocation = transaction.getLocation().getCity() + ", " + transaction.getLocation().getRegion();
