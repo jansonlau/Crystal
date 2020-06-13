@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.crystal.hello.ui.home.HomeFragment;
 import com.plaid.client.response.TransactionsGetResponse;
 
 import java.text.ParseException;
@@ -91,12 +92,13 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             transactionAmountText = itemView.findViewById(R.id.textTransactionAmount);
             transactionLocationText = itemView.findViewById(R.id.textTransactionLocation);
 
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    transactionItemView.setText("Clicked! "+ transactionItemView.getText());
-//                }
-//            });
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    transactionNameText.setText("Clicked! "+ transactionNameText.getText());
+                    HomeFragment.sparkAdapter.randomize();
+                }
+            });
         }
     }
 }

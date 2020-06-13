@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
-import com.crystal.hello.HomeRecyclerAdapter;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
