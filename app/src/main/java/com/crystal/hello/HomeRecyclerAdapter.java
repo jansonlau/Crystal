@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.ui.home.HomeFragment;
@@ -14,18 +15,15 @@ import com.plaid.client.response.TransactionsGetResponse;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
-    private final Context context; // Used for click listener in each transaction
     private final List<TransactionsGetResponse.Transaction> transactionList;
     private final LayoutInflater layoutInflater;
 
-    public HomeRecyclerAdapter(Context activityContext, List<TransactionsGetResponse.Transaction> list) {
-        context = activityContext;
+    public HomeRecyclerAdapter(Context context, List<TransactionsGetResponse.Transaction> list) {
         transactionList = list;
         layoutInflater = LayoutInflater.from(context);
     }
@@ -68,10 +66,13 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             }
         }
 
-        holder.transactionNameText.setText(transactionName);
-        holder.transactionLocationText.setText(transactionLocation);
-        holder.transactionDateText.setText(transactionDate);
-        holder.transactionAmountText.setText(transactionAmount);
+        holder.transactionNameTextView.setText(transactionName);
+        holder.transactionLocationTextView.setText(transactionLocation);
+        holder.transactionDateTextView.setText(transactionDate);
+        holder.transactionAmountTextView.setText(transactionAmount);
+        if (position == getItemCount() - 1) {
+            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
+        }
     }
 
     @Override
@@ -80,23 +81,27 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView transactionNameText;
-        final TextView transactionDateText;
-        final TextView transactionAmountText;
-        final TextView transactionLocationText;
+        final ConstraintLayout transactionConstraintLayout;
+        final TextView transactionNameTextView;
+        final TextView transactionLocationTextView;
+        final TextView transactionDateTextView;
+        final TextView transactionAmountTextView;
+        final View transactionDividerView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            transactionNameText = itemView.findViewById(R.id.textTransactionName);
-            transactionDateText = itemView.findViewById(R.id.textTransactionDate);
-            transactionAmountText = itemView.findViewById(R.id.textTransactionAmount);
-            transactionLocationText = itemView.findViewById(R.id.textTransactionLocation);
+            transactionConstraintLayout = itemView.findViewById(R.id.constraintLayoutTransactionItem);
+            transactionNameTextView = itemView.findViewById(R.id.textViewTransactionName);
+            transactionLocationTextView = itemView.findViewById(R.id.textViewTransactionLocation);
+            transactionDateTextView = itemView.findViewById(R.id.textViewTransactionDate);
+            transactionAmountTextView = itemView.findViewById(R.id.textViewTransactionAmount);
+            transactionDividerView = itemView.findViewById(R.id.viewTransactionDivider);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 //                    transactionNameText.setText("Clicked! "+ transactionNameText.getText());
-                    HomeFragment.sparkAdapter.randomize();
+                    HomeFragment.sparkAdapter.initializeTransactionAmount();
                 }
             });
         }

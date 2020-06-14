@@ -2,6 +2,7 @@ package com.crystal.hello.ui.home;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -12,6 +13,7 @@ import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.TransactionsGetResponse;
+import com.robinhood.spark.SparkAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +21,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,11 +31,11 @@ public class HomeViewModel extends ViewModel {
     // SAVING STATES https://developer.android.com/topic/libraries/architecture/saving-states
 
     private MutableLiveData<List<TransactionsGetResponse.Transaction>> mList;
-    private List<TransactionsGetResponse.Transaction> transactions;
+    private static List<TransactionsGetResponse.Transaction> transactions;
     private PlaidClient plaidClient;
     private String accessToken; // In production, store it in a secure persistent data store.
-    private Integer transactionOffset;
-    private final Integer count;
+    private int transactionOffset;
+    private final int count;
 
     public HomeViewModel() {
         mList = new MutableLiveData<>();
@@ -81,9 +84,9 @@ public class HomeViewModel extends ViewModel {
     }
 
     private void getTransactions(Integer offset) {
-        Date startDate = new Date(1511049600L); // 1970
+//        Date startDate = new Date(1511049600L); // 1970
 //        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
-//        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
+        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
         Date endDate = new Date(); // Current date
         TransactionsGetRequest request =
                 new TransactionsGetRequest(accessToken, startDate, endDate)
@@ -97,12 +100,10 @@ public class HomeViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     TransactionsGetResponse responseBody = response.body();
                     Integer totalTransactions = responseBody.getTotalTransactions();
-                    List<TransactionsGetResponse.Transaction> transactionsList = responseBody.getTransactions();
-                    transactions.addAll(transactionsList);
+                    transactions.addAll(responseBody.getTransactions());
                     transactionOffset += count;
 
                     Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions", String.valueOf(totalTransactions));
-                    Log.d(HomeViewModel.class.getSimpleName() + " transactionCount", String.valueOf(transactionsList.size()));
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                         Log.d(HomeViewModel.class.getSimpleName() + " transaction",
                                 transaction.getDate() + " "
@@ -123,6 +124,48 @@ public class HomeViewModel extends ViewModel {
 
             }
         });
+    }
+
+    public static class TransactionSparkAdapter extends SparkAdapter {
+        private final double[] yData;
+//        private final Random random;
+
+        public TransactionSparkAdapter() {
+//            random = new Random();
+            yData = new double[transactions.size()]; // this will be axis of balance later. not transaction amount.
+//            randomize();
+            initializeTransactionAmount();
+        }
+
+        public void initializeTransactionAmount() {
+            for (int i = 0, count = yData.length; i < count; i++) {
+                yData[i] = transactions.get(i).getAmount();
+            }
+            notifyDataSetChanged();
+        }
+
+//        public void randomize() {
+//            for (int i = 0, count = yData.length; i < count; i++) {
+//                yData[i] = random.nextFloat();
+//            }
+//            notifyDataSetChanged();
+//        }
+
+        @Override
+        public int getCount() {
+            return yData.length;
+        }
+
+        @NonNull
+        @Override
+        public Object getItem(int index) {
+            return yData[index];
+        }
+
+        @Override
+        public float getY(int index) {
+            return (float) yData[index];
+        }
     }
 
 //    private void getAccounts() {

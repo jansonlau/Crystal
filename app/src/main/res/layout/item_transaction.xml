@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayoutTransactionItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:visibility="visible">
 
     <TextView
-        android:id="@+id/textTransactionName"
+        android:id="@+id/textViewTransactionName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -18,35 +18,37 @@
         android:text="This is a very long text that repeats itself over and over"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/textTransactionAmount"
+        app:layout_constraintEnd_toStartOf="@+id/textViewTransactionAmount"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textTransactionLocation"
+        android:id="@+id/textViewTransactionLocation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="San Francisco, CA"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/tertiary_text_light"
-        app:layout_constraintEnd_toEndOf="@+id/textTransactionAmount"
-        app:layout_constraintStart_toStartOf="@+id/textTransactionName"
-        app:layout_constraintTop_toBottomOf="@+id/textTransactionName" />
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionAmount"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionName" />
 
     <TextView
-        android:id="@+id/textTransactionDate"
+        android:id="@+id/textViewTransactionDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="TextView"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/tertiary_text_light"
-        app:layout_constraintEnd_toEndOf="@+id/textTransactionName"
-        app:layout_constraintStart_toStartOf="@+id/textTransactionName"
-        app:layout_constraintTop_toBottomOf="@+id/textTransactionLocation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionName"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionLocation"
         tools:text="4/9/20" />
 
     <TextView
-        android:id="@+id/textTransactionAmount"
+        android:id="@+id/textViewTransactionAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -54,30 +56,28 @@
         android:text="$500000.14"
         android:textAlignment="viewEnd"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        app:layout_constraintBottom_toBottomOf="@+id/textTransactionName"
-        app:layout_constraintEnd_toStartOf="@+id/imageArrowForward"
-        app:layout_constraintTop_toTopOf="@+id/textTransactionName" />
+        app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionName"
+        app:layout_constraintEnd_toStartOf="@+id/imageViewTransactionArrow"
+        app:layout_constraintTop_toTopOf="@+id/textViewTransactionName" />
 
     <ImageView
-        android:id="@+id/imageArrowForward"
-        android:layout_width="16sp"
-        android:layout_height="16sp"
+        android:id="@+id/imageViewTransactionArrow"
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textTransactionAmount"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionAmount"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textTransactionAmount"
+        app:layout_constraintTop_toTopOf="@+id/textViewTransactionAmount"
         app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
 
     <View
-        android:id="@+id/divider"
+        android:id="@+id/viewTransactionDivider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textTransactionDate" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
