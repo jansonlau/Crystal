@@ -70,7 +70,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         holder.transactionLocationTextView.setText(transactionLocation);
         holder.transactionDateTextView.setText(transactionDate);
         holder.transactionAmountTextView.setText(transactionAmount);
-        if (position == getItemCount() - 1) {
+        if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
             holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
         }
     }
