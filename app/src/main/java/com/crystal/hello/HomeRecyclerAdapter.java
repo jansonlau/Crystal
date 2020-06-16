@@ -40,6 +40,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         TransactionsGetResponse.Transaction transaction = transactionList.get(position);
         String transactionName = transaction.getName();
 
+        // Set date
         String transactionDate = transaction.getDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         try {
@@ -52,11 +53,21 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             e.printStackTrace();
         }
 
-        String transactionLocation;
+        // Set location and amount
+        TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
+        String transactionLocation = location.getCity() + ", " + location.getRegion();
         String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
+
         if (transaction.getAmount() >= 0.0) {
             transactionAmount = "$" + transactionAmount;
-            transactionLocation = transaction.getLocation().getCity() + ", " + transaction.getLocation().getRegion();
+
+            if (transaction.getPending()) {
+                transactionLocation = "Pending";
+            } else if (transaction.getPaymentChannel().equals("online")) {
+                transactionLocation = "Online";
+            } else if ((location.getCity() == null || location.getRegion() == null)) {
+                transactionLocation = "In store";
+            }
         } else { // Negative transactions
             transactionAmount = new StringBuilder(transactionAmount).insert(1, "$").toString();
             if (transactionName.toLowerCase().contains("pymnt") || transactionName.toLowerCase().contains("payment")) {
@@ -101,7 +112,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                 @Override
                 public void onClick(View v) {
 //                    transactionNameText.setText("Clicked! "+ transactionNameText.getText());
-                    HomeFragment.sparkAdapter.initializeTransactionAmount();
+//                    HomeFragment.sparkAdapter.initializeTransactionAmount();
                 }
             });
         }

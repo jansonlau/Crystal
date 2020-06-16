@@ -9,14 +9,26 @@ import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
 import com.plaid.client.PlaidClient;
+import com.plaid.client.model.paymentinitiation.Amount;
+import com.plaid.client.request.AccountsBalanceGetRequest;
+import com.plaid.client.request.AccountsGetRequest;
+import com.plaid.client.request.AssetReportCreateRequest;
+import com.plaid.client.request.AssetReportGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
+import com.plaid.client.response.Account;
+import com.plaid.client.response.AccountsBalanceGetResponse;
+import com.plaid.client.response.AccountsGetResponse;
+import com.plaid.client.response.AssetReportCreateResponse;
+import com.plaid.client.response.AssetReportGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,17 +41,24 @@ import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
     // SAVING STATES https://developer.android.com/topic/libraries/architecture/saving-states
+    private String accessToken; // In production, store it in a secure persistent data store.
+    private String assetReportToken; // In production, store it in a secure persistent data store.
+    private String clientIdKey = "5e9e830fd1ed690012c3be3c";
+    private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
+    private String sandboxSecretKey = "74cf176067e0712cc2eabdf800829e";
+    private String publicKey = "bbf9cf93da45517aa5283841dfc534";
 
     private MutableLiveData<List<TransactionsGetResponse.Transaction>> mList;
-    private static List<TransactionsGetResponse.Transaction> transactions;
+    private MutableLiveData<Double> currentBalanceAmount;
+    private static List<TransactionsGetResponse.Transaction> transactionList;
     private PlaidClient plaidClient;
-    private String accessToken; // In production, store it in a secure persistent data store.
     private int transactionOffset;
     private final int count;
 
     public HomeViewModel() {
         mList = new MutableLiveData<>();
-        transactions = new LinkedList<>();
+        currentBalanceAmount = new MutableLiveData<>();
+        transactionList = new LinkedList<>();
         transactionOffset = 0;
         count = 500;
 
@@ -47,15 +66,19 @@ public class HomeViewModel extends ViewModel {
         exchangeAccessToken();
     }
 
-    public LiveData<List<TransactionsGetResponse.Transaction>> getList() {
+    public LiveData<List<TransactionsGetResponse.Transaction>> getTransactionList() {
         return mList;
+    }
+
+    public LiveData<Double> getCurrentBalanceAmount() {
+        return currentBalanceAmount;
     }
 
     private void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret("5e9e830fd1ed690012c3be3c", "74cf176067e0712cc2eabdf800829e")
-                .publicKey("bbf9cf93da45517aa5283841dfc534") // optional. only needed to call endpoints that require a public key
-                .sandboxBaseUrl() // or equivalent, depending on which environment you're calling into
+                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
+                .publicKey(publicKey) // optional. only needed to call endpoints that require a public key
+                .sandboxBaseUrl()
                 .build();
     }
 
@@ -69,25 +92,27 @@ public class HomeViewModel extends ViewModel {
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            accessToken = response.body().getAccessToken();
+                            accessToken = response.body().getAccessToken(); // Log item_id for retrieving item
                             Log.i(HomeViewModel.class.getSimpleName() + " accessToken", response.body().getAccessToken());
                             Log.i(HomeViewModel.class.getSimpleName() + " itemId", response.body().getItemId());
-                            getTransactions(transactionOffset);
+                            getPlaidTransactions(transactionOffset);
+                            getPlaidBalances();
                         }
                     }
 
                     @Override
                     public void onFailure(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                           @NotNull Throwable t) {
+                        Log.w(HomeViewModel.class.getSimpleName() + "accessToken_failure", call.toString());
                     }
                 });
     }
 
-    private void getTransactions(Integer offset) {
+    private void getPlaidTransactions(Integer offset) {
 //        Date startDate = new Date(1511049600L); // 1970
 //        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
-        Date endDate = new Date(); // Current date
+        Date endDate = new Date();
         TransactionsGetRequest request =
                 new TransactionsGetRequest(accessToken, startDate, endDate)
                         .withCount(count)
@@ -100,7 +125,7 @@ public class HomeViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     TransactionsGetResponse responseBody = response.body();
                     Integer totalTransactions = responseBody.getTotalTransactions();
-                    transactions.addAll(responseBody.getTransactions());
+                    transactionList.addAll(responseBody.getTransactions());
                     transactionOffset += count;
 
                     Log.d(HomeViewModel.class.getSimpleName() + " totalTransactions", String.valueOf(totalTransactions));
@@ -112,60 +137,40 @@ public class HomeViewModel extends ViewModel {
                     }
 
                     if (transactionOffset < totalTransactions) {
-                        getTransactions(transactionOffset); // Get all transactions within the date period set
+                        getPlaidTransactions(transactionOffset); // Get all transactions within the date period set
                     } else {
-                        mList.postValue(transactions); // Post all transactions
+                        mList.postValue(transactionList); // Post all transactions
                     }
                 }
             }
 
             @Override
             public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
-
+                Log.w(HomeViewModel.class.getSimpleName() + "transaction_failure", call.toString());
             }
         });
     }
 
-    public static class TransactionSparkAdapter extends SparkAdapter {
-        private final double[] yData;
-//        private final Random random;
-
-        public TransactionSparkAdapter() {
-//            random = new Random();
-            yData = new double[transactions.size()]; // this will be axis of balance later. not transaction amount.
-//            randomize();
-            initializeTransactionAmount();
-        }
-
-        public void initializeTransactionAmount() {
-            for (int i = 0, count = yData.length; i < count; i++) {
-                yData[i] = transactions.get(i).getAmount();
+    private void getPlaidBalances() {
+        AccountsBalanceGetRequest request = new AccountsBalanceGetRequest(accessToken);
+        plaidClient.service().accountsBalanceGet(request).enqueue(new Callback<AccountsBalanceGetResponse>() {
+            @Override
+            public void onResponse(@NotNull Call<AccountsBalanceGetResponse> call,
+                                   @NotNull Response<AccountsBalanceGetResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    double currentBalance = 0.0;
+                    for (Account account : response.body().getAccounts()) {
+                        currentBalance += account.getBalances().getCurrent();
+                    }
+                    currentBalanceAmount.postValue(currentBalance);
+                }
             }
-            notifyDataSetChanged();
-        }
 
-//        public void randomize() {
-//            for (int i = 0, count = yData.length; i < count; i++) {
-//                yData[i] = random.nextFloat();
-//            }
-//            notifyDataSetChanged();
-//        }
-
-        @Override
-        public int getCount() {
-            return yData.length;
-        }
-
-        @NonNull
-        @Override
-        public Object getItem(int index) {
-            return yData[index];
-        }
-
-        @Override
-        public float getY(int index) {
-            return (float) yData[index];
-        }
+            @Override
+            public void onFailure(@NotNull Call<AccountsBalanceGetResponse> call, @NotNull Throwable t) {
+                Log.w(HomeViewModel.class.getSimpleName() + "balance_failure", call.toString());
+            }
+        });
     }
 
 //    private void getAccounts() {
@@ -200,5 +205,43 @@ public class HomeViewModel extends ViewModel {
 //
 //                    }
 //                });
+//    }
+
+//    private void getPlaidAssetReportToken() { // https://plaid.com/docs/#assets
+//        plaidClient.service()
+//                .assetReportCreate(new AssetReportCreateRequest(Collections.singletonList(accessToken), 730))
+//                .enqueue(new Callback<AssetReportCreateResponse>() {
+//            @Override
+//            public void onResponse(@NotNull Call<AssetReportCreateResponse> call, @NotNull Response<AssetReportCreateResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    String assetReportId = response.body().getAssetReportId(); // Used for identifying webhooks
+//                    assetReportToken = response.body().getAssetReportToken();
+//                    getPlaidAssetReport();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NotNull Call<AssetReportCreateResponse> call, @NotNull Throwable t) {
+//
+//            }
+//        });
+//    }
+//
+//    private void getPlaidAssetReport() {
+//        plaidClient.service().assetReportGet(new AssetReportGetRequest(assetReportToken)
+//                .withIncludeInsights(true))
+//                .enqueue(new Callback<AssetReportGetResponse>() {
+//            @Override
+//            public void onResponse(@NotNull Call<AssetReportGetResponse> call, @NotNull Response<AssetReportGetResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    AssetReportGetResponse.AssetReport assetReport = response.body().getReport().getItems().get(0).getAccounts().get(0).get
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NotNull Call<AssetReportGetResponse> call, @NotNull Throwable t) {
+//
+//            }
+//        });
 //    }
 }

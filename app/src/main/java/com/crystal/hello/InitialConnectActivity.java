@@ -17,6 +17,7 @@ import com.plaid.client.response.AccountsGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
+import com.plaid.linkbase.models.configuration.PlaidEnvironment;
 import com.plaid.linkbase.models.configuration.PlaidProduct;
 import com.plaid.linkbase.models.connection.LinkConnection;
 import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
@@ -24,6 +25,7 @@ import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import kotlin.Unit;
@@ -63,10 +65,10 @@ public class InitialConnectActivity extends AppCompatActivity {
     private void openLink() {
         ArrayList<PlaidProduct> products = new ArrayList<>();
         products.add(PlaidProduct.TRANSACTIONS);
-        Plaid.openLink(
-                this,
-                new LinkConfiguration.Builder("Crystal", products).build(), // Defaults to plaid options value if set or SANDBOX
-                LINK_REQUEST_CODE);
+        products.add(PlaidProduct.ASSETS);
+        Plaid.openLink(this, new LinkConfiguration.Builder("Crystal", products)
+                        .environment(PlaidEnvironment.SANDBOX)
+                        .build(), LINK_REQUEST_CODE);
     }
 
     @Override
@@ -81,7 +83,6 @@ public class InitialConnectActivity extends AppCompatActivity {
             // Handle onSuccess
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
-
                 Log.i(InitialConnectActivity.class.getSimpleName(), getString(
                         R.string.content_success,
                         linkConnection.getPublicToken(),
@@ -89,7 +90,6 @@ public class InitialConnectActivity extends AppCompatActivity {
                         metadata.getAccounts().get(0).getAccountName(),
                         metadata.getInstitutionId(),
                         metadata.getInstitutionName()));
-
                 String publicToken = linkConnection.getPublicToken();
 
                 /*
@@ -102,6 +102,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 String institutionName = metadata.getInstitutionName();
                  */
 
+                // Maybe put progress bar here until transactions and balances finish loading
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, publicToken);
                 startActivity(intent);
