@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="In order to understand your spend, you'll need to link your bank account to your Crystal account."
+        android:text="In order to understand your spend, you'll need to link your credit card account to your Crystal account."
         app:layout_constraintEnd_toEndOf="@+id/text_finish_sign_up"
         app:layout_constraintStart_toStartOf="@+id/text_finish_sign_up"
         app:layout_constraintTop_toBottomOf="@+id/text_finish_sign_up" />

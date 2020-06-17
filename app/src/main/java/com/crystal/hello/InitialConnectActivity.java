@@ -1,37 +1,28 @@
 package com.crystal.hello;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.plaid.client.PlaidClient;
-import com.plaid.client.request.ItemPublicTokenExchangeRequest;
-import com.plaid.client.request.TransactionsGetRequest;
-import com.plaid.client.request.AccountsGetRequest;
-import com.plaid.client.response.ItemPublicTokenExchangeResponse;
-import com.plaid.client.response.AccountsGetResponse;
-import com.plaid.client.response.TransactionsGetResponse;
+import com.google.android.material.snackbar.Snackbar;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidEnvironment;
 import com.plaid.linkbase.models.configuration.PlaidProduct;
+import com.plaid.linkbase.models.connection.LinkAccount;
 import com.plaid.linkbase.models.connection.LinkConnection;
 import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.List;
 
 import kotlin.Unit;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class InitialConnectActivity extends AppCompatActivity {
     private static final int LINK_REQUEST_CODE = 1;
@@ -65,9 +56,8 @@ public class InitialConnectActivity extends AppCompatActivity {
     private void openLink() {
         ArrayList<PlaidProduct> products = new ArrayList<>();
         products.add(PlaidProduct.TRANSACTIONS);
-        products.add(PlaidProduct.ASSETS);
         Plaid.openLink(this, new LinkConfiguration.Builder("Crystal", products)
-                        .environment(PlaidEnvironment.SANDBOX)
+                        .environment(PlaidEnvironment.DEVELOPMENT)
                         .build(), LINK_REQUEST_CODE);
     }
 
@@ -101,6 +91,20 @@ public class InitialConnectActivity extends AppCompatActivity {
                 String institutionId = metadata.getInstitutionId();
                 String institutionName = metadata.getInstitutionName();
                  */
+
+                List<LinkAccount> linkAccountList = metadata.getAccounts();
+                boolean hasCreditCardAccount = false;
+                for (LinkAccount linkAccount : linkAccountList) {
+                    if (linkAccount.getAccountSubType().equals("credit card")) {
+                        hasCreditCardAccount = true;
+                    }
+                }
+                // Show an error page and retry login
+                if (!hasCreditCardAccount) {
+                    TextView textView = findViewById(R.id.text_link_bank_caption);
+                    textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+                    return Unit.INSTANCE;
+                }
 
                 // Maybe put progress bar here until transactions and balances finish loading
                 Intent intent = new Intent(this, HomeActivity.class);

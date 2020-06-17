@@ -1,22 +1,18 @@
 package com.crystal.hello.ui.home;
 
-import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,12 +21,8 @@ import com.crystal.hello.R;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
-import com.robinhood.spark.animation.LineSparkAnimator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -48,11 +40,8 @@ public class HomeFragment extends Fragment {
     // https://developer.android.com/guide/components/fragments
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         root = inflater.inflate(R.layout.fragment_home, container, false);
-
         observeTransactionList();
         observeCurrentBalance();
         return root;
@@ -95,24 +84,106 @@ public class HomeFragment extends Fragment {
 
     private void initializeSparkGraph() {
         sparkView = root.findViewById(R.id.sparkView);
+        sparkView.setSparkAnimator(null);
         sparkAdapter = new TransactionSparkAdapter();
+        sparkView.setAdapter(sparkAdapter);
 
+        // Create baseline
         Paint baseLinePaint = sparkView.getBaseLinePaint();
         float baseLineDashSpacing = 15;
-        float baseLineDashLength = 5;
+        float baseLineDashLength = 3;
         DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
         baseLinePaint.setPathEffect(dashPathEffect);
 
+        initializeSparkTimePeriodListeners();
+//        sparkAdapter.initializeTransactionAmount();
+    }
+
+    public void initializeSparkTimePeriodListeners() {
+        // Set default time frame to 1 month
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         float monthSoFarRatio = (float) day / month; // convert to current day of month / # of days in month
         int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
-
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
-        sparkView.setSparkAnimator(new LineSparkAnimator());
-        sparkView.setAdapter(sparkAdapter);
-//        sparkAdapter.initializeTransactionAmount();
+
+        TextView oneMonthTextView = root.findViewById(R.id.textViewOneMonth);
+        TextView threeMonthTextView = root.findViewById(R.id.textViewThreeMonths);
+        TextView oneYearTextView = root.findViewById(R.id.textViewOneYear);
+
+        oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+        oneMonthTextView.setSelected(true);
+        oneMonthTextView.setBackgroundResource(R.drawable.round_corner);
+
+        oneMonthTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isSelected()) {
+                    return;
+                }
+                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
+                sparkAdapter.randomize();
+
+                oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+                v.setSelected(true);
+                v.setBackgroundResource(R.drawable.round_corner);
+
+                threeMonthTextView.setSelected(false);
+                threeMonthTextView.setTextColor(Color.parseColor("#000000"));
+                threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+                oneYearTextView.setSelected(false);
+                oneYearTextView.setTextColor(Color.parseColor("#000000"));
+                oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
+            }
+        });
+
+        threeMonthTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isSelected()) {
+                    return;
+                }
+                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
+                sparkAdapter.randomize();
+
+                oneMonthTextView.setSelected(false);
+                oneMonthTextView.setTextColor(Color.parseColor("#000000"));
+                oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+                threeMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+                v.setSelected(true);
+                v.setBackgroundResource(R.drawable.round_corner);
+
+                oneYearTextView.setSelected(false);
+                oneYearTextView.setTextColor(Color.parseColor("#000000"));
+                oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
+            }
+        });
+
+        oneYearTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isSelected()) {
+                    return;
+                }
+                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
+                sparkAdapter.randomize();
+
+                oneMonthTextView.setSelected(false);
+                oneMonthTextView.setTextColor(Color.parseColor("#000000"));
+                oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+                threeMonthTextView.setSelected(false);
+                threeMonthTextView.setTextColor(Color.parseColor("#000000"));
+                threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+                oneYearTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+                v.setSelected(true);
+                v.setBackgroundResource(R.drawable.round_corner);
+            }
+        });
     }
 
     public static class TransactionSparkAdapter extends SparkAdapter {
