@@ -1,16 +1,15 @@
 package com.crystal.hello;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidEnvironment;
@@ -32,7 +31,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
 
-        View button = findViewById(R.id.button_link_bank_continue);
+        View button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> {
             setOptionalEventListener();
             openLink();
@@ -101,8 +100,15 @@ public class InitialConnectActivity extends AppCompatActivity {
                 }
                 // Show an error page and retry login
                 if (!hasCreditCardAccount) {
-                    TextView textView = findViewById(R.id.text_link_bank_caption);
-                    textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+                    // Create custom layout later https://developer.android.com/guide/topics/ui/dialogs#CustomLayout
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                            .setTitle("Missing Credit Card")
+                            .setMessage("Crystal requires a bank account with a credit card");
+                    builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    }).create().show();
                     return Unit.INSTANCE;
                 }
 

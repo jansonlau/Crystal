@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/text_finish_sign_up" />
 
     <Button
-        android:id="@+id/button_link_bank_continue"
+        android:id="@+id/buttonLinkBankContinue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
