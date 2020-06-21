@@ -68,9 +68,9 @@ public class HomeViewModel extends ViewModel {
 
     private void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, developmentSecretKey)
+                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
                 .publicKey(publicKey) // optional. only needed to call endpoints that require a public key
-                .developmentBaseUrl()
+                .sandboxBaseUrl()
                 .build();
     }
 
@@ -117,6 +117,7 @@ public class HomeViewModel extends ViewModel {
                     TransactionsGetResponse responseBody = response.body();
 
                     // Get credit card accounts once
+                    // Accounts include account name and current balance
                     if (transactionOffset == 0) {
                         for (Account account : responseBody.getAccounts()) {
                             if (account.getSubtype().equals("credit card")) {
@@ -125,27 +126,23 @@ public class HomeViewModel extends ViewModel {
                         }
                     }
 
-                    // Map each credit card transaction to an account id for easy reference
-                    for (HashMap.Entry<String, Account> entry : accountIdToAccountMap.entrySet()) {
-                        List<TransactionsGetResponse.Transaction> list = new ArrayList<>();
+//                    // Map each credit card transaction to an account id for easy reference
+//                    for (HashMap.Entry<String, Account> entry : accountIdToAccountMap.entrySet()) {
+//                        List<TransactionsGetResponse.Transaction> list = new ArrayList<>();
+//
+//                        for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
+//                            if (entry.getKey().equals(transaction.getAccountId())) {
+//                                if (accountIdToTransactionListMap.containsKey(entry.getKey())) {
+//                                    accountIdToTransactionListMap.get(entry.getKey()).add(transaction);
+//                                } else {
+//                                    list.add(transaction);
+//                                    accountIdToTransactionListMap.put(entry.getKey(), list);
+//                                }
+//                            }
+//                        }
+//                    }
 
-                        for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
-                            if (entry.getKey().equals(transaction.getAccountId())) {
-                                if (!accountIdToTransactionListMap.containsKey(entry.getKey())) {
-                                    list.add(transaction);
-                                } else {
-                                    accountIdToTransactionListMap.get(entry.getKey()).add(transaction);
-                                }
-                            }
-                        }
-                        // Empty list means it was created before so don't overwrite it
-                        // If there are contents in list, create an entry with the account id
-                        if (!accountIdToTransactionListMap.containsKey(entry.getKey())) {
-                            accountIdToTransactionListMap.put(entry.getKey(), list);
-                        }
-                    }
-
-                    // Keep transaction sorted by date
+                    // Call getTransactions first b/c they are sorted by date
                     List<TransactionsGetResponse.Transaction> transactionList = new ArrayList<>();
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                         for (String accountId : accountIdToAccountMap.keySet()) {
@@ -170,14 +167,13 @@ public class HomeViewModel extends ViewModel {
                     if (transactionOffset < totalTransactions) {
                         getPlaidTransactionsAndBalances(transactionOffset); // Get all transactions within the date period set
                     } else {
-                        mList.postValue(fullTransactionList); // Post all transactions
-
                         // Calculate balance
                         double currentBalance = 0.0;
                         for (Account account : accountIdToAccountMap.values()) {
                             currentBalance += account.getBalances().getCurrent();
                         }
                         currentBalanceAmount.postValue(currentBalance);
+                        mList.postValue(fullTransactionList); // Post all transactions
                     }
                 }
             }
