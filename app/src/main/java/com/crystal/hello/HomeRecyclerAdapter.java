@@ -55,18 +55,30 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
         // Set location and amount
         TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
-        String transactionLocation = location.getCity() + ", " + location.getRegion();
+        String transactionLocation = "";
         String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
 
         if (transaction.getAmount() >= 0.0) {
             transactionAmount = "$" + transactionAmount;
 
             if (transaction.getPending()) {
-                transactionLocation = "Pending";
-            } else if (transaction.getPaymentChannel().equals("online")) {
-                transactionLocation = "Online";
-            } else if ((location.getCity() == null || location.getRegion() == null)) {
-                transactionLocation = "In store";
+                transactionLocation = "Pending - ";
+            }
+
+            if ((location.getCity() != null && location.getRegion() != null)) {
+                transactionLocation += location.getCity() + ", " + location.getRegion();
+            } else {
+                switch (transaction.getPaymentChannel()) {
+                    case "online":
+                        transactionLocation += "Online";
+                        break;
+                    case "in store":
+                        transactionLocation += "In store";
+                        break;
+                    case "other":
+                        transactionLocation += "Other";
+                        break;
+                }
             }
         } else { // Negative transactions
             transactionAmount = new StringBuilder(transactionAmount).insert(1, "$").toString();
