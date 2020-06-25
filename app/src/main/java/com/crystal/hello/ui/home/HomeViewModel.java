@@ -40,7 +40,7 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<Double> currentBalanceAmount;
     private static List<TransactionsGetResponse.Transaction> fullTransactionList;
     private HashMap<String, Account> accountIdToAccountMap;
-    private HashMap<String, List<TransactionsGetResponse.Transaction>> accountIdToTransactionListMap;
+//    private HashMap<String, List<TransactionsGetResponse.Transaction>> accountIdToTransactionListMap;
     private PlaidClient plaidClient;
     private int transactionOffset;
     private final int count;
@@ -49,8 +49,8 @@ public class HomeViewModel extends ViewModel {
         mList = new MutableLiveData<>();
         currentBalanceAmount = new MutableLiveData<>();
         fullTransactionList = new LinkedList<>();
-        accountIdToAccountMap = new HashMap<>();
-        accountIdToTransactionListMap = new HashMap<>();
+        accountIdToAccountMap = new HashMap<>(); // credit card accounts only
+//        accountIdToTransactionListMap = new HashMap<>();
         transactionOffset = 0;
         count = 500;
 
@@ -58,10 +58,7 @@ public class HomeViewModel extends ViewModel {
         exchangeAccessToken();
     }
 
-    public LiveData<List<TransactionsGetResponse.Transaction>> getTransactionList() {
-        return mList;
-    }
-
+    public LiveData<List<TransactionsGetResponse.Transaction>> getTransactionList() { return mList; }
     public LiveData<Double> getCurrentBalanceAmount() {
         return currentBalanceAmount;
     }
@@ -74,8 +71,8 @@ public class HomeViewModel extends ViewModel {
                 .build();
     }
 
+    // Asynchronously get token
     private void exchangeAccessToken() {
-        // Asynchronously get token
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
@@ -85,8 +82,8 @@ public class HomeViewModel extends ViewModel {
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             accessToken = response.body().getAccessToken(); // Log item_id for retrieving item
-                            Log.i(HomeViewModel.class.getSimpleName() + " accessToken", response.body().getAccessToken());
-                            Log.i(HomeViewModel.class.getSimpleName() + " itemId", response.body().getItemId());
+                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_accessToken", response.body().getAccessToken());
+                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_itemId", response.body().getItemId());
                             getPlaidTransactionsAndBalances(transactionOffset);
                         }
                     }
@@ -142,7 +139,7 @@ public class HomeViewModel extends ViewModel {
 //                        }
 //                    }
 
-                    // Call getTransactions first b/c they are sorted by date
+                    // Call getTransactions first b/c transactions are sorted by date
                     List<TransactionsGetResponse.Transaction> transactionList = new ArrayList<>();
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                         for (String accountId : accountIdToAccountMap.keySet()) {
@@ -156,7 +153,7 @@ public class HomeViewModel extends ViewModel {
                     transactionOffset += count;
 
                     for (TransactionsGetResponse.Transaction transaction : transactionList) {
-                        Log.d(HomeViewModel.class.getSimpleName() + " transaction",
+                        Log.d(HomeViewModel.class.getSimpleName() + " plaid_transaction",
                                 transaction.getDate() + " "
                                         + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
                                         + transaction.getName());
@@ -172,8 +169,8 @@ public class HomeViewModel extends ViewModel {
                         for (Account account : accountIdToAccountMap.values()) {
                             currentBalance += account.getBalances().getCurrent();
                         }
-                        currentBalanceAmount.postValue(currentBalance);
-                        mList.postValue(fullTransactionList); // Post all transactions
+                        currentBalanceAmount.setValue(currentBalance);
+                        mList.setValue(fullTransactionList); // Post all transactions
                     }
                 }
             }

@@ -1,6 +1,5 @@
 package com.crystal.hello;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +7,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.crystal.hello.ui.home.HomeFragment;
 import com.plaid.client.response.TransactionsGetResponse;
 
 import java.text.ParseException;
@@ -22,10 +23,12 @@ import java.util.Locale;
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
     private final List<TransactionsGetResponse.Transaction> transactionList;
     private final LayoutInflater layoutInflater;
+    private final FragmentActivity fragmentActivity;
 
-    public HomeRecyclerAdapter(Context context, List<TransactionsGetResponse.Transaction> list) {
+    public HomeRecyclerAdapter(FragmentActivity activity, List<TransactionsGetResponse.Transaction> list) {
         transactionList = list;
-        layoutInflater = LayoutInflater.from(context);
+        layoutInflater = LayoutInflater.from(activity);
+        fragmentActivity = activity;
     }
 
     @NonNull
@@ -37,6 +40,17 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Fragment newFragment = new TransactionItemDetailFragment();
+//                FragmentTransaction transaction = fragmentActivity.getSupportFragmentManager().beginTransaction();
+//                transaction.replace(R.id.constraintLayoutHome, newFragment);
+//                transaction.addToBackStack(null);
+//                transaction.commit();
+//            }
+//        });
+
         TransactionsGetResponse.Transaction transaction = transactionList.get(position);
         String transactionName = transaction.getName();
 
@@ -114,17 +128,22 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             transactionConstraintLayout = itemView.findViewById(R.id.constraintLayoutTransactionItem);
-            transactionNameTextView = itemView.findViewById(R.id.textViewTransactionName);
+            transactionNameTextView     = itemView.findViewById(R.id.textViewTransactionName);
             transactionLocationTextView = itemView.findViewById(R.id.textViewTransactionLocation);
-            transactionDateTextView = itemView.findViewById(R.id.textViewTransactionDate);
-            transactionAmountTextView = itemView.findViewById(R.id.textViewTransactionAmount);
-            transactionDividerView = itemView.findViewById(R.id.viewTransactionDivider);
+            transactionDateTextView     = itemView.findViewById(R.id.textViewTransactionDate);
+            transactionAmountTextView   = itemView.findViewById(R.id.textViewTransactionAmount);
+            transactionDividerView      = itemView.findViewById(R.id.viewTransactionDivider);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    transactionNameText.setText("Clicked! "+ transactionNameText.getText());
-//                    HomeFragment.sparkAdapter.initializeTransactionAmount();
+                    Fragment newFragment = new TransactionItemDetailFragment();
+                    FragmentTransaction transaction = fragmentActivity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.constraintLayoutHomeFragment, newFragment)
+                            .addToBackStack(null);
+                    transaction.commit();
+//                    getAdapterPosition();
                 }
             });
         }

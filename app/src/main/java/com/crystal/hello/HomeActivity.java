@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -39,13 +41,16 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = getIntent();
         publicToken = intent.getStringExtra(Intent.EXTRA_TEXT);
 
-//        navView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                RecyclerView recyclerView = findViewById(R.id.recycler_home);
-//                recyclerView.smoothScrollToPosition(0);
-//            }
-//        });
+        // Scroll up if navigation item reselected
+        navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.navigation_home) {
+                    NestedScrollView nestedScrollView = findViewById(R.id.nestedScrollViewHome);
+                    nestedScrollView.smoothScrollTo(0, 0);
+                }
+            }
+        });
 
 //        setFragmentListener(navView);
     }
@@ -57,27 +62,30 @@ public class HomeActivity extends AppCompatActivity {
 //        final Fragment savedFragment = new SavedFragment();
 //        final Fragment profileFragment = new ProfileFragment();
 //
-//        // handle navigation selection
-//        navView.setOnNavigationItemSelectedListener(
-//                new BottomNavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(@NotNull MenuItem item) {
-//                        Fragment fragment;
-//                        switch (item.getItemId()) {
-//                            case R.id.navigation_home:
-//                                fragment = homeFragment;
-//                                break;
-//                            case R.id.navigation_saved:
-//                                fragment = savedFragment;
-//                                break;
-//                            case R.id.navigation_profile:
-//                            default:
-//                                fragment = profileFragment;
-//                                break;
-//                        }
-//                        fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-//                        return true;
-//                    }
-//                });
+        // handle navigation selection
+//        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NotNull MenuItem item) {
+//                Fragment fragment;
+//                switch (item.getItemId()) {
+//                    case R.id.navigation_home:
+//                        fragment = new HomeFragment();
+//                        NestedScrollView nestedScrollView = findViewById(R.id.homeNestedScrollView);
+//                        nestedScrollView.smoothScrollTo(0, 0);
+//                        break;
+//                    case R.id.navigation_saved:
+//                        fragment = new SavedFragment();
+//                        break;
+//                    case R.id.navigation_profile:
+//                        fragment = new ProfileFragment();
+//                        break;
+//                    default:
+//                        fragment = new HomeFragment();
+//                        break;
+//                }
+//                        fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragment).commit();
+//                return true;
+//            }
+//        });
 //    }
 }
