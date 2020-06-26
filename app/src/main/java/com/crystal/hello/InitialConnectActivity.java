@@ -56,7 +56,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         ArrayList<PlaidProduct> products = new ArrayList<>();
         products.add(PlaidProduct.TRANSACTIONS);
         Plaid.openLink(this, new LinkConfiguration.Builder("Crystal", products)
-                        .environment(PlaidEnvironment.SANDBOX)
+                        .environment(PlaidEnvironment.DEVELOPMENT)
                         .build(), LINK_REQUEST_CODE);
     }
 

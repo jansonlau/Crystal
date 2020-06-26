@@ -41,6 +41,10 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = getIntent();
         publicToken = intent.getStringExtra(Intent.EXTRA_TEXT);
 
+//        final FragmentManager fragmentManager = getSupportFragmentManager();
+//        final Fragment homeFragment = new HomeFragment();
+//        fragmentManager.beginTransaction().add(R.id.constraintLayoutHomeFragment, homeFragment).commit();
+
         // Scroll up if navigation item reselected
         navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
@@ -55,35 +59,33 @@ public class HomeActivity extends AppCompatActivity {
 //        setFragmentListener(navView);
     }
 
-    // Not sure if it's needed
+//    // Not sure if it's needed
 //    private void setFragmentListener(BottomNavigationView navView) {
 //        final FragmentManager fragmentManager = getSupportFragmentManager();
 //        final Fragment homeFragment = new HomeFragment();
 //        final Fragment savedFragment = new SavedFragment();
 //        final Fragment profileFragment = new ProfileFragment();
 //
-        // handle navigation selection
+//        // handle navigation selection
 //        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 //            @Override
 //            public boolean onNavigationItemSelected(@NotNull MenuItem item) {
 //                Fragment fragment;
 //                switch (item.getItemId()) {
 //                    case R.id.navigation_home:
-//                        fragment = new HomeFragment();
-//                        NestedScrollView nestedScrollView = findViewById(R.id.homeNestedScrollView);
-//                        nestedScrollView.smoothScrollTo(0, 0);
+//                        fragment = homeFragment;
 //                        break;
 //                    case R.id.navigation_saved:
-//                        fragment = new SavedFragment();
+//                        fragment = savedFragment;
 //                        break;
 //                    case R.id.navigation_profile:
-//                        fragment = new ProfileFragment();
+//                        fragment = profileFragment;
 //                        break;
 //                    default:
-//                        fragment = new HomeFragment();
+//                        fragment = homeFragment;
 //                        break;
 //                }
-//                        fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragment).commit();
+//                fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragment).commit();
 //                return true;
 //            }
 //        });

@@ -4,19 +4,137 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#EFEFEF"
     android:clickable="true"
     android:focusable="true"
     tools:context=".TransactionItemDetailFragment">
 
     <TextView
-        android:id="@+id/text_detail"
+        android:id="@+id/textViewTransactionDetailAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Hello"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="12dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="$35.71"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textViewTransactionDetailNameAndLocation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="The Home Depot, San Francisco, CA"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailAmount"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailAmount"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailAmount" />
+
+    <TextView
+        android:id="@+id/textViewTransactionDetailDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="4/1/20"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailNameAndLocation"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailNameAndLocation"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailNameAndLocation" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailDate"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailDate"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailDate">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textViewTransactionDetailStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="Status: Completed"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewTransactionDetailChannel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Paid Online"
+                app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
+                app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
+                app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailStatus" />
+
+            <TextView
+                android:id="@+id/textViewTransactionDetailAccountName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:lines="1"
+                android:text="Chase Credit Card"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailChannel"
+                app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailChannel"
+                app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailChannel" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewMapAndAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="@+id/cardView2"
+        app:layout_constraintStart_toStartOf="@+id/cardView2"
+        app:layout_constraintTop_toBottomOf="@+id/cardView2">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewTransactionDetailAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="855 Folsom St, San Francisco, CA 94107"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/mapView"
+                app:layout_constraintStart_toStartOf="@id/mapView"
+                app:layout_constraintTop_toBottomOf="@+id/mapView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

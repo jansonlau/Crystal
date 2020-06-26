@@ -29,8 +29,8 @@ import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
     // SAVING STATES https://developer.android.com/topic/libraries/architecture/saving-states
-    private String accessToken; // In production, store it in a secure persistent data store.
-    private String assetReportToken; // In production, store it in a secure persistent data store.
+    private String accessToken = "access-development-74de9498-a64b-4c42-9d40-1a27aebbe9ca"; // In production, store it in a secure persistent data store.
+    private String itemId = "wnXw7JoxEjIxZJzpzxdnfY3aKJJwROuLQxLO5";
     private String clientIdKey = "5e9e830fd1ed690012c3be3c";
     private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
     private String sandboxSecretKey = "74cf176067e0712cc2eabdf800829e";
@@ -39,7 +39,7 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<List<TransactionsGetResponse.Transaction>> mList;
     private MutableLiveData<Double> currentBalanceAmount;
     private static List<TransactionsGetResponse.Transaction> fullTransactionList;
-    private HashMap<String, Account> accountIdToAccountMap;
+    private static HashMap<String, Account> accountIdToAccountMap;
 //    private HashMap<String, List<TransactionsGetResponse.Transaction>> accountIdToTransactionListMap;
     private PlaidClient plaidClient;
     private int transactionOffset;
@@ -55,51 +55,54 @@ public class HomeViewModel extends ViewModel {
         count = 500;
 
         buildPlaidClient();
-        exchangeAccessToken();
+//        exchangeAccessToken();
+        getPlaidTransactionsAndBalances(transactionOffset); // Temporary
     }
 
     public LiveData<List<TransactionsGetResponse.Transaction>> getTransactionList() { return mList; }
     public LiveData<Double> getCurrentBalanceAmount() {
         return currentBalanceAmount;
     }
+    public static List<TransactionsGetResponse.Transaction> getFullTransactionList() { return fullTransactionList; }
+    public static HashMap<String, Account> getAccountIdToAccountMap() { return accountIdToAccountMap; }
 
     private void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
+                .clientIdAndSecret(clientIdKey, developmentSecretKey)
                 .publicKey(publicKey) // optional. only needed to call endpoints that require a public key
-                .sandboxBaseUrl()
+                .developmentBaseUrl()
                 .build();
     }
-
-    // Asynchronously get token
-    private void exchangeAccessToken() {
-        plaidClient.service()
-                .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
-                .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
-
-                    @Override
-                    public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
-                                           @NotNull Response<ItemPublicTokenExchangeResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            accessToken = response.body().getAccessToken(); // Log item_id for retrieving item
-                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_accessToken", response.body().getAccessToken());
-                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_itemId", response.body().getItemId());
-                            getPlaidTransactionsAndBalances(transactionOffset);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NotNull Call<ItemPublicTokenExchangeResponse> call,
-                                          @NotNull Throwable t) {
-                        Log.w(HomeViewModel.class.getSimpleName() + "accessToken_failure", call.toString());
-                    }
-                });
-    }
+//
+//    // Asynchronously get token
+//    private void exchangeAccessToken() {
+//        plaidClient.service()
+//                .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
+//                .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
+//                                           @NotNull Response<ItemPublicTokenExchangeResponse> response) {
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            accessToken = response.body().getAccessToken(); // Log item_id for retrieving item
+//                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_accessToken", response.body().getAccessToken());
+//                            Log.i(HomeViewModel.class.getSimpleName() + " plaid_itemId", response.body().getItemId());
+//                            getPlaidTransactionsAndBalances(transactionOffset);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NotNull Call<ItemPublicTokenExchangeResponse> call,
+//                                          @NotNull Throwable t) {
+//                        Log.w(HomeViewModel.class.getSimpleName() + "accessToken_failure", call.toString());
+//                    }
+//                });
+//    }
 
     private void getPlaidTransactionsAndBalances(Integer offset) {
 //        Date startDate = new Date(1511049600L); // 1970
-//        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
-        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
+        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
+//        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
         Date endDate = new Date();
         TransactionsGetRequest request =
                 new TransactionsGetRequest(accessToken, startDate, endDate)

@@ -5,13 +5,13 @@
     android:id="@+id/constraintLayoutHomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EFEFEF"
     tools:context=".ui.home.HomeFragment">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollViewHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EFEFEF"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,10 +26,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp"
+                android:layout_margin="12dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true">
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -144,9 +143,9 @@
                 android:id="@+id/textViewLatestTransaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="13dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="13dp"
+                android:layout_marginEnd="12dp"
                 android:text="Latest Transactions"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                 android:textStyle="bold" />
@@ -154,12 +153,11 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true">
+                app:cardElevation="0dp">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerHome"

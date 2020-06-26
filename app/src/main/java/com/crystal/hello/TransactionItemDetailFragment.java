@@ -2,7 +2,6 @@ package com.crystal.hello;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 
@@ -15,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.crystal.hello.ui.profile.ProfileViewModel;
+import com.crystal.hello.ui.home.HomeViewModel;
+import com.plaid.client.response.Account;
+import com.plaid.client.response.TransactionsGetResponse;
 
 public class TransactionItemDetailFragment extends Fragment {
 
@@ -28,17 +29,106 @@ public class TransactionItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-//        return inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-
         transactionItemDetailViewModel = new ViewModelProvider(this).get(TransactionItemDetailViewModel.class);
         View root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-        final TextView textView = root.findViewById(R.id.text_detail);
-        transactionItemDetailViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+
+        final TextView amount           = root.findViewById(R.id.textViewTransactionDetailAmount);
+        final TextView nameAndLocation  = root.findViewById(R.id.textViewTransactionDetailNameAndLocation);
+        final TextView date             = root.findViewById(R.id.textViewTransactionDetailDate);
+        final TextView status           = root.findViewById(R.id.textViewTransactionDetailStatus);
+        final TextView channel          = root.findViewById(R.id.textViewTransactionDetailChannel);
+        final TextView accountName      = root.findViewById(R.id.textViewTransactionDetailAccountName);
+        final TextView address          = root.findViewById(R.id.textViewTransactionDetailAddress);
+
+        TransactionsGetResponse.Transaction transaction = null;
+        TransactionsGetResponse.Transaction.Location location = null;
+        Account account = null;
+        int transactionItemPosition = 0;
+        String transactionItemName = "";
+        String transactionItemDate = "";
+        String transactionItemAmount = "";
+        String transactionAccountName = "";
+
+        if (getArguments() != null) {
+            transactionItemPosition = getArguments().getInt("TRANSACTION_ITEM_POSITION");
+            transactionItemName = getArguments().getString("TRANSACTION_ITEM_NAME");
+            transactionItemDate = getArguments().getString("TRANSACTION_ITEM_DATE");
+            transactionItemAmount = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
+        }
+
+        transaction = HomeViewModel.getFullTransactionList().get(transactionItemPosition);
+        location = transaction.getLocation();
+        account = HomeViewModel.getAccountIdToAccountMap().get(transaction.getAccountId());
+        if (account != null) {
+            transactionAccountName = account.getName();
+        }
+
+        if (location.getCity() != null && location.getRegion() != null) {
+            transactionItemName += ", " + location.getCity() + ", " + location.getRegion();
+
+            if (location.getAddress() != null && location.getPostalCode() != null) {
+                String addressString = location.getAddress() + ", "
+                        + location.getCity() + ", "
+                        + location.getRegion() + ", "
+                        + location.getPostalCode();
+                address.setText(addressString);
+            } else {
+                root.findViewById(R.id.cardViewMapAndAddress).setVisibility(View.GONE);
             }
-        });
+        } else {
+            root.findViewById(R.id.cardViewMapAndAddress).setVisibility(View.GONE);
+        }
+
+        String transactionStatus = "Status: ";
+        if (transaction.getPending()) {
+            transactionStatus += "Pending";
+
+        } else {
+            transactionStatus += "Completed";
+        }
+
+        String channelString = "Paid ";
+        switch (transaction.getPaymentChannel()) {
+            case "online":
+                channelString += "Online";
+                break;
+            case "in store":
+                channelString += "In-store";
+                break;
+            case "other":
+                if (transactionItemName != null && transaction.getAmount() < 0.00) {
+                    if (transactionItemName.toLowerCase().contains("pymnt")
+                            || transactionItemName.toLowerCase().contains("payment")
+                            || transactionItemName.toLowerCase().contains("pay")) {
+                        channelString = "Payment";
+                    } else {
+                        channelString = "Refund";
+                    }
+                } else {
+                    channelString = "Other Channel";
+                }
+                break;
+        }
+
+        amount.setText(transactionItemAmount);
+        nameAndLocation.setText(transactionItemName);
+        date.setText(transactionItemDate);
+        channel.setText(channelString);
+        accountName.setText(transactionAccountName);
+        status.setText(transactionStatus);
+
+
+
+//        transactionItemDetailViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+//            }
+//        });
+
+
+
+
         return root;
     }
 

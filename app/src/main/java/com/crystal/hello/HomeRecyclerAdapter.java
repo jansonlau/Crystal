@@ -1,5 +1,6 @@
 package com.crystal.hello;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,17 +41,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Fragment newFragment = new TransactionItemDetailFragment();
-//                FragmentTransaction transaction = fragmentActivity.getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.constraintLayoutHome, newFragment);
-//                transaction.addToBackStack(null);
-//                transaction.commit();
-//            }
-//        });
-
         TransactionsGetResponse.Transaction transaction = transactionList.get(position);
         String transactionName = transaction.getName();
 
@@ -72,7 +62,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         String transactionLocation = "";
         String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
 
-        if (transaction.getAmount() >= 0.0) {
+        if (transaction.getAmount() >= 0.00) {
             transactionAmount = "$" + transactionAmount;
 
             if (transaction.getPending()) {
@@ -87,16 +77,18 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                         transactionLocation += "Online";
                         break;
                     case "in store":
-                        transactionLocation += "In store";
+                        transactionLocation += "In-store";
                         break;
                     case "other":
-                        transactionLocation += "Other";
+                        transactionLocation += "Other Channel";
                         break;
                 }
             }
         } else { // Negative transactions
             transactionAmount = new StringBuilder(transactionAmount).insert(1, "$").toString();
-            if (transactionName.toLowerCase().contains("pymnt") || transactionName.toLowerCase().contains("payment")) {
+            if (transactionName.toLowerCase().contains("pymnt")
+                    || transactionName.toLowerCase().contains("payment")
+                    || transactionName.toLowerCase().contains("pay")) {
                 transactionLocation = "Payment";
             } else {
                 transactionLocation = "Refund";
@@ -110,6 +102,27 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
             holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
         }
+
+        // Initialize TransactionItemDetailFragment
+        Bundle bundle = new Bundle();
+        bundle.putInt("TRANSACTION_ITEM_POSITION", position);
+        bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
+        bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
+        bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment transactionItemDetailFragment = new TransactionItemDetailFragment();
+                transactionItemDetailFragment.setArguments(bundle);
+
+                fragmentActivity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.constraintLayoutHomeFragment, transactionItemDetailFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 
     @Override
@@ -133,19 +146,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             transactionDateTextView     = itemView.findViewById(R.id.textViewTransactionDate);
             transactionAmountTextView   = itemView.findViewById(R.id.textViewTransactionAmount);
             transactionDividerView      = itemView.findViewById(R.id.viewTransactionDivider);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Fragment newFragment = new TransactionItemDetailFragment();
-                    FragmentTransaction transaction = fragmentActivity.getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.constraintLayoutHomeFragment, newFragment)
-                            .addToBackStack(null);
-                    transaction.commit();
-//                    getAdapterPosition();
-                }
-            });
         }
     }
 }
