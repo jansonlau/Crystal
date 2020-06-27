@@ -36,17 +36,14 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView date             = root.findViewById(R.id.textViewTransactionDetailDate);
         final TextView status           = root.findViewById(R.id.textViewTransactionDetailStatus);
         final TextView channel          = root.findViewById(R.id.textViewTransactionDetailChannel);
-        final TextView accountName      = root.findViewById(R.id.textViewTransactionDetailAccountName);
+        final TextView accountMask      = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView address          = root.findViewById(R.id.textViewTransactionDetailAddress);
 
-        TransactionsGetResponse.Transaction transaction = null;
-        TransactionsGetResponse.Transaction.Location location = null;
-        Account account = null;
         int transactionItemPosition = 0;
         String transactionItemName = "";
         String transactionItemDate = "";
         String transactionItemAmount = "";
-        String transactionAccountName = "";
+        String transactionAccountMask = "\u2022\u2022\u2022\u2022 ";
 
         if (getArguments() != null) {
             transactionItemPosition = getArguments().getInt("TRANSACTION_ITEM_POSITION");
@@ -55,11 +52,12 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionItemAmount = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         }
 
-        transaction = HomeViewModel.getFullTransactionList().get(transactionItemPosition);
-        location = transaction.getLocation();
-        account = HomeViewModel.getAccountIdToAccountMap().get(transaction.getAccountId());
+        TransactionsGetResponse.Transaction transaction = HomeViewModel.getFullTransactionList().get(transactionItemPosition);
+        TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
+        Account account = HomeViewModel.getAccountIdToAccountMap().get(transaction.getAccountId());
+
         if (account != null) {
-            transactionAccountName = account.getName();
+            transactionAccountMask += account.getMask();
         }
 
         if (location.getCity() != null && location.getRegion() != null) {
@@ -113,10 +111,8 @@ public class TransactionItemDetailFragment extends Fragment {
         nameAndLocation.setText(transactionItemName);
         date.setText(transactionItemDate);
         channel.setText(channelString);
-        accountName.setText(transactionAccountName);
+        accountMask.setText(transactionAccountMask);
         status.setText(transactionStatus);
-
-
 
 //        transactionItemDetailViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
 //            @Override
@@ -124,7 +120,6 @@ public class TransactionItemDetailFragment extends Fragment {
 //                textView.setText(s);
 //            }
 //        });
-
 
 
 

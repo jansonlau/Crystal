@@ -91,11 +91,11 @@ public class HomeFragment extends Fragment {
 
         sparkView.setLineWidth(4);
         sparkView.setScrubLineWidth(3);
+
+        // Add date when scrubbing
         sparkView.setScrubListener(new SparkView.OnScrubListener() {
             @Override
             public void onScrubbed(Object value) {
-                NestedScrollView nestedScrollView = root.findViewById(R.id.nestedScrollViewHome);
-                nestedScrollView.setVerticalScrollBarEnabled(false);
             }
         });
 
