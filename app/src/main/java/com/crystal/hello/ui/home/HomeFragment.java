@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -88,12 +89,22 @@ public class HomeFragment extends Fragment {
         sparkAdapter = new TransactionSparkAdapter();
         sparkView.setAdapter(sparkAdapter);
 
+        sparkView.setLineWidth(4);
+        sparkView.setScrubLineWidth(3);
+        sparkView.setScrubListener(new SparkView.OnScrubListener() {
+            @Override
+            public void onScrubbed(Object value) {
+                NestedScrollView nestedScrollView = root.findViewById(R.id.nestedScrollViewHome);
+                nestedScrollView.setVerticalScrollBarEnabled(false);
+            }
+        });
+
         // Create baseline
-        Paint baseLinePaint = sparkView.getBaseLinePaint();
-        float baseLineDashSpacing = 15;
-        float baseLineDashLength = 3;
-        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
-        baseLinePaint.setPathEffect(dashPathEffect);
+//        Paint baseLinePaint = sparkView.getBaseLinePaint();
+//        float baseLineDashSpacing = 15;
+//        float baseLineDashLength = 3;
+//        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
+//        baseLinePaint.setPathEffect(dashPathEffect);
 
         initializeSparkTimePeriodListeners();
 //        sparkAdapter.initializeTransactionAmount();
@@ -227,9 +238,9 @@ public class HomeFragment extends Fragment {
             return (float) yData[index];
         }
 
-        @Override
-        public boolean hasBaseLine() {
-            return true;
-        }
+//        @Override
+//        public boolean hasBaseLine() {
+//            return true;
+//        }
     }
 }

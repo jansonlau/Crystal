@@ -118,7 +118,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
                 fragmentActivity.getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.constraintLayoutHomeFragment, transactionItemDetailFragment)
+                        .replace(R.id.frameLayoutFragmentContainer, transactionItemDetailFragment)
                         .addToBackStack(null)
                         .commit();
             }

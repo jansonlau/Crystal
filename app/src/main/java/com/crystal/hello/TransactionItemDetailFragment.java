@@ -1,6 +1,5 @@
 package com.crystal.hello;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -33,7 +32,7 @@ public class TransactionItemDetailFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
 
         final TextView amount           = root.findViewById(R.id.textViewTransactionDetailAmount);
-        final TextView nameAndLocation  = root.findViewById(R.id.textViewTransactionDetailNameAndLocation);
+        final TextView nameAndLocation  = root.findViewById(R.id.textViewTransactionDetailName);
         final TextView date             = root.findViewById(R.id.textViewTransactionDetailDate);
         final TextView status           = root.findViewById(R.id.textViewTransactionDetailStatus);
         final TextView channel          = root.findViewById(R.id.textViewTransactionDetailChannel);

@@ -2,12 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayoutTransactionItemDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EFEFEF"
-    android:clickable="true"
-    android:focusable="true"
-    tools:context=".TransactionItemDetailFragment">
+    tools:context=".TransactionItemDetailFragment"
+    android:background="#EFEFEF">
 
     <TextView
         android:id="@+id/textViewTransactionDetailAmount"
@@ -26,14 +25,24 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textViewTransactionDetailNameAndLocation"
+        android:id="@+id/textViewTransactionDetailName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="The Home Depot, San Francisco, CA"
+        android:text="The Home Depot"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailAmount"
         app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailAmount"
         app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailAmount" />
+
+    <TextView
+        android:id="@+id/textViewTransactionDetailLocation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="San Francisco, CA"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailName"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailName" />
 
     <TextView
         android:id="@+id/textViewTransactionDetailDate"
@@ -41,16 +50,16 @@
         android:layout_height="wrap_content"
         android:text="4/1/20"
         android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailNameAndLocation"
-        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailNameAndLocation"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailNameAndLocation" />
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailName"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailLocation" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailDate"
         app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailDate"
@@ -88,7 +97,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:lines="1"
                 android:text="Chase Credit Card"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailChannel"
@@ -104,7 +112,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="@+id/cardView2"
         app:layout_constraintStart_toStartOf="@+id/cardView2"
@@ -116,25 +124,66 @@
 
             <com.google.android.gms.maps.MapView
                 android:id="@+id/mapView"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="150dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/textViewTransactionDetailAddress"
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:text="855 Folsom St, San Francisco, CA 94107"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/mapView"
-                app:layout_constraintStart_toStartOf="@id/mapView"
-                app:layout_constraintTop_toBottomOf="@+id/mapView" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mapView">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/textViewTransactionDetailAddress"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="855 Folsom St, San Francisco, CA 94107"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/imageView"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:layout_marginEnd="12dp"
+                        android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                        app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailAddress"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailAddress" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </FrameLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textViewTransactionHistory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Transaction History"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/cardView2"
+        app:layout_constraintStart_toStartOf="@+id/cardView2"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewMapAndAddress" />
 </androidx.constraintlayout.widget.ConstraintLayout>
