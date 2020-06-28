@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.HomeRecyclerAdapter;
 import com.crystal.hello.R;
+import com.crystal.hello.TransactionItemDetailFragment;
+import com.crystal.hello.TransactionMonthlyActivityFragment;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
@@ -45,6 +48,21 @@ public class HomeFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_home, container, false);
         observeTransactionList();
         observeCurrentBalance();
+
+        // Monthly Activity fragment
+        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
+        FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
+        monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
         return root;
     }
 
