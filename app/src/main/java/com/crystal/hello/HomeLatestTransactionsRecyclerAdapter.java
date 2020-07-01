@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.plaid.client.response.TransactionsGetResponse;
@@ -21,12 +20,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
+public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<HomeLatestTransactionsRecyclerAdapter.ViewHolder> {
     private final List<TransactionsGetResponse.Transaction> transactionList;
     private final LayoutInflater layoutInflater;
     private final FragmentActivity fragmentActivity;
 
-    public HomeRecyclerAdapter(FragmentActivity activity, List<TransactionsGetResponse.Transaction> list) {
+    public HomeLatestTransactionsRecyclerAdapter(FragmentActivity activity, List<TransactionsGetResponse.Transaction> list) {
         transactionList = list;
         layoutInflater = LayoutInflater.from(activity);
         fragmentActivity = activity;

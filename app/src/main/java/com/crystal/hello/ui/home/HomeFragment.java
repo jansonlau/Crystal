@@ -11,16 +11,14 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.crystal.hello.HomeRecyclerAdapter;
+import com.crystal.hello.HomeLatestTransactionsRecyclerAdapter;
 import com.crystal.hello.R;
-import com.crystal.hello.TransactionItemDetailFragment;
 import com.crystal.hello.TransactionMonthlyActivityFragment;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
@@ -70,7 +68,7 @@ public class HomeFragment extends Fragment {
         homeViewModel.getTransactionList().observe(getViewLifecycleOwner(), new Observer<List<TransactionsGetResponse.Transaction>>() {
             @Override
             public void onChanged(List<TransactionsGetResponse.Transaction> list) {
-                final HomeRecyclerAdapter recyclerAdapter = new HomeRecyclerAdapter(getActivity(), list);
+                final HomeLatestTransactionsRecyclerAdapter recyclerAdapter = new HomeLatestTransactionsRecyclerAdapter(getActivity(), list);
                 RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 recyclerView.setAdapter(recyclerAdapter);
@@ -118,11 +116,11 @@ public class HomeFragment extends Fragment {
         });
 
         // Create baseline
-//        Paint baseLinePaint = sparkView.getBaseLinePaint();
-//        float baseLineDashSpacing = 15;
-//        float baseLineDashLength = 3;
-//        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
-//        baseLinePaint.setPathEffect(dashPathEffect);
+        float baseLineDashSpacing = 15;
+        float baseLineDashLength = 3;
+        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
+        Paint baseLinePaint = sparkView.getBaseLinePaint();
+        baseLinePaint.setPathEffect(dashPathEffect);
 
         initializeSparkTimePeriodListeners();
 //        sparkAdapter.initializeTransactionAmount();
@@ -256,9 +254,9 @@ public class HomeFragment extends Fragment {
             return (float) yData[index];
         }
 
-//        @Override
-//        public boolean hasBaseLine() {
-//            return true;
-//        }
+        @Override
+        public boolean hasBaseLine() {
+            return true;
+        }
     }
 }

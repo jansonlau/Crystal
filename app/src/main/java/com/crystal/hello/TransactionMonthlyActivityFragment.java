@@ -16,17 +16,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class TransactionMonthlyActivityFragment extends Fragment {
-
     private TransactionMonthlyActivityViewModel mViewModel;
+    private View root;
 
-    public static TransactionMonthlyActivityFragment newInstance() {
-        return new TransactionMonthlyActivityFragment();
-    }
+    private static final int NUM_PAGES = 5;
+    private ViewPager2 viewPager;
+    private FragmentStateAdapter pagerAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
+        root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
+
+        viewPager = root.findViewById(R.id.pager);
+        pagerAdapter = new ScreenSlidePagerAdapter(this.getActivity());
+        viewPager.setAdapter(pagerAdapter);
+
+        return root;
     }
 
     @Override
@@ -43,60 +49,41 @@ public class TransactionMonthlyActivityFragment extends Fragment {
 
 
 
-    public class ScreenSlidePagerActivity extends FragmentActivity {
-        /**
-         * The number of pages (wizard steps) to show in this demo.
-         */
-        private static final int NUM_PAGES = 5;
+//    public class ScreenSlidePagerActivity extends FragmentActivity {
+//        private static final int NUM_PAGES = 5;
+//        private ViewPager2 viewPager;
+//        private FragmentStateAdapter pagerAdapter;
+//
+//        @Override
+//        protected void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            setContentView(R.layout.fragment_transaction_monthly_activity); // should be activity
+//
+//            viewPager = findViewById(R.id.pager);
+//            pagerAdapter = new ScreenSlidePagerAdapter(this);
+//            viewPager.setAdapter(pagerAdapter);
+//        }
 
-        /**
-         * The pager widget, which handles animation and allows swiping horizontally to access previous
-         * and next wizard steps.
-         */
-        private ViewPager2 viewPager;
 
-        /**
-         * The pager adapter, which provides the pages to the view pager widget.
-         */
-        private FragmentStateAdapter pagerAdapter;
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.fragment_transaction_monthly_activity);
 
-            // Instantiate a ViewPager2 and a PagerAdapter.
-            viewPager = findViewById(R.id.pager);
-            pagerAdapter = new ScreenSlidePagerAdapter(this);
-            viewPager.setAdapter(pagerAdapter);
+    /**
+     * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
+     * sequence.
+     */
+    private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
+        public ScreenSlidePagerAdapter(FragmentActivity fa) {
+            super(fa);
         }
 
+        @Override
+        public Fragment createFragment(int position) {
+            return new TransactionMonthlyActivityItemFragment();
+        }
 
-
-
-
-
-
-
-
-        /**
-         * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
-         * sequence.
-         */
-        private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-            public ScreenSlidePagerAdapter(FragmentActivity fa) {
-                super(fa);
-            }
-
-            @Override
-            public Fragment createFragment(int position) {
-                return new TransactionMonthlyActivityFragment();
-            }
-
-            @Override
-            public int getItemCount() {
-                return NUM_PAGES;
-            }
+        @Override
+        public int getItemCount() {
+            return NUM_PAGES;
         }
     }
 }
