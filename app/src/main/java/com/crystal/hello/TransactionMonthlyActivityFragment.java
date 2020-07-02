@@ -1,5 +1,6 @@
 package com.crystal.hello;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -15,7 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class TransactionMonthlyActivityFragment extends Fragment {
+//public class TransactionMonthlyActivityFragment extends Fragment {
+public class TransactionMonthlyActivityFragment extends AppCompatActivity {
     private TransactionMonthlyActivityViewModel mViewModel;
     private View root;
 
@@ -24,45 +26,35 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     private FragmentStateAdapter pagerAdapter;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_transaction_monthly_activity);
 
-        viewPager = root.findViewById(R.id.pager);
-        pagerAdapter = new ScreenSlidePagerAdapter(this.getActivity());
+        viewPager = findViewById(R.id.pager);
+        pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
-
-        return root;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(TransactionMonthlyActivityViewModel.class);
-        // TODO: Use the ViewModel
-    }
-
-
-
-
-
-
-
-
-//    public class ScreenSlidePagerActivity extends FragmentActivity {
-//        private static final int NUM_PAGES = 5;
-//        private ViewPager2 viewPager;
-//        private FragmentStateAdapter pagerAdapter;
+//    @Override
+//    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+//                             @Nullable Bundle savedInstanceState) {
+//        root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
 //
-//        @Override
-//        protected void onCreate(Bundle savedInstanceState) {
-//            super.onCreate(savedInstanceState);
-//            setContentView(R.layout.fragment_transaction_monthly_activity); // should be activity
+//        viewPager = root.findViewById(R.id.pager);
+//        pagerAdapter = new ScreenSlidePagerAdapter(this.getActivity());
+//        viewPager.setAdapter(pagerAdapter);
 //
-//            viewPager = findViewById(R.id.pager);
-//            pagerAdapter = new ScreenSlidePagerAdapter(this);
-//            viewPager.setAdapter(pagerAdapter);
-//        }
+//        return root;
+//    }
+//
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        mViewModel = ViewModelProviders.of(this).get(TransactionMonthlyActivityViewModel.class);
+//        // TODO: Use the ViewModel
+//    }
+
+
 
 
 

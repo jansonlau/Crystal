@@ -1,5 +1,6 @@
 package com.crystal.hello.ui.home;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -17,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.crystal.hello.HomeActivity;
 import com.crystal.hello.HomeLatestTransactionsRecyclerAdapter;
 import com.crystal.hello.R;
 import com.crystal.hello.TransactionMonthlyActivityFragment;
@@ -48,16 +50,19 @@ public class HomeFragment extends Fragment {
         observeCurrentBalance();
 
         // Monthly Activity fragment
-        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
+//        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
         FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
         monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
-                        .addToBackStack(null)
-                        .commit();
+                Intent intent = new Intent(getActivity(), TransactionMonthlyActivityFragment.class);
+                startActivity(intent);
+
+//                getActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
+//                        .addToBackStack(null)
+//                        .commit();
             }
         });
 
