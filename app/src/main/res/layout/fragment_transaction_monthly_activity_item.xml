@@ -14,15 +14,15 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="12dp"
-        android:fontFamily="sans-serif-medium"
         android:text="July 2020"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/cardViewBudget"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -37,178 +37,54 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/textViewBudgetName0"
-                android:layout_width="0dp"
+                android:id="@+id/textViewBudgetTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Shopping"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:text="Budget"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:id="@+id/viewBudgetDivider0"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName1"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName0" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName1"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewBudget"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Food &amp; Drinks"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider1"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider0" />
-
-            <View
-                android:id="@+id/viewBudgetDivider1"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName2"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName1" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Travel"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider2"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider1" />
-
-            <View
-                android:id="@+id/viewBudgetDivider2"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName3"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName2" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Entertainment"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider3"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider2" />
-
-            <View
-                android:id="@+id/viewBudgetDivider3"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName4"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName3" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Health"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider4"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider3" />
-
-            <View
-                android:id="@+id/viewBudgetDivider4"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName5"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName4" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Services"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/viewBudgetDivider5"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider4" />
-
-            <View
-                android:id="@+id/viewBudgetDivider5"
-                android:layout_width="match_parent"
-                android:layout_height="0.75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/textViewBudgetName6"
-                app:layout_constraintEnd_toEndOf="@id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/textViewBudgetName5" />
-
-            <TextView
-                android:id="@+id/textViewBudgetName6"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:lines="1"
-                android:text="Transportation"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                android:textStyle="bold"
+                android:nestedScrollingEnabled="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName0"
-                app:layout_constraintStart_toStartOf="@+id/textViewBudgetName0"
-                app:layout_constraintTop_toBottomOf="@id/viewBudgetDivider5" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewBudgetTitle"
+                tools:itemCount="7"
+                tools:listitem="@layout/item_monthly_activity_budget" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textViewMerchants"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Merchants"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@id/cardViewBudget" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewMerchants"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/cardViewBudget"
+        app:layout_constraintStart_toStartOf="@+id/cardViewBudget"
+        app:layout_constraintTop_toBottomOf="@id/textViewMerchants" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

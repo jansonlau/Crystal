@@ -10,6 +10,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidEnvironment;
@@ -101,14 +102,14 @@ public class InitialConnectActivity extends AppCompatActivity {
                 // Show an error page and retry login
                 if (!hasCreditCardAccount) {
                     // Create custom layout later https://developer.android.com/guide/topics/ui/dialogs#CustomLayout
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    new MaterialAlertDialogBuilder(this)
                             .setTitle("Missing Credit Card")
-                            .setMessage("Crystal requires a bank account with a credit card");
-                    builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    }).create().show();
+                            .setMessage("Crystal requires a bank account with a credit card")
+                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                }
+                            }).create().show();
                     return Unit.INSTANCE;
                 }
 

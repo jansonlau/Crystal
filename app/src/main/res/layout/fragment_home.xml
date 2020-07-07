@@ -41,9 +41,9 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
-                        android:fontFamily="sans-serif-medium"
                         android:text="Current Balance"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -52,9 +52,9 @@
                         android:id="@+id/textViewCurrentBalanceAmount"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
                         android:text="Calculating..."
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="@+id/textViewBalance"
                         app:layout_constraintStart_toStartOf="@+id/textViewBalance"
                         app:layout_constraintTop_toBottomOf="@+id/textViewBalance" />
