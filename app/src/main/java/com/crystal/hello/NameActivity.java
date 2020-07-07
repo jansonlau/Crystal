@@ -6,6 +6,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 public class NameActivity extends AppCompatActivity {
 
     @Override
@@ -13,9 +15,14 @@ public class NameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_name);
 
-        Button button = findViewById(R.id.buttonNameContinue);
-        button.setOnClickListener(view -> {
-            Intent intent = new Intent(NameActivity.this, EmailActivity.class);
+        Button nameContinueButton = findViewById(R.id.buttonNameContinue);
+        nameContinueButton.setOnClickListener(view -> {
+            TextInputEditText firstNameEditText = findViewById(R.id.editTextFirstName);
+            TextInputEditText lastNameEditText = findViewById(R.id.editTextLastName);
+
+            Intent intent = new Intent(NameActivity.this, EmailActivity.class)
+                    .putExtra("com.crystal.hello.FIRST_NAME", String.valueOf(firstNameEditText.getText()))
+                    .putExtra("com.crystal.hello.LAST_NAME", String.valueOf(lastNameEditText.getText()));
             startActivity(intent);
         });
     }

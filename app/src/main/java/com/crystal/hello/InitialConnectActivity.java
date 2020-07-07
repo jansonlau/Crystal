@@ -6,11 +6,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidEnvironment;
@@ -26,13 +34,16 @@ import kotlin.Unit;
 
 public class InitialConnectActivity extends AppCompatActivity {
     private static final int LINK_REQUEST_CODE = 1;
+    private String publicToken;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
+        mAuth = FirebaseAuth.getInstance();
 
-        View button = findViewById(R.id.buttonLinkBankContinue);
+        Button button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> {
             setOptionalEventListener();
             openLink();
@@ -71,6 +82,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(LINK_REQUEST_CODE,
             // Handle onSuccess
+            // Metadata gives accountNumber if it's useful in the future
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
                 Log.i(InitialConnectActivity.class.getSimpleName(), getString(
@@ -80,28 +92,22 @@ public class InitialConnectActivity extends AppCompatActivity {
                         metadata.getAccounts().get(0).getAccountName(),
                         metadata.getInstitutionId(),
                         metadata.getInstitutionName()));
-                String publicToken = linkConnection.getPublicToken();
+                publicToken = linkConnection.getPublicToken();
 
-                /*
-                String accountId = metadata.getAccounts().get(0).getAccountId();
-                String accountName = metadata.getAccounts().get(0).getAccountName();
-                String accountNumber = metadata.getAccounts().get(0).getAccountNumber();
-                String accountType = metadata.getAccounts().get(0).getAccountType();
-                String accountSubType = metadata.getAccounts().get(0).getAccountSubType();
-                String institutionId = metadata.getInstitutionId();
-                String institutionName = metadata.getInstitutionName();
-                 */
-
+                // Look for credit card accounts
+                // Might want to give option to select account to add in future
                 List<LinkAccount> linkAccountList = metadata.getAccounts();
                 boolean hasCreditCardAccount = false;
                 for (LinkAccount linkAccount : linkAccountList) {
-                    if (linkAccount.getAccountSubType().equals("credit card")) {
+                    if (linkAccount.getAccountSubType() != null && linkAccount.getAccountSubType().equals("credit card")) {
                         hasCreditCardAccount = true;
+                        break;
                     }
                 }
-                // Show an error page and retry login
-                if (!hasCreditCardAccount) {
-                    // Create custom layout later https://developer.android.com/guide/topics/ui/dialogs#CustomLayout
+                // Show alert dialog if credit card account is missing
+                if (hasCreditCardAccount) {
+                    createAccount();
+                } else {
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("Missing Credit Card")
                             .setMessage("Crystal requires a bank account with a credit card")
@@ -110,14 +116,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                                     dialog.dismiss();
                                 }
                             }).create().show();
-                    return Unit.INSTANCE;
                 }
-
-                // Maybe put progress bar here until transactions and balances finish loading
-                Intent intent = new Intent(this, HomeActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT, publicToken);
-                startActivity(intent);
-                finish();
                 return Unit.INSTANCE;
             },
 
@@ -145,4 +144,26 @@ public class InitialConnectActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             }
     );
+
+    private void createAccount() {
+        String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
+        String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
+        Log.d(InitialConnectActivity.class.getSimpleName(), "createAccount:" + email);
+
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d(InitialConnectActivity.class.getSimpleName(), "createUserWithEmail:success");
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class)
+                            .putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken);
+                    startActivity(intent);
+                    finish();
+                } else { // Invalid email or password
+                    Log.w(InitialConnectActivity.class.getSimpleName(), "createUserWithEmail:failure", task.getException());
+                    Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }

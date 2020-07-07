@@ -32,8 +32,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, new HomeFragment()).commit();
 
-        Intent intent = getIntent();
-        publicToken = intent.getStringExtra(Intent.EXTRA_TEXT);
+        publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN");
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         setBottomNavigationItemSelectedListener(navView);

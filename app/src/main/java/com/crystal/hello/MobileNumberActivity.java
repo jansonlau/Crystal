@@ -6,6 +6,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 public class MobileNumberActivity extends AppCompatActivity {
 
     @Override
@@ -15,8 +17,16 @@ public class MobileNumberActivity extends AppCompatActivity {
 
         Button button = findViewById(R.id.buttonMobileNumberContinue);
         button.setOnClickListener(view -> {
-            Intent intent = new Intent(MobileNumberActivity.this, InitialConnectActivity.class);
+            TextInputEditText mobileNumberEditText = findViewById(R.id.editTextMobileNumber);
+
+            Intent intent = new Intent(MobileNumberActivity.this, InitialConnectActivity.class)
+                    .putExtra("com.crystal.hello.FIRST_NAME", getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
+                    .putExtra("com.crystal.hello.LAST_NAME", getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
+                    .putExtra("com.crystal.hello.EMAIL", getIntent().getStringExtra("com.crystal.hello.EMAIL"))
+                    .putExtra("com.crystal.hello.PASSWORD", getIntent().getStringExtra("com.crystal.hello.PASSWORD"))
+                    .putExtra("com.crystal.hello.MOBILE_NUMBER", String.valueOf(mobileNumberEditText.getText()));
             startActivity(intent);
+            finish();
         });
     }
 }

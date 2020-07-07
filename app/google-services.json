@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "81222974385",
+    "firebase_url": "https://crystal-world.firebaseio.com",
+    "project_id": "crystal-world",
+    "storage_bucket": "crystal-world.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81222974385:android:1319834d4fcbaf07621b90",
+        "android_client_info": {
+          "package_name": "com.crystal.hello"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81222974385-5bfh3mragde3k5m1lr528lg8uf07mo1f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.crystal.hello",
+            "certificate_hash": "bdb9d9cae51d7fd08dc5a986a1284e5c65c31581"
+          }
+        },
+        {
+          "client_id": "81222974385-e3fkh2gtvl52c77vb6mjuu72k61j9s08.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH2tI05qqabIWbuQEFTjVQVYLEhMaq-eM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81222974385-e3fkh2gtvl52c77vb6mjuu72k61j9s08.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
