@@ -114,22 +114,11 @@ public class TransactionItemDetailFragment extends Fragment {
         accountMask.setText(transactionAccountMask);
         status.setText(transactionStatus);
 
-//        transactionItemDetailViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
-
-
-
         return root;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // TODO: Use the ViewModel
     }
-
 }

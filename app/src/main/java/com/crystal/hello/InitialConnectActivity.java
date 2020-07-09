@@ -33,8 +33,8 @@ import java.util.List;
 import kotlin.Unit;
 
 public class InitialConnectActivity extends AppCompatActivity {
-    private static final int LINK_REQUEST_CODE = 1;
-    private String publicToken;
+    private final int LINK_REQUEST_CODE = 1;
+    private final String TAG = InitialConnectActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
 
     @Override
@@ -76,7 +76,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (!myPlaidResultHandler.onActivityResult(requestCode, resultCode, data)) {
-            Log.i(InitialConnectActivity.class.getSimpleName(), " Not handled");
+            Log.i(TAG, " Not handled");
         }
     }
 
@@ -85,14 +85,14 @@ public class InitialConnectActivity extends AppCompatActivity {
             // Metadata gives accountNumber if it's useful in the future
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
-                Log.i(InitialConnectActivity.class.getSimpleName(), getString(
+                Log.i(TAG, getString(
                         R.string.content_success,
                         linkConnection.getPublicToken(),
                         metadata.getAccounts().get(0).getAccountId(),
                         metadata.getAccounts().get(0).getAccountName(),
                         metadata.getInstitutionId(),
                         metadata.getInstitutionName()));
-                publicToken = linkConnection.getPublicToken();
+                String publicToken = linkConnection.getPublicToken();
 
                 // Look for credit card accounts
                 // Might want to give option to select account to add in future
@@ -106,7 +106,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 }
                 // Show alert dialog if credit card account is missing
                 if (hasCreditCardAccount) {
-                    createAccount();
+                    createAccount(publicToken);
                 } else {
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("Missing Credit Card")
@@ -122,7 +122,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
             // Handle onCancelled (close button / Android back button)
             linkCancellation -> {
-                Log.i(InitialConnectActivity.class.getSimpleName(), getString(
+                Log.i(TAG, getString(
                         R.string.content_cancelled,
                         linkCancellation.getInstitutionId(),
                         linkCancellation.getInstitutionName(),
@@ -133,7 +133,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
             // Handle onExit (close button???)
             plaidApiError -> {
-                Log.i(InitialConnectActivity.class.getSimpleName(), getString(
+                Log.i(TAG, getString(
                         R.string.content_exit,
                         plaidApiError.getDisplayMessage(),
                         plaidApiError.getErrorCode(),
@@ -145,25 +145,45 @@ public class InitialConnectActivity extends AppCompatActivity {
             }
     );
 
-    private void createAccount() {
+    private void createAccount(String publicToken) {
         String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
         String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
-        Log.d(InitialConnectActivity.class.getSimpleName(), "createAccount:" + email);
+        Log.d(TAG, "createAccount:" + email);
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Log.d(InitialConnectActivity.class.getSimpleName(), "createUserWithEmail:success");
-                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class)
-                            .putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken);
+                    Log.d(TAG, "createUserWithEmail:success");
+                    sendEmailVerification();
+                    Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class).putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken);
                     startActivity(intent);
                     finish();
                 } else { // Invalid email or password
-                    Log.w(InitialConnectActivity.class.getSimpleName(), "createUserWithEmail:failure", task.getException());
-                    Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                    if (task.getException() != null) {
+                        Toast.makeText(InitialConnectActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
+    }
+
+    private void sendEmailVerification() {
+        final FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "sendEmailVerification:success");
+//                        Toast.makeText(InitialConnectActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e(TAG, "sendEmailVerification:failure", task.getException());
+//                        Toast.makeText(InitialConnectActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 }

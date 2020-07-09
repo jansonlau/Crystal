@@ -40,21 +40,24 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setBottomNavigationItemSelectedListener(BottomNavigationView navView) {
-        navView.setOnNavigationItemSelectedListener(item -> {
-            Fragment fragment;
-            switch (item.getItemId()) {
-                case R.id.navigation_saved:
-                    fragment = new SavedFragment();
-                    break;
-                case R.id.navigation_profile:
-                    fragment = new ProfileFragment();
-                    break;
-                default:
-                    fragment = new HomeFragment();
-                    break;
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment fragment;
+                switch (item.getItemId()) {
+                    case R.id.navigation_saved:
+                        fragment = new SavedFragment();
+                        break;
+                    case R.id.navigation_profile:
+                        fragment = new ProfileFragment();
+                        break;
+                    default:
+                        fragment = new HomeFragment();
+                        break;
+                }
+                HomeActivity.this.getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutFragmentContainer, fragment).commit();
+                return true;
             }
-            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutFragmentContainer, fragment).commit();
-            return true;
         });
     }
 

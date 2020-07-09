@@ -20,20 +20,18 @@ import android.view.ViewGroup;
 
 //public class TransactionMonthlyActivityFragment extends Fragment {
 public class TransactionMonthlyActivityFragment extends AppCompatActivity {
-    private TransactionMonthlyActivityViewModel mViewModel;
-    private View root;
+//    private TransactionMonthlyActivityViewModel mViewModel;
+//    private View root;
 
     private static final int NUM_PAGES = 5;
-    private ViewPager2 viewPager;
-    private FragmentStateAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_transaction_monthly_activity);
 
-        viewPager = findViewById(R.id.pager);
-        pagerAdapter = new ScreenSlidePagerAdapter(this);
+        ViewPager2 viewPager = findViewById(R.id.pager);
+        FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
     }
 
@@ -53,13 +51,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
 //    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 //        super.onActivityCreated(savedInstanceState);
 //        mViewModel = ViewModelProviders.of(this).get(TransactionMonthlyActivityViewModel.class);
-//        // TODO: Use the ViewModel
 //    }
-
-
-
-
-
 
     /**
      * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in

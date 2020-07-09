@@ -26,7 +26,6 @@ public class MobileNumberActivity extends AppCompatActivity {
                     .putExtra("com.crystal.hello.PASSWORD", getIntent().getStringExtra("com.crystal.hello.PASSWORD"))
                     .putExtra("com.crystal.hello.MOBILE_NUMBER", String.valueOf(mobileNumberEditText.getText()));
             startActivity(intent);
-            finish();
         });
     }
 }
