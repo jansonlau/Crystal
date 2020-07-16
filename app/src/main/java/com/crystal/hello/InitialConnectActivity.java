@@ -1,11 +1,9 @@
 package com.crystal.hello;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -14,11 +12,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
 import com.plaid.linkbase.models.configuration.PlaidEnvironment;
@@ -28,25 +30,30 @@ import com.plaid.linkbase.models.connection.LinkConnection;
 import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kotlin.Unit;
 
 public class InitialConnectActivity extends AppCompatActivity {
     private final int LINK_REQUEST_CODE = 1;
     private final String TAG = InitialConnectActivity.class.getSimpleName();
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> {
-            setOptionalEventListener();
-            openLink();
+            createUserWithEmailAndPassword();
+//            setOptionalEventListener();
+//            openLink();
         });
     }
 
@@ -106,7 +113,11 @@ public class InitialConnectActivity extends AppCompatActivity {
                 }
                 // Show alert dialog if credit card account is missing
                 if (hasCreditCardAccount) {
-                    createAccount(publicToken);
+                    Intent intent = new Intent(InitialConnectActivity.this
+                            , HomeActivity.class).putExtra("com.crystal.hello.PUBLIC_TOKEN"
+                            , publicToken);
+                    startActivity(intent);
+                    finish();
                 } else {
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("Missing Credit Card")
@@ -145,45 +156,80 @@ public class InitialConnectActivity extends AppCompatActivity {
             }
     );
 
-    private void createAccount(String publicToken) {
+    // Add account to database only if account was successfully created in Firebase Auth
+    private void createUserWithEmailAndPassword() {
         String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
         String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
-        Log.d(TAG, "createAccount:" + email);
+        String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
+        String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME"));
+        String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER"));
 
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "createUserWithEmail:success");
-                    sendEmailVerification();
-                    Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class).putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken);
-                    startActivity(intent);
-                    finish();
-                } else { // Invalid email or password
-                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                    if (task.getException() != null) {
-                        Toast.makeText(InitialConnectActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "createUserWithEmail:success");
+
+                            setOptionalEventListener();
+                            openLink();
+//                            sendEmailVerification();
+                            setUserToDatabase(email, firstName, lastName, mobileNumber);
+
+                        } else { // Invalid email or password
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            if (task.getException() != null) {
+                                Toast.makeText(InitialConnectActivity.this
+                                        , task.getException().getMessage()
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     private void sendEmailVerification() {
-        final FirebaseUser user = mAuth.getCurrentUser();
+        final FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "sendEmailVerification:success");
-//                        Toast.makeText(InitialConnectActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InitialConnectActivity.this
+                                , "Verification email sent to " + user.getEmail()
+                                , Toast.LENGTH_SHORT).show();
                     } else {
                         Log.e(TAG, "sendEmailVerification:failure", task.getException());
-//                        Toast.makeText(InitialConnectActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InitialConnectActivity.this
+                                , "Failed to send verification email."
+                                , Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
+    }
+
+    private void setUserToDatabase(String email, String firstName, String lastName, String mobileNumber) {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("email", email);
+        userData.put("first", firstName);
+        userData.put("last", lastName);
+        userData.put("mobile", mobileNumber);
+
+        db.collection("users").document(auth.getCurrentUser().getUid())
+                .set(userData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
     }
 }
