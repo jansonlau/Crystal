@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -30,7 +31,13 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, new HomeFragment()).commit();
+
+        Bundle bundle = new Bundle();
+        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
+        bundle.putBoolean("com.crystal.hello.CREATE_USER", booleanExtra);
+        Fragment homeFragment = new HomeFragment();
+        homeFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, homeFragment).commit();
 
         publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN");
 
@@ -52,10 +59,16 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                     default:
+                        Bundle bundle = new Bundle();
+                        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
+                        bundle.putBoolean("com.crystal.hello.CREATE_USER", booleanExtra);
                         fragment = new HomeFragment();
+                        fragment.setArguments(bundle);
                         break;
                 }
-                HomeActivity.this.getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutFragmentContainer, fragment).commit();
+                HomeActivity.this.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayoutFragmentContainer, fragment)
+                        .commit();
                 return true;
             }
         });

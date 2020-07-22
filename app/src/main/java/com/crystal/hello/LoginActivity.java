@@ -3,6 +3,7 @@ package com.crystal.hello;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -27,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText usernameEditText;
     private TextInputEditText passwordEditText;
     private Button loginButton;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.editTextLoginUsername);
         passwordEditText = findViewById(R.id.editTextLoginPassword);
         loginButton = findViewById(R.id.buttonLogin);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         setListeners();
     }
 
@@ -101,25 +102,31 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
+    // Sign in user and start HomeActivity
     private void signIn(String email, String password) {
         Log.d(LoginActivity.class.getSimpleName(), "signIn:" + email);
         if (!validateForm()) {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(LoginActivity.class.getSimpleName(), "signInWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser(); // TODO: Start HomeActivity when logged in
-
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finishAffinity();
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w(LoginActivity.class.getSimpleName(), "signInWithEmail:failure", task.getException());
+                    Log.w(LoginActivity.class.getSimpleName()
+                            , "signInWithEmail:failure"
+                            , task.getException());
                     if (task.getException() != null) {
-                        Toast.makeText(LoginActivity.this, "Your username or password was incorrect.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this
+                                , "Your username or password was incorrect."
+                                , Toast.LENGTH_SHORT).show();
                     }
                 }
             }

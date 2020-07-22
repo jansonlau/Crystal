@@ -17,16 +17,18 @@ import com.plaid.client.response.TransactionsGetResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<HomeLatestTransactionsRecyclerAdapter.ViewHolder> {
-    private final List<TransactionsGetResponse.Transaction> transactionList;
+    private final List<Map<String, Object>> transactionsList;
     private final LayoutInflater layoutInflater;
     private final FragmentActivity fragmentActivity;
 
-    public HomeLatestTransactionsRecyclerAdapter(FragmentActivity activity, List<TransactionsGetResponse.Transaction> list) {
-        transactionList = list;
+    public HomeLatestTransactionsRecyclerAdapter(FragmentActivity activity, List<Map<String, Object>> list) {
+        transactionsList = list;
         layoutInflater = LayoutInflater.from(activity);
         fragmentActivity = activity;
     }
@@ -40,11 +42,11 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TransactionsGetResponse.Transaction transaction = transactionList.get(position);
-        String transactionName = transaction.getName();
+        Map<String, Object> transaction = transactionsList.get(position);
+        String transactionName = (String) transaction.get("name");
 
         // Set date
-        String transactionDate = transaction.getDate();
+        String transactionDate = (String) transaction.get("date");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         try {
             Date date = dateFormat.parse(transactionDate);
@@ -57,21 +59,21 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         }
 
         // Set location and amount
-        TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
+        Map<String, Object> location = (HashMap<String, Object>) transaction.get("location");
         String transactionLocation = "";
-        String transactionAmount = String.format(Locale.US,"%.2f", transaction.getAmount());
+        String transactionAmount = String.format(Locale.US,"%.2f", (double) transaction.get("amount"));
 
-        if (transaction.getAmount() >= 0.00) {
+        if ((double) transaction.get("amount") >= 0.00) {
             transactionAmount = "$" + transactionAmount;
 
-            if (transaction.getPending()) {
+            if ((boolean) transaction.get("pending")) {
                 transactionLocation = "Pending - ";
             }
 
-            if ((location.getCity() != null && location.getRegion() != null)) {
-                transactionLocation += location.getCity() + ", " + location.getRegion();
+            if ((location != null && location.get("city") != null && location.get("region") != null)) {
+                transactionLocation += location.get("city") + ", " + location.get("region");
             } else {
-                switch (transaction.getPaymentChannel()) {
+                switch ((String) transaction.get("paymentChannel")) {
                     case "online":
                         transactionLocation += "Online";
                         break;
@@ -126,7 +128,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
 
     @Override
     public int getItemCount() {
-        return transactionList.size();
+        return transactionsList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

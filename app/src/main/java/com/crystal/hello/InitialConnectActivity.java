@@ -41,12 +41,14 @@ public class InitialConnectActivity extends AppCompatActivity {
     private final String TAG = InitialConnectActivity.class.getSimpleName();
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
@@ -113,11 +115,11 @@ public class InitialConnectActivity extends AppCompatActivity {
                 }
                 // Show alert dialog if credit card account is missing
                 if (hasCreditCardAccount) {
-                    Intent intent = new Intent(InitialConnectActivity.this
-                            , HomeActivity.class).putExtra("com.crystal.hello.PUBLIC_TOKEN"
-                            , publicToken);
+                    Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
+                            .putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken)
+                            .putExtra("com.crystal.hello.CREATE_USER", true);
                     startActivity(intent);
-                    finish();
+                    finishAffinity();
                 } else {
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("Missing Credit Card")
@@ -189,7 +191,6 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     private void sendEmailVerification() {
-        final FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
                 @Override
@@ -210,6 +211,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         }
     }
 
+    // Set user profile information to "users" collection with Firebase Auth Uid as document ID
     private void setUserToDatabase(String email, String firstName, String lastName, String mobileNumber) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
@@ -217,19 +219,22 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
 
-        db.collection("users").document(auth.getCurrentUser().getUid())
-                .set(userData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
+        if (user != null) {
+            db.collection("users")
+                    .document(user.getUid())
+                    .set(userData)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+        }
     }
 }

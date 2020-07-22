@@ -29,6 +29,7 @@ import com.robinhood.spark.SparkView;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 public class HomeFragment extends Fragment {
@@ -46,8 +47,17 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         root = inflater.inflate(R.layout.fragment_home, container, false);
+
         observeTransactionList();
         observeCurrentBalance();
+
+        if (getArguments() != null && getArguments().getBoolean("com.crystal.hello.CREATE_USER")) {
+            homeViewModel.buildPlaidClient();
+            homeViewModel.exchangeAccessToken();
+        } else {
+            homeViewModel.getTransactionsFromDatabase();
+            homeViewModel.getBalancesFromDatabase();
+        }
 
         // Monthly Activity fragment
 //        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
@@ -70,9 +80,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void observeTransactionList() {
-        homeViewModel.getTransactionList().observe(getViewLifecycleOwner(), new Observer<List<TransactionsGetResponse.Transaction>>() {
+        homeViewModel.getSubsetTransactionsList().observe(getViewLifecycleOwner(), new Observer<List<Map<String, Object>>>() {
             @Override
-            public void onChanged(List<TransactionsGetResponse.Transaction> list) {
+            public void onChanged(List<Map<String, Object>> list) {
                 final HomeLatestTransactionsRecyclerAdapter recyclerAdapter = new HomeLatestTransactionsRecyclerAdapter(getActivity(), list);
                 RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -82,7 +92,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void observeCurrentBalance() {
-        homeViewModel.getCurrentBalanceAmount().observe(getViewLifecycleOwner(), new Observer<Double>() {
+        homeViewModel.getCurrentTotalBalance().observe(getViewLifecycleOwner(), new Observer<Double>() {
             @Override
             public void onChanged(Double aDouble) {
                 String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
@@ -224,7 +234,7 @@ public class HomeFragment extends Fragment {
 
         public TransactionSparkAdapter() {
             random = new Random();
-            yData = new double[50]; // this will be axis of balance later. not transaction amount.
+            yData = new double[31]; // this will be axis of balance later. not transaction amount.
 //            initializeTransactionAmount();
             randomize();
         }

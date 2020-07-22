@@ -9,11 +9,19 @@ import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
 import com.crystal.hello.InitialConnectActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.CategoriesGetRequest;
@@ -47,51 +55,59 @@ public class HomeViewModel extends ViewModel {
     private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
     private String sandboxSecretKey = "74cf176067e0712cc2eabdf800829e";
     private String publicKey = "bbf9cf93da45517aa5283841dfc534";
-
     private final String TAG = HomeViewModel.class.getSimpleName();
-    private MutableLiveData<List<TransactionsGetResponse.Transaction>> mList;
-    private MutableLiveData<Double> currentBalanceAmount;
-    private static List<TransactionsGetResponse.Transaction> fullTransactionList;
+
+    private MutableLiveData<Double> currentTotalBalance;
+    private static List<TransactionsGetResponse.Transaction> allTransactionsList;
     private static HashMap<String, Account> accountIdToAccountMap;
-//    private HashMap<String, List<TransactionsGetResponse.Transaction>> accountIdToTransactionListMap;
+    private MutableLiveData<List<Map<String, Object>>> subsetTransactionsList;
+
     private PlaidClient plaidClient;
     private int transactionOffset;
     private final int count;
-    FirebaseUser user;
-    private FirebaseFirestore db;
+    private final FirebaseUser user;
+    private final FirebaseFirestore db;
+    private final DocumentReference docRef;
 
     public HomeViewModel() {
-        mList = new MutableLiveData<>();
-        currentBalanceAmount = new MutableLiveData<>();
-        fullTransactionList = new LinkedList<>();
-        accountIdToAccountMap = new HashMap<>(); // credit card accounts only
-//        accountIdToTransactionListMap = new HashMap<>();
+        currentTotalBalance = new MutableLiveData<>();
+        subsetTransactionsList = new MutableLiveData<>();
+        allTransactionsList = new ArrayList<>();
+
+        accountIdToAccountMap = new HashMap<>(); // Credit card accounts only
         transactionOffset = 0;
         count = 500;
         user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-
-        buildPlaidClient();
-        exchangeAccessToken();
+        docRef = db.collection("users").document(user.getUid());
     }
 
-    public LiveData<List<TransactionsGetResponse.Transaction>> getTransactionList() { return mList; }
-    public LiveData<Double> getCurrentBalanceAmount() {
-        return currentBalanceAmount;
+    public LiveData<Double> getCurrentTotalBalance() {
+        return currentTotalBalance;
     }
-    public static List<TransactionsGetResponse.Transaction> getFullTransactionList() { return fullTransactionList; }
-    public static HashMap<String, Account> getAccountIdToAccountMap() { return accountIdToAccountMap; }
 
-    private void buildPlaidClient() {
+    public LiveData<List<Map<String, Object>>> getSubsetTransactionsList() {
+        return subsetTransactionsList;
+    }
+
+    public static List<TransactionsGetResponse.Transaction> getAllTransactionsList() {
+        return allTransactionsList;
+    }
+
+    public static HashMap<String, Account> getAccountIdToAccountMap() {
+        return accountIdToAccountMap;
+    }
+
+    protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(clientIdKey, sandboxSecretKey)
-                .publicKey(publicKey) // optional. only needed to call endpoints that require a public key
+                .publicKey(publicKey)
                 .sandboxBaseUrl()
                 .build();
     }
 
-    // Asynchronously get token
-    private void exchangeAccessToken() {
+    // Asynchronously get token for a bank account
+    protected void exchangeAccessToken() {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
@@ -102,8 +118,8 @@ public class HomeViewModel extends ViewModel {
                         if (response.isSuccessful() && response.body() != null) {
                             accessToken = response.body().getAccessToken();
                             itemId = response.body().getItemId();
-                            Log.i(TAG + " plaid_accessToken", response.body().getAccessToken());
-                            Log.i(TAG + " plaid_itemId", response.body().getItemId());
+                            Log.i(TAG + ":plaid_accessToken:", response.body().getAccessToken());
+                            Log.i(TAG + ":plaid_itemId:", response.body().getItemId());
                             getPlaidTransactionsAndBalances(transactionOffset);
                         }
                     }
@@ -144,36 +160,20 @@ public class HomeViewModel extends ViewModel {
                         setAccountsToDatabase(accountIdToAccountMap);
                     }
 
-//                    // Map each credit card transaction to an account id for easy reference
-//                    for (HashMap.Entry<String, Account> entry : accountIdToAccountMap.entrySet()) {
-//                        List<TransactionsGetResponse.Transaction> list = new ArrayList<>();
-//
-//                        for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
-//                            if (entry.getKey().equals(transaction.getAccountId())) {
-//                                if (accountIdToTransactionListMap.containsKey(entry.getKey())) {
-//                                    accountIdToTransactionListMap.get(entry.getKey()).add(transaction);
-//                                } else {
-//                                    list.add(transaction);
-//                                    accountIdToTransactionListMap.put(entry.getKey(), list);
-//                                }
-//                            }
-//                        }
-//                    }
-
                     // Call getTransactions first b/c transactions are sorted by date
-                    List<TransactionsGetResponse.Transaction> transactionList = new ArrayList<>();
+                    List<TransactionsGetResponse.Transaction> paginatedTransactionsList = new ArrayList<>();
                     for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                         for (String accountId : accountIdToAccountMap.keySet()) {
                             if (transaction.getAccountId().equals(accountId)) {
-                                transactionList.add(transaction);
+                                paginatedTransactionsList.add(transaction);
                             }
                         }
                     }
 
-                    fullTransactionList.addAll(transactionList);
+                    allTransactionsList.addAll(paginatedTransactionsList);
                     transactionOffset += count;
 
-                    for (TransactionsGetResponse.Transaction transaction : transactionList) {
+                    for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
                         Log.d(TAG + " plaid_transaction",
                                 transaction.getDate() + " "
                                         + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
@@ -185,14 +185,14 @@ public class HomeViewModel extends ViewModel {
                     if (transactionOffset < totalTransactions) {
                         getPlaidTransactionsAndBalances(transactionOffset); // Get all transactions within the date period set
                     } else {
-                        // Calculate balance
-                        double currentBalance = 0.0;
-                        for (Account account : accountIdToAccountMap.values()) {
-                            currentBalance += account.getBalances().getCurrent();
-                        }
-                        currentBalanceAmount.setValue(currentBalance);
-                        mList.setValue(fullTransactionList); // Post all transactions
-                        setTransactionsToDatabase(fullTransactionList);
+//                        // Calculate balance
+//                        double currentBalance = 0.0;
+//                        for (Account account : accountIdToAccountMap.values()) {
+//                            currentBalance += account.getBalances().getCurrent();
+//                        }
+//                        currentBalanceAmount.setValue(currentBalance);
+
+                        setTransactionsToDatabase(allTransactionsList);
                     }
                 }
             }
@@ -204,39 +204,17 @@ public class HomeViewModel extends ViewModel {
         });
     }
 
-//    private void getCategories() {
-//        // Code for getting categories https://plaid.com/docs/#categories
-//
-//        PlaidClient plaidClient = PlaidClient.newBuilder()
-//                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
-//                .publicKey(publicKey) // optional. only needed to call endpoints that require a public key
-//                .sandboxBaseUrl()
-//                .build();
-//
-//        plaidClient.service().categoriesGet(new CategoriesGetRequest()).enqueue(new Callback<CategoriesGetResponse>() {
-//            @Override
-//            public void onResponse(Call<CategoriesGetResponse> call, Response<CategoriesGetResponse> response) {
-//                List<CategoriesGetResponse.Category> categories = response.body().getCategories();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<CategoriesGetResponse> call, Throwable t) {
-//
-//            }
-//        });
-//    }
-
+    // Set Transaction to "transactions" collection with Plaid transactionId as document ID
     private void setTransactionsToDatabase(List<TransactionsGetResponse.Transaction> fullTransactionList) {
         for (TransactionsGetResponse.Transaction transaction : fullTransactionList) {
-            db.collection("accounts")
-                    .document(user.getUid())
-                    .collection("transactions")
+            docRef.collection("transactions")
                     .document(transaction.getTransactionId())
                     .set(transaction, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "DocumentSnapshot successfully written!");
+                            getTransactionsFromDatabase();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -248,11 +226,10 @@ public class HomeViewModel extends ViewModel {
         }
     }
 
+    // Set Account to "banks" collection with Plaid accountId as document ID
     private void setAccountsToDatabase(HashMap<String, Account> accountIdToAccountMap) {
         for (Account account : accountIdToAccountMap.values()) {
-            db.collection("accounts")
-                    .document(user.getUid())
-                    .collection("banks")
+            docRef.collection("banks")
                     .document(account.getAccountId())
                     .set(account, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -271,7 +248,8 @@ public class HomeViewModel extends ViewModel {
             HashMap<String, Object> data = new HashMap<>();
             data.put("accessToken", accessToken);
             data.put("itemId", itemId);
-            db.collection("accounts")
+
+            db.collection("users")
                     .document(user.getUid())
                     .collection("banks")
                     .document(account.getAccountId())
@@ -289,6 +267,49 @@ public class HomeViewModel extends ViewModel {
                         }
                     });
         }
+    }
 
+    protected void getTransactionsFromDatabase() {
+        docRef.collection("transactions")
+                .orderBy("date", Query.Direction.DESCENDING).limit(10)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<Map<String, Object>> transactionDocuments = new ArrayList<>();
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                transactionDocuments.add(document.getData());
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                            subsetTransactionsList.setValue(transactionDocuments);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    protected void getBalancesFromDatabase() {
+        docRef.collection("banks")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            double totalBalance = 0.0;
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
+                                totalBalance += (double) balances.get("current");
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                            currentTotalBalance.setValue(totalBalance);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 }

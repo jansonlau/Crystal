@@ -45,6 +45,7 @@ public class TransactionItemDetailFragment extends Fragment {
         String transactionItemAmount = "";
         String transactionAccountMask = "\u2022\u2022\u2022\u2022 ";
 
+        // TODO Get HomeViewModel instead
         if (getArguments() != null) {
             transactionItemPosition = getArguments().getInt("TRANSACTION_ITEM_POSITION");
             transactionItemName = getArguments().getString("TRANSACTION_ITEM_NAME");
@@ -52,7 +53,7 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionItemAmount = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         }
 
-        TransactionsGetResponse.Transaction transaction = HomeViewModel.getFullTransactionList().get(transactionItemPosition);
+        TransactionsGetResponse.Transaction transaction = HomeViewModel.getAllTransactionsList().get(transactionItemPosition);
         TransactionsGetResponse.Transaction.Location location = transaction.getLocation();
         Account account = HomeViewModel.getAccountIdToAccountMap().get(transaction.getAccountId());
 
