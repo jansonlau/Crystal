@@ -51,11 +51,12 @@ public class HomeFragment extends Fragment {
         observeTransactionList();
         observeCurrentBalance();
 
+        // New user from create account
         if (getArguments() != null && getArguments().getBoolean("com.crystal.hello.CREATE_USER")) {
             homeViewModel.buildPlaidClient();
             homeViewModel.exchangeAccessToken();
-        } else {
-            homeViewModel.getTransactionsFromDatabase();
+        } else { // Log in
+            homeViewModel.getSubsetTransactionsFromDatabase();
             homeViewModel.getBalancesFromDatabase();
         }
 

@@ -8,27 +8,22 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.HomeActivity;
-import com.crystal.hello.InitialConnectActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 import com.plaid.client.PlaidClient;
-import com.plaid.client.request.CategoriesGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.response.Account;
-import com.plaid.client.response.CategoriesGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.TransactionsGetResponse;
 
@@ -37,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,14 +52,12 @@ public class HomeViewModel extends ViewModel {
     private final String TAG = HomeViewModel.class.getSimpleName();
 
     private MutableLiveData<Double> currentTotalBalance;
-    private static List<TransactionsGetResponse.Transaction> allTransactionsList;
-    private static HashMap<String, Account> accountIdToAccountMap;
+    private List<TransactionsGetResponse.Transaction> allTransactionsList;
     private MutableLiveData<List<Map<String, Object>>> subsetTransactionsList;
+    private HashMap<String, Account> accountIdToAccountMap;
 
     private PlaidClient plaidClient;
     private int transactionOffset;
-    private final int count;
-    private final FirebaseUser user;
     private final FirebaseFirestore db;
     private final DocumentReference docRef;
 
@@ -73,13 +65,11 @@ public class HomeViewModel extends ViewModel {
         currentTotalBalance = new MutableLiveData<>();
         subsetTransactionsList = new MutableLiveData<>();
         allTransactionsList = new ArrayList<>();
-
         accountIdToAccountMap = new HashMap<>(); // Credit card accounts only
         transactionOffset = 0;
-        count = 500;
-        user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        docRef = db.collection("users").document(user.getUid());
+        docRef = db.collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     public LiveData<Double> getCurrentTotalBalance() {
@@ -88,14 +78,6 @@ public class HomeViewModel extends ViewModel {
 
     public LiveData<List<Map<String, Object>>> getSubsetTransactionsList() {
         return subsetTransactionsList;
-    }
-
-    public static List<TransactionsGetResponse.Transaction> getAllTransactionsList() {
-        return allTransactionsList;
-    }
-
-    public static HashMap<String, Account> getAccountIdToAccountMap() {
-        return accountIdToAccountMap;
     }
 
     protected void buildPlaidClient() {
@@ -111,7 +93,6 @@ public class HomeViewModel extends ViewModel {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
-
                     @Override
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
@@ -133,6 +114,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     private void getPlaidTransactionsAndBalances(Integer offset) {
+        final int count = 500;
 //        Date startDate = new Date(1511049600L); // 1970
 //        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
@@ -142,7 +124,9 @@ public class HomeViewModel extends ViewModel {
                         .withCount(count)
                         .withOffset(offset);
 
-        plaidClient.service().transactionsGet(request).enqueue(new Callback<TransactionsGetResponse>() {
+        plaidClient.service()
+                .transactionsGet(request)
+                .enqueue(new Callback<TransactionsGetResponse>() {
             @Override
             public void onResponse(@NotNull Call<TransactionsGetResponse> call,
                                    @NotNull Response<TransactionsGetResponse> response) {
@@ -160,10 +144,10 @@ public class HomeViewModel extends ViewModel {
                         setAccountsToDatabase(accountIdToAccountMap);
                     }
 
-                    // Call getTransactions first b/c transactions are sorted by date
+                    // Get transactions
                     List<TransactionsGetResponse.Transaction> paginatedTransactionsList = new ArrayList<>();
-                    for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
-                        for (String accountId : accountIdToAccountMap.keySet()) {
+                    for (String accountId : accountIdToAccountMap.keySet()) {
+                        for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
                             if (transaction.getAccountId().equals(accountId)) {
                                 paginatedTransactionsList.add(transaction);
                             }
@@ -174,10 +158,9 @@ public class HomeViewModel extends ViewModel {
                     transactionOffset += count;
 
                     for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
-                        Log.d(TAG + " plaid_transaction",
-                                transaction.getDate() + " "
-                                        + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
-                                        + transaction.getName());
+                        Log.d(TAG + " plaid_transaction", transaction.getDate() + " "
+                                + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
+                                + transaction.getName());
                     }
 
                     // If there are more than 500 transactions, get more because they're paginated
@@ -185,13 +168,6 @@ public class HomeViewModel extends ViewModel {
                     if (transactionOffset < totalTransactions) {
                         getPlaidTransactionsAndBalances(transactionOffset); // Get all transactions within the date period set
                     } else {
-//                        // Calculate balance
-//                        double currentBalance = 0.0;
-//                        for (Account account : accountIdToAccountMap.values()) {
-//                            currentBalance += account.getBalances().getCurrent();
-//                        }
-//                        currentBalanceAmount.setValue(currentBalance);
-
                         setTransactionsToDatabase(allTransactionsList);
                     }
                 }
@@ -204,7 +180,7 @@ public class HomeViewModel extends ViewModel {
         });
     }
 
-    // Set Transaction to "transactions" collection with Plaid transactionId as document ID
+    // Set Plaid Transaction to "transactions" collection with Plaid transactionId as document ID
     private void setTransactionsToDatabase(List<TransactionsGetResponse.Transaction> fullTransactionList) {
         for (TransactionsGetResponse.Transaction transaction : fullTransactionList) {
             docRef.collection("transactions")
@@ -214,7 +190,7 @@ public class HomeViewModel extends ViewModel {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "DocumentSnapshot successfully written!");
-                            getTransactionsFromDatabase();
+                            getSubsetTransactionsFromDatabase();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -226,38 +202,26 @@ public class HomeViewModel extends ViewModel {
         }
     }
 
-    // Set Account to "banks" collection with Plaid accountId as document ID
+    // Set Plaid Account to "banks" collection with Plaid accountId as document ID
     private void setAccountsToDatabase(HashMap<String, Account> accountIdToAccountMap) {
-        for (Account account : accountIdToAccountMap.values()) {
-            docRef.collection("banks")
-                    .document(account.getAccountId())
-                    .set(account, SetOptions.merge())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
+        WriteBatch batch = db.batch();
 
+        for (Account account : accountIdToAccountMap.values()) {
             HashMap<String, Object> data = new HashMap<>();
             data.put("accessToken", accessToken);
             data.put("itemId", itemId);
 
-            db.collection("users")
-                    .document(user.getUid())
-                    .collection("banks")
-                    .document(account.getAccountId())
-                    .set(data, SetOptions.merge())
+            DocumentReference banksRef = docRef.collection("banks")
+                    .document(account.getAccountId());
+            batch.set(banksRef, data, SetOptions.merge());
+            batch.set(banksRef, account, SetOptions.merge());
+
+            batch.commit()
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "DocumentSnapshot successfully written!");
+                            getBalancesFromDatabase();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -269,7 +233,7 @@ public class HomeViewModel extends ViewModel {
         }
     }
 
-    protected void getTransactionsFromDatabase() {
+    protected void getSubsetTransactionsFromDatabase() {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.DESCENDING).limit(10)
                 .get()

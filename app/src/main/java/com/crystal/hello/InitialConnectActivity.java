@@ -41,38 +41,20 @@ public class InitialConnectActivity extends AppCompatActivity {
     private final String TAG = InitialConnectActivity.class.getSimpleName();
     private FirebaseAuth auth;
     private FirebaseFirestore db;
-    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> {
             createUserWithEmailAndPassword();
-//            setOptionalEventListener();
-//            openLink();
         });
     }
 
-    /**
-     * Optional, set an <a href="https://plaid.com/docs/link/android/#handling-onevent">event listener</a>.
-     */
-    private void setOptionalEventListener() {
-        Plaid.setLinkEventListener(linkEvent -> {
-            Log.i("Event", linkEvent.toString());
-            return Unit.INSTANCE;
-        });
-    }
-
-    /**
-     * For all Link configuration options, have a look at the
-     * <a href="https://plaid.com/docs/link/android/#parameter-reference">parameter reference</>
-     */
     private void openLink() {
         ArrayList<PlaidProduct> products = new ArrayList<>();
         products.add(PlaidProduct.TRANSACTIONS);
@@ -113,6 +95,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                         break;
                     }
                 }
+
                 // Show alert dialog if credit card account is missing
                 if (hasCreditCardAccount) {
                     Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
@@ -173,7 +156,6 @@ public class InitialConnectActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "createUserWithEmail:success");
 
-                            setOptionalEventListener();
                             openLink();
 //                            sendEmailVerification();
                             setUserToDatabase(email, firstName, lastName, mobileNumber);
@@ -191,24 +173,24 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     private void sendEmailVerification() {
-        if (user != null) {
-            user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "sendEmailVerification:success");
-                        Toast.makeText(InitialConnectActivity.this
-                                , "Verification email sent to " + user.getEmail()
-                                , Toast.LENGTH_SHORT).show();
-                    } else {
-                        Log.e(TAG, "sendEmailVerification:failure", task.getException());
-                        Toast.makeText(InitialConnectActivity.this
-                                , "Failed to send verification email."
-                                , Toast.LENGTH_SHORT).show();
+        FirebaseUser user = auth.getCurrentUser();
+        user.sendEmailVerification()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "sendEmailVerification:success");
+                            Toast.makeText(InitialConnectActivity.this
+                                    , "Verification email sent to " + user.getEmail()
+                                    , Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "sendEmailVerification:failure", task.getException());
+                            Toast.makeText(InitialConnectActivity.this
+                                    , "Failed to send verification email."
+                                    , Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            });
-        }
+                });
     }
 
     // Set user profile information to "users" collection with Firebase Auth Uid as document ID
@@ -219,22 +201,20 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
 
-        if (user != null) {
-            db.collection("users")
-                    .document(user.getUid())
-                    .set(userData)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-        }
+        db.collection("users")
+                .document(auth.getCurrentUser().getUid())
+                .set(userData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
     }
 }
