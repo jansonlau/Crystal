@@ -118,6 +118,9 @@ public class InitialConnectActivity extends AppCompatActivity {
 
             // Handle onCancelled (close button / Android back button)
             linkCancellation -> {
+                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finishAffinity();
                 Log.i(TAG, getString(
                         R.string.content_cancelled,
                         linkCancellation.getInstitutionId(),

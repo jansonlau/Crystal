@@ -45,16 +45,17 @@ public class HomeViewModel extends ViewModel {
     private String accessToken; // In production, store it in a secure persistent data store.
     private String itemId;
 
-    private String clientIdKey = "5e9e830fd1ed690012c3be3c";
+    private String clientIdKey          = "5e9e830fd1ed690012c3be3c";
     private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
-    private String sandboxSecretKey = "74cf176067e0712cc2eabdf800829e";
-    private String publicKey = "bbf9cf93da45517aa5283841dfc534";
-    private final String TAG = HomeViewModel.class.getSimpleName();
+    private String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
+    private String publicKey            = "bbf9cf93da45517aa5283841dfc534";
+    private final String TAG            = HomeViewModel.class.getSimpleName();
 
     private MutableLiveData<Double> currentTotalBalance;
     private List<TransactionsGetResponse.Transaction> allTransactionsList;
-    private MutableLiveData<List<Map<String, Object>>> subsetTransactionsList;
-    private HashMap<String, Account> accountIdToAccountMap;
+    private MutableLiveData<List<Map<String, Object>>> mutableSubsetTransactionsList;
+    private static List<Map<String, Object>> subsetTransactionsList; // Used in TransactionItemDetailFragment so requires static declaration
+    private Map<String, Account> accountIdToAccountMap;
 
     private PlaidClient plaidClient;
     private int transactionOffset;
@@ -62,13 +63,13 @@ public class HomeViewModel extends ViewModel {
     private final DocumentReference docRef;
 
     public HomeViewModel() {
-        currentTotalBalance = new MutableLiveData<>();
-        subsetTransactionsList = new MutableLiveData<>();
-        allTransactionsList = new ArrayList<>();
-        accountIdToAccountMap = new HashMap<>(); // Credit card accounts only
-        transactionOffset = 0;
-        db = FirebaseFirestore.getInstance();
-        docRef = db.collection("users")
+        currentTotalBalance             = new MutableLiveData<>();
+        mutableSubsetTransactionsList   = new MutableLiveData<>();
+        allTransactionsList             = new ArrayList<>();
+        accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
+        transactionOffset               = 0;
+        db                              = FirebaseFirestore.getInstance();
+        docRef                          = db.collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
@@ -76,7 +77,11 @@ public class HomeViewModel extends ViewModel {
         return currentTotalBalance;
     }
 
-    public LiveData<List<Map<String, Object>>> getSubsetTransactionsList() {
+    public LiveData<List<Map<String, Object>>> getMutableSubsetTransactionsList() {
+        return mutableSubsetTransactionsList;
+    }
+
+    public List<Map<String, Object>> getSubsetTransactionsList() {
         return subsetTransactionsList;
     }
 
@@ -203,34 +208,35 @@ public class HomeViewModel extends ViewModel {
     }
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
-    private void setAccountsToDatabase(HashMap<String, Account> accountIdToAccountMap) {
+    private void setAccountsToDatabase(Map<String, Account> accountIdToAccountMap) {
         WriteBatch batch = db.batch();
 
         for (Account account : accountIdToAccountMap.values()) {
-            HashMap<String, Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("accessToken", accessToken);
             data.put("itemId", itemId);
 
             DocumentReference banksRef = docRef.collection("banks")
                     .document(account.getAccountId());
+
             batch.set(banksRef, data, SetOptions.merge());
             batch.set(banksRef, account, SetOptions.merge());
-
-            batch.commit()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                            getBalancesFromDatabase();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
         }
+
+        batch.commit()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                        getBalancesFromDatabase();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
     }
 
     protected void getSubsetTransactionsFromDatabase() {
@@ -241,13 +247,12 @@ public class HomeViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            List<Map<String, Object>> transactionDocuments = new ArrayList<>();
-
+                            subsetTransactionsList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                transactionDocuments.add(document.getData());
+                                subsetTransactionsList.add(document.getData());
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                             }
-                            subsetTransactionsList.setValue(transactionDocuments);
+                            mutableSubsetTransactionsList.setValue(subsetTransactionsList);
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
@@ -263,7 +268,6 @@ public class HomeViewModel extends ViewModel {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             double totalBalance = 0.0;
-
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
                                 totalBalance += (double) balances.get("current");
