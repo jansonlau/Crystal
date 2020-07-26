@@ -42,10 +42,6 @@ public class HomeFragment extends Fragment {
     private static TransactionSparkAdapter sparkAdapter;
     private static double[] yData;
 
-    // The onCreateView method is called when Fragment should create its View object hierarchy,
-    // either dynamically or via XML layout inflation.
-    // https://guides.codepath.com/android/Creating-and-Using-Fragments
-    // https://developer.android.com/guide/components/fragments
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);

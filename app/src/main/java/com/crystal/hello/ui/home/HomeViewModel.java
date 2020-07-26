@@ -23,6 +23,7 @@ import com.google.firebase.firestore.WriteBatch;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
+import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import com.plaid.client.response.TransactionsGetResponse;
@@ -52,9 +53,10 @@ public class HomeViewModel extends ViewModel {
     private final String TAG            = HomeViewModel.class.getSimpleName();
 
     private MutableLiveData<Double> currentTotalBalance;
-    private List<TransactionsGetResponse.Transaction> allTransactionsList;
     private MutableLiveData<List<Map<String, Object>>> mutableSubsetTransactionsList;
-    private static List<Map<String, Object>> subsetTransactionsList; // Used in TransactionItemDetailFragment so requires static declaration
+    private static List<Map<String, Object>> subsetTransactionsList; // Use in TransactionItemDetailFragment requires static declaration
+    private static List<Map<String, Object>> bankAccountsList;
+    private List<TransactionsGetResponse.Transaction> allTransactionsList;
     private Map<String, Account> accountIdToAccountMap;
 
     private PlaidClient plaidClient;
@@ -85,6 +87,10 @@ public class HomeViewModel extends ViewModel {
         return subsetTransactionsList;
     }
 
+    public List<Map<String, Object>> getBankAccountsList() {
+        return bankAccountsList;
+    }
+
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(clientIdKey, sandboxSecretKey)
@@ -106,7 +112,7 @@ public class HomeViewModel extends ViewModel {
                             itemId = response.body().getItemId();
                             Log.i(TAG + ":plaid_accessToken:", response.body().getAccessToken());
                             Log.i(TAG + ":plaid_itemId:", response.body().getItemId());
-                            getPlaidTransactionsAndBalances(transactionOffset);
+                            getPlaidAccountsAndTransactions(transactionOffset);
                         }
                     }
 
@@ -118,7 +124,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    private void getPlaidTransactionsAndBalances(Integer offset) {
+    private void getPlaidAccountsAndTransactions(Integer offset) {
         final int count = 500;
 //        Date startDate = new Date(1511049600L); // 1970
 //        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
@@ -146,7 +152,7 @@ public class HomeViewModel extends ViewModel {
                                 accountIdToAccountMap.put(account.getAccountId(), account);
                             }
                         }
-                        setAccountsToDatabase(accountIdToAccountMap);
+                        setPlaidAccountsToDatabase(accountIdToAccountMap);
                     }
 
                     // Get transactions
@@ -171,9 +177,9 @@ public class HomeViewModel extends ViewModel {
                     // If there are more than 500 transactions, get more because they're paginated
                     int totalTransactions = responseBody.getTotalTransactions();
                     if (transactionOffset < totalTransactions) {
-                        getPlaidTransactionsAndBalances(transactionOffset); // Get all transactions within the date period set
+                        getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
                     } else {
-                        setTransactionsToDatabase(allTransactionsList);
+                        setPlaidTransactionsToDatabase(allTransactionsList);
                     }
                 }
             }
@@ -186,7 +192,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     // Set Plaid Transaction to "transactions" collection with Plaid transactionId as document ID
-    private void setTransactionsToDatabase(List<TransactionsGetResponse.Transaction> fullTransactionList) {
+    private void setPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> fullTransactionList) {
         for (TransactionsGetResponse.Transaction transaction : fullTransactionList) {
             docRef.collection("transactions")
                     .document(transaction.getTransactionId())
@@ -208,7 +214,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
-    private void setAccountsToDatabase(Map<String, Account> accountIdToAccountMap) {
+    private void setPlaidAccountsToDatabase(Map<String, Account> accountIdToAccountMap) {
         WriteBatch batch = db.batch();
 
         for (Account account : accountIdToAccountMap.values()) {
@@ -268,7 +274,10 @@ public class HomeViewModel extends ViewModel {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             double totalBalance = 0.0;
+                            bankAccountsList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
+                                bankAccountsList.add((HashMap<String, Object>) document.getData());
+
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
                                 totalBalance += (double) balances.get("current");
                                 Log.d(TAG, document.getId() + " => " + document.getData());

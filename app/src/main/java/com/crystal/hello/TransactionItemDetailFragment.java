@@ -17,8 +17,6 @@ import com.crystal.hello.ui.home.HomeViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.plaid.client.response.Account;
-import com.plaid.client.response.TransactionsGetResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +44,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView location     = root.findViewById(R.id.textViewTransactionDetailLocation);
         final TextView date         = root.findViewById(R.id.textViewTransactionDetailDate);
         final TextView status       = root.findViewById(R.id.textViewTransactionDetailStatus);
-        final TextView channel      = root.findViewById(R.id.textViewTransactionDetailChannel);
+        final TextView bankName     = root.findViewById(R.id.textViewTransactionDetailBankName);
         final TextView accountMask  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView address      = root.findViewById(R.id.textViewTransactionDetailAddress);
 
@@ -55,9 +53,9 @@ public class TransactionItemDetailFragment extends Fragment {
         String transactionItemDate      = "";
         String transactionItemLocation  = "";
         String transactionItemAmount    = "";
+        String transactionAccountName   = "";
         String transactionAccountMask   = "\u2022\u2022\u2022\u2022 ";
 
-        // TODO Get HomeViewModel instead
         if (getArguments() != null) {
             transactionItemPosition = getArguments().getInt("TRANSACTION_ITEM_POSITION");
             transactionItemName     = getArguments().getString("TRANSACTION_ITEM_NAME");
@@ -66,12 +64,17 @@ public class TransactionItemDetailFragment extends Fragment {
         }
 
         Map<String, Object> transaction = homeViewModel.getSubsetTransactionsList().get(transactionItemPosition);
-//        String accountId = (String) transaction.get("accountId");
+        Map<String, Object> account = null;
 
+        for (Map<String, Object> bankAccount : homeViewModel.getBankAccountsList()) {
+            if (String.valueOf(transaction.get("accountId")).equals(String.valueOf(bankAccount.get("accountId")))) {
+                account = bankAccount;
+            }
+        }
 
-//        if (account != null) {
-//            transactionAccountMask += account.getMask();
-//        }
+        transactionAccountMask += account.get("mask");
+        transactionAccountName = String.valueOf(account.get("name"));
+        transactionAccountName = transactionAccountName.substring(0, transactionAccountName.length() - 5);
 
 
         Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
@@ -98,6 +101,8 @@ public class TransactionItemDetailFragment extends Fragment {
         } else {
             transactionStatus += "Completed";
         }
+
+
 
 //        String channelString = "Paid ";
 //        switch (transaction.getPaymentChannel()) {
@@ -126,7 +131,7 @@ public class TransactionItemDetailFragment extends Fragment {
         name.setText(transactionItemName);
         location.setText(transactionItemLocation);
         date.setText(transactionItemDate);
-//        channel.setText(channelString);
+        bankName.setText(transactionAccountName);
         accountMask.setText(transactionAccountMask);
         status.setText(transactionStatus);
 

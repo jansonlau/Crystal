@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".TransactionItemDetailFragment"
-    android:background="#EFEFEF">
+    android:background="#F1F1F1">
 
     <TextView
         android:id="@+id/textViewTransactionDetailAmount"
@@ -84,12 +84,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textViewTransactionDetailChannel"
+                android:id="@+id/textViewTransactionDetailBankName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="Paid Online"
+                android:maxLines="1"
+                android:text="Costco Citi Cash Card Long String Hello Longer String"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/textViewTransactionDetailAccountMask"
                 app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
@@ -97,15 +98,15 @@
 
             <TextView
                 android:id="@+id/textViewTransactionDetailAccountMask"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"
                 android:text="•••• 9999"
                 android:textAlignment="viewEnd"
-                app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailChannel"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailBankName"
                 app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
-                app:layout_constraintStart_toEndOf="@+id/textViewTransactionDetailChannel"
-                app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailChannel" />
+                app:layout_constraintStart_toEndOf="@+id/textViewTransactionDetailBankName"
+                app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailBankName" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
