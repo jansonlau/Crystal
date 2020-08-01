@@ -9,7 +9,7 @@
     android:clickable="true">
 
     <TextView
-        android:id="@+id/textViewBudgetName"
+        android:id="@+id/budgetNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -30,11 +30,11 @@
         android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/budgetAmountTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewBudgetName"
+        app:layout_constraintTop_toTopOf="@+id/budgetNameTextView"
         app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
 
     <ProgressBar
-        android:id="@+id/progressBarBudget"
+        android:id="@+id/budgetProgressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -43,16 +43,16 @@
         android:progress="10"
         app:layout_constraintBottom_toBottomOf="@+id/budgetAmountTextView"
         app:layout_constraintEnd_toStartOf="@+id/budgetAmountTextView"
-        app:layout_constraintStart_toStartOf="@+id/textViewBudgetName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewBudgetName" />
+        app:layout_constraintStart_toStartOf="@+id/budgetNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/budgetNameTextView" />
 
     <TextView
         android:id="@+id/budgetAmountTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="$10 / $100"
-        app:layout_constraintEnd_toEndOf="@+id/textViewBudgetName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewBudgetName" />
+        app:layout_constraintEnd_toEndOf="@+id/budgetNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/budgetNameTextView" />
 
     <View
         android:id="@+id/budgetDividerView"
@@ -61,6 +61,6 @@
         android:layout_marginTop="8dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/textViewBudgetName"
-        app:layout_constraintTop_toBottomOf="@+id/progressBarBudget" />
+        app:layout_constraintStart_toStartOf="@+id/budgetNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/budgetProgressBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -92,7 +93,7 @@ public class TransactionItemDetailFragment extends Fragment {
                 transactionItemCategory = "Services";
         }
 
-        // Location
+        // Show location or map if available. Else, hide the views
         Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
         if (locationMap != null && locationMap.get("city") != null && locationMap.get("region") != null) {
             transactionItemLocation += locationMap.get("city") + ", " + locationMap.get("region");
