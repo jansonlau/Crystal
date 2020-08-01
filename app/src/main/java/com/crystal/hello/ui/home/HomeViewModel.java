@@ -22,10 +22,12 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
+import com.plaid.client.request.LiabilitiesGetRequest;
 import com.plaid.client.request.TransactionsGetRequest;
 import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
+import com.plaid.client.response.LiabilitiesGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
 
 import org.jetbrains.annotations.NotNull;
@@ -124,16 +126,36 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
+    // TODO: Plaid Liabilities for upcoming bill amount
+    private void getPlaidLiabilities() {
+        LiabilitiesGetRequest request = new LiabilitiesGetRequest(accessToken);
+        plaidClient.service().liabilitiesGet(request).enqueue(new Callback<LiabilitiesGetResponse>() {
+            @Override
+            public void onResponse(@NotNull Call<LiabilitiesGetResponse> call,
+                                   @NotNull Response<LiabilitiesGetResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<LiabilitiesGetResponse.CreditCardLiability> creditCardList = response.body().getLiabilities().getCredit();
+                }
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<LiabilitiesGetResponse> call,
+                                  @NotNull Throwable t) {
+
+            }
+        });
+    }
+
+    // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(Integer offset) {
         final int count = 500;
 //        Date startDate = new Date(1511049600L); // 1970
 //        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
         Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
         Date endDate = new Date();
-        TransactionsGetRequest request =
-                new TransactionsGetRequest(accessToken, startDate, endDate)
-                        .withCount(count)
-                        .withOffset(offset);
+        TransactionsGetRequest request = new TransactionsGetRequest(accessToken, startDate, endDate)
+                .withCount(count)
+                .withOffset(offset);
 
         plaidClient.service()
                 .transactionsGet(request)

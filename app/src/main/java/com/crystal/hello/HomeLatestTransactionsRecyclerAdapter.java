@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,12 +13,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.plaid.client.response.TransactionsGetResponse;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,11 +40,77 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // Get transaction fields
         Map<String, Object> transaction = transactionsList.get(position);
-        String transactionName = (String) transaction.get("name");
+        String transactionName      = String.valueOf(transaction.get("name"));
+        String transactionDate      = String.valueOf(transaction.get("date"));
+        double transactionAmount    = (double) transaction.get("amount");
+        List<String> categoriesList = (List<String>) transaction.get("category");
+        boolean transactionPending  = (boolean) transaction.get("pending");
 
-        // Set date
-        String transactionDate = (String) transaction.get("date");
+        // Parse transaction fields
+        transactionDate     = parseTransactionDate(transactionDate);
+        String parsedTransactionAmount   = parseTransactionAmount(transactionAmount);
+        int drawableId      = parseTransactionLogo(categoriesList);
+        initializeTransactionItemDetailFragment(holder,
+                position,
+                drawableId,
+                transactionName,
+                transactionDate,
+                parsedTransactionAmount);
+
+        // Set parsed transaction fields to view
+//        holder.transactionLocationTextView.setText(transactionLocation);
+        if (transactionPending) {
+            transactionDate += " - Pending";
+        }
+        // Remove divider in last item of recycler view
+        if (position == getItemCount() - 1) {
+            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
+        }
+        holder.transactionLogoImageView.setImageResource(drawableId);
+        holder.transactionNameTextView.setText(transactionName);
+        holder.transactionDateTextView.setText(transactionDate);
+        holder.transactionAmountTextView.setText(parsedTransactionAmount);
+    }
+
+    @Override
+    public int getItemCount() {
+        return transactionsList.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        final ConstraintLayout transactionConstraintLayout;
+        final ImageView transactionLogoImageView;
+        final TextView transactionNameTextView;
+//        final TextView transactionLocationTextView;
+        final TextView transactionDateTextView;
+        final TextView transactionAmountTextView;
+        final View transactionDividerView;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            transactionConstraintLayout = itemView.findViewById(R.id.transactionConstraintLayout);
+            transactionLogoImageView    = itemView.findViewById(R.id.transactionLogoImageView);
+            transactionNameTextView     = itemView.findViewById(R.id.transactionNameTextView);
+//            transactionLocationTextView = itemView.findViewById(R.id.transactionLocationTextView);
+            transactionDateTextView     = itemView.findViewById(R.id.transactionDateTextView);
+            transactionAmountTextView   = itemView.findViewById(R.id.transactionAmountTextView);
+            transactionDividerView      = itemView.findViewById(R.id.transactionDividerView);
+        }
+    }
+
+    private String parseTransactionAmount(double transactionAmount) {
+        String stringAmount = String.format(Locale.US,"%.2f", transactionAmount);
+        if (transactionAmount >= 0.0) {
+            stringAmount = "$" + transactionAmount;
+        } else {
+            stringAmount = new StringBuilder(stringAmount).insert(1, "$").toString();
+        }
+        return stringAmount;
+    }
+
+    private String parseTransactionDate(String transactionDate) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         try {
             Date date = dateFormat.parse(transactionDate);
@@ -58,59 +122,44 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
             e.printStackTrace();
         }
 
-        // Set location and amount
-        Map<String, Object> location = (HashMap<String, Object>) transaction.get("location");
-        String transactionLocation = "";
-        String transactionAmount = String.format(Locale.US,"%.2f", (double) transaction.get("amount"));
+        return transactionDate;
+    }
 
-        if ((double) transaction.get("amount") >= 0.00) {
-            transactionAmount = "$" + transactionAmount;
+    private int parseTransactionLogo(List<String> categoriesList) {
+        String category = "";
+        if (categoriesList != null) {
+            category = categoriesList.get(0);
+        }
+        int drawableInt = R.drawable.ic_outline_room_service_24;
 
-            if ((boolean) transaction.get("pending")) {
-                transactionLocation = "Pending - ";
-            }
-
-            if ((location != null && location.get("city") != null && location.get("region") != null)) {
-                transactionLocation += location.get("city") + ", " + location.get("region");
-            } else {
-                switch ((String) transaction.get("paymentChannel")) {
-                    case "online":
-                        transactionLocation += "Online";
-                        break;
-                    case "in store":
-                        transactionLocation += "In-store";
-                        break;
-                    case "other":
-                        transactionLocation += "Other Channel";
-                        break;
-                }
-            }
-        } else { // Negative transactions
-            transactionAmount = new StringBuilder(transactionAmount).insert(1, "$").toString();
-            if (transactionName.toLowerCase().contains("pymnt")
-                    || transactionName.toLowerCase().contains("payment")
-                    || transactionName.toLowerCase().contains("pay")) {
-                transactionLocation = "Payment";
-            } else {
-                transactionLocation = "Refund";
+        if (categoriesList != null) {
+            if (category.equals("Food and Drink")) {
+                drawableInt = R.drawable.ic_outline_fastfood_24;
+            } else if (category.equals("Shops")) {
+                drawableInt = R.drawable.ic_outline_shopping_cart_24;
+            } else if (category.equals("Travel")) {
+                drawableInt = R.drawable.ic_outline_airplanemode_active_24;
+            } else if (category.equals("Recreation")) {
+                drawableInt = R.drawable.ic_outline_local_movies_24;
+            } else if (category.equals("Healthcare")) {
+                drawableInt = R.drawable.ic_outline_healing_24;
             }
         }
+        return drawableInt;
+    }
 
-        holder.transactionNameTextView.setText(transactionName);
-        holder.transactionLocationTextView.setText(transactionLocation);
-        holder.transactionDateTextView.setText(transactionDate);
-        holder.transactionAmountTextView.setText(transactionAmount);
-        if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
-            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
-        }
-
-        // Initialize TransactionItemDetailFragment
+    private void initializeTransactionItemDetailFragment(ViewHolder holder,
+                                                         int position,
+                                                         int drawableId,
+                                                         String transactionName,
+                                                         String transactionDate,
+                                                         String transactionAmount) {
         Bundle bundle = new Bundle();
         bundle.putInt("TRANSACTION_ITEM_POSITION", position);
+        bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
         bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
         bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
         bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,29 +173,5 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
                         .commit();
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return transactionsList.size();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        final ConstraintLayout transactionConstraintLayout;
-        final TextView transactionNameTextView;
-        final TextView transactionLocationTextView;
-        final TextView transactionDateTextView;
-        final TextView transactionAmountTextView;
-        final View transactionDividerView;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            transactionConstraintLayout = itemView.findViewById(R.id.constraintLayoutTransactionItem);
-            transactionNameTextView     = itemView.findViewById(R.id.textViewTransactionName);
-            transactionLocationTextView = itemView.findViewById(R.id.textViewTransactionLocation);
-            transactionDateTextView     = itemView.findViewById(R.id.textViewTransactionDate);
-            transactionAmountTextView   = itemView.findViewById(R.id.textViewTransactionAmount);
-            transactionDividerView      = itemView.findViewById(R.id.viewTransactionDivider);
-        }
     }
 }

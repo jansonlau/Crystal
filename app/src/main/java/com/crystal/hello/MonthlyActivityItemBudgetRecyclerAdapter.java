@@ -59,9 +59,9 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            budgetConstraintLayout  = itemView.findViewById(R.id.constraintLayoutBudget);
+            budgetConstraintLayout  = itemView.findViewById(R.id.budgetConstraintLayout);
             budgetNameTextView      = itemView.findViewById(R.id.textViewBudgetName);
-            budgetDividerView       = itemView.findViewById(R.id.dividerBudget);
+            budgetDividerView       = itemView.findViewById(R.id.budgetDividerView);
         }
     }
 }

@@ -8,12 +8,24 @@
     tools:context=".TransactionItemDetailFragment"
     android:background="#F1F1F1">
 
+    <ImageView
+        android:id="@+id/imageViewTransactionDetailLogo"
+        android:layout_width="38sp"
+        android:layout_height="38sp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/logo_background"
+        android:padding="4sp"
+        android:src="@drawable/ic_outline_shopping_cart_24"
+        app:layout_constraintBottom_toTopOf="@+id/textViewTransactionDetailAmount"
+        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailAmount"
+        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailAmount"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textViewTransactionDetailAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="50dp"
         android:layout_marginEnd="12dp"
         android:fontFamily="sans-serif-medium"
         android:text="$35.71"
@@ -22,7 +34,7 @@
         android:textColor="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/imageViewTransactionDetailLogo" />
 
     <TextView
         android:id="@+id/textViewTransactionDetailName"
@@ -59,7 +71,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailDate"
         app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailDate"
@@ -84,6 +96,15 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/textViewTransactionDetailCategory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Shopping"
+                app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
+                app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
+                app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailStatus" />
+
+            <TextView
                 android:id="@+id/textViewTransactionDetailBankName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -94,7 +115,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/textViewTransactionDetailAccountMask"
                 app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
-                app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailStatus" />
+                app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailCategory" />
 
             <TextView
                 android:id="@+id/textViewTransactionDetailAccountMask"
@@ -117,7 +138,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="@+id/cardView2"
         app:layout_constraintStart_toStartOf="@+id/cardView2"

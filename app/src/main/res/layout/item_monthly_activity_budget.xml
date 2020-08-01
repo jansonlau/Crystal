@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayoutBudget"
+    android:id="@+id/budgetConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
@@ -19,16 +19,16 @@
         android:text="Shopping"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/imageViewBudgetArrow"
+        app:layout_constraintEnd_toStartOf="@+id/budgetArrowImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageViewBudgetArrow"
+        android:id="@+id/budgetArrowImageView"
         android:layout_width="16dp"
         android:layout_height="0dp"
         android:layout_marginEnd="12dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewBudgetAmount"
+        app:layout_constraintBottom_toBottomOf="@+id/budgetAmountTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textViewBudgetName"
         app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
@@ -41,13 +41,13 @@
         android:layout_marginEnd="8dp"
         android:max="100"
         android:progress="10"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewBudgetAmount"
-        app:layout_constraintEnd_toStartOf="@+id/textViewBudgetAmount"
+        app:layout_constraintBottom_toBottomOf="@+id/budgetAmountTextView"
+        app:layout_constraintEnd_toStartOf="@+id/budgetAmountTextView"
         app:layout_constraintStart_toStartOf="@+id/textViewBudgetName"
         app:layout_constraintTop_toBottomOf="@+id/textViewBudgetName" />
 
     <TextView
-        android:id="@+id/textViewBudgetAmount"
+        android:id="@+id/budgetAmountTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="$10 / $100"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewBudgetName" />
 
     <View
-        android:id="@+id/dividerBudget"
+        android:id="@+id/budgetDividerView"
         android:layout_width="0dp"
         android:layout_height="0.75dp"
         android:layout_marginTop="8dp"
