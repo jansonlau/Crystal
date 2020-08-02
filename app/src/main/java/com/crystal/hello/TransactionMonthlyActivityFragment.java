@@ -2,48 +2,117 @@ package com.crystal.hello;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.jetbrains.annotations.NotNull;
+import org.joda.time.DateTime;
+import org.joda.time.Months;
 
 //public class TransactionMonthlyActivityFragment extends Fragment {
 public class TransactionMonthlyActivityFragment extends AppCompatActivity {
 //    private TransactionMonthlyActivityViewModel mViewModel;
 //    private View root;
+    private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
+    private DocumentReference docRef;
 
-    private static final int NUM_PAGES = 5;
+    private String oldestTransactionDate;
+    private String latestTransactionDate;
+    private int months;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_transaction_monthly_activity);
+        docRef = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        getOldestTransactionDate();
+    }
 
+    private void getOldestTransactionDate() {
+        docRef.collection("transactions")
+                .orderBy("date", Query.Direction.ASCENDING).limit(1)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                            if (document.exists()) {
+                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                oldestTransactionDate = String.valueOf(document.getData().get("date"));
+                                getLatestTransactionDate();
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void getLatestTransactionDate() {
+        docRef.collection("transactions")
+                .orderBy("date", Query.Direction.DESCENDING).limit(1)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                            if (document.exists()) {
+                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                latestTransactionDate = String.valueOf(document.getData().get("date"));
+                                months = getNumberOfMonths();
+                                initializeScreenSlidePagerAdapter();
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void initializeScreenSlidePagerAdapter() {
         ViewPager2 viewPager = findViewById(R.id.pager);
         FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
+    }
+
+    // Count whole months
+    private int getNumberOfMonths() {
+        DateTime start = new DateTime(oldestTransactionDate).withDayOfMonth(1)
+                .withTimeAtStartOfDay();
+        DateTime end = new DateTime(latestTransactionDate).withDayOfMonth(1)
+                .withTimeAtStartOfDay()
+                .plusMonths(1);
+        return Months.monthsBetween(start, end).getMonths();
     }
 
 //    @Override
 //    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 //                             @Nullable Bundle savedInstanceState) {
 //        root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
-//
-//        viewPager = root.findViewById(R.id.pager);
-//        pagerAdapter = new ScreenSlidePagerAdapter(this.getActivity());
-//        viewPager.setAdapter(pagerAdapter);
-//
 //        return root;
 //    }
 //
@@ -62,6 +131,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
             super(fa);
         }
 
+        @NotNull
         @Override
         public Fragment createFragment(int position) {
             return new TransactionMonthlyActivityItemFragment();
@@ -69,7 +139,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return NUM_PAGES;
+            return months;
         }
     }
 }

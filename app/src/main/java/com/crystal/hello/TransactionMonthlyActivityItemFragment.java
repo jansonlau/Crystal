@@ -27,7 +27,8 @@ public class TransactionMonthlyActivityItemFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_monthly_activity_item, container, false);
 
-        final MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter = new MonthlyActivityItemBudgetRecyclerAdapter(getActivity());
+        final MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter =
+                new MonthlyActivityItemBudgetRecyclerAdapter(getActivity());
         RecyclerView recyclerView = root.findViewById(R.id.recyclerViewBudget);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
