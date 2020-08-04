@@ -22,12 +22,9 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
-import com.plaid.client.request.LiabilitiesGetRequest;
 import com.plaid.client.request.TransactionsGetRequest;
-import com.plaid.client.request.WebhookVerificationKeyGetRequest;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
-import com.plaid.client.response.LiabilitiesGetResponse;
 import com.plaid.client.response.TransactionsGetResponse;
 
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +55,6 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<List<Map<String, Object>>> mutableSubsetTransactionsList;
     private static List<Map<String, Object>> subsetTransactionsList; // Use in TransactionItemDetailFragment requires static declaration
     private static List<Map<String, Object>> bankAccountsList;
-    private List<TransactionsGetResponse.Transaction> allTransactionsList;
     private Map<String, Account> accountIdToAccountMap;
 
     private PlaidClient plaidClient;
@@ -69,7 +65,6 @@ public class HomeViewModel extends ViewModel {
     public HomeViewModel() {
         currentTotalBalance             = new MutableLiveData<>();
         mutableSubsetTransactionsList   = new MutableLiveData<>();
-        allTransactionsList             = new ArrayList<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
@@ -127,31 +122,31 @@ public class HomeViewModel extends ViewModel {
     }
 
     // TODO: Plaid Liabilities for upcoming bill amount
-    private void getPlaidLiabilities() {
-        LiabilitiesGetRequest request = new LiabilitiesGetRequest(accessToken);
-        plaidClient.service().liabilitiesGet(request).enqueue(new Callback<LiabilitiesGetResponse>() {
-            @Override
-            public void onResponse(@NotNull Call<LiabilitiesGetResponse> call,
-                                   @NotNull Response<LiabilitiesGetResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<LiabilitiesGetResponse.CreditCardLiability> creditCardList = response.body().getLiabilities().getCredit();
-                }
-            }
-
-            @Override
-            public void onFailure(@NotNull Call<LiabilitiesGetResponse> call,
-                                  @NotNull Throwable t) {
-
-            }
-        });
-    }
+//    private void getPlaidLiabilities() {
+//        LiabilitiesGetRequest request = new LiabilitiesGetRequest(accessToken);
+//        plaidClient.service().liabilitiesGet(request).enqueue(new Callback<LiabilitiesGetResponse>() {
+//            @Override
+//            public void onResponse(@NotNull Call<LiabilitiesGetResponse> call,
+//                                   @NotNull Response<LiabilitiesGetResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    List<LiabilitiesGetResponse.CreditCardLiability> creditCardList = response.body().getLiabilities().getCredit();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NotNull Call<LiabilitiesGetResponse> call,
+//                                  @NotNull Throwable t) {
+//
+//            }
+//        });
+//    }
 
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(Integer offset) {
         final int count = 500;
 //        Date startDate = new Date(1511049600L); // 1970
-//        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
-        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
+        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
+//        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
         Date endDate = new Date();
         TransactionsGetRequest request = new TransactionsGetRequest(accessToken, startDate, endDate)
                 .withCount(count)
@@ -174,7 +169,7 @@ public class HomeViewModel extends ViewModel {
                                 accountIdToAccountMap.put(account.getAccountId(), account);
                             }
                         }
-                        setPlaidAccountsToDatabase(accountIdToAccountMap);
+                        setPlaidAccountsToDatabase();
                     }
 
                     // Get transactions
@@ -187,22 +182,15 @@ public class HomeViewModel extends ViewModel {
                         }
                     }
 
-                    allTransactionsList.addAll(paginatedTransactionsList);
-                    transactionOffset += count;
-
                     for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
                         Log.d(TAG + " plaid_transaction", transaction.getDate() + " "
                                 + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
                                 + transaction.getName());
                     }
 
-                    // If there are more than 500 transactions, get more because they're paginated
+                    transactionOffset += count;
                     int totalTransactions = responseBody.getTotalTransactions();
-                    if (transactionOffset < totalTransactions) {
-                        getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
-                    } else {
-                        setPlaidTransactionsToDatabase(allTransactionsList);
-                    }
+                    setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
                 }
             }
 
@@ -213,41 +201,55 @@ public class HomeViewModel extends ViewModel {
         });
     }
 
+    // Write to Firestore with paginated list of 500 transactions because WriteBatch has limit of 500 documents
     // Set Plaid Transaction to "transactions" collection with Plaid transactionId as document ID
-    private void setPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> fullTransactionList) {
-        for (TransactionsGetResponse.Transaction transaction : fullTransactionList) {
-            docRef.collection("transactions")
-                    .document(transaction.getTransactionId())
-                    .set(transaction, SetOptions.merge())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
+    private void setPaginatedPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
+                                                         int totalTransactions) {
+        final WriteBatch batch = db.batch();
+        for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
+            DocumentReference transactionsRef = docRef.collection("transactions")
+                    .document(transaction.getTransactionId());
+
+            batch.set(transactionsRef, transaction, SetOptions.merge());
+        }
+
+        batch.commit()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+
+                        // If there are more than 500 transactions, get more because they're paginated
+                        if (transactionOffset < totalTransactions) {
+                            getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
+                        } else {
                             getSubsetTransactionsFromDatabase();
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
     }
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
-    private void setPlaidAccountsToDatabase(Map<String, Account> accountIdToAccountMap) {
-        WriteBatch batch = db.batch();
-
+    private void setPlaidAccountsToDatabase() {
+        final WriteBatch batch = db.batch();
         for (Account account : accountIdToAccountMap.values()) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("accessToken", accessToken);
-            data.put("itemId", itemId);
+            Map<String, Object> identifiers = new HashMap<>();
+            identifiers.put("accessToken", accessToken);
+            identifiers.put("itemId", itemId);
+
+            DocumentReference identifiersRef = docRef.collection("identifiers")
+                    .document(account.getAccountId());
 
             DocumentReference banksRef = docRef.collection("banks")
                     .document(account.getAccountId());
 
-            batch.set(banksRef, data, SetOptions.merge());
+            batch.set(identifiersRef, identifiers, SetOptions.merge());
             batch.set(banksRef, account, SetOptions.merge());
         }
 

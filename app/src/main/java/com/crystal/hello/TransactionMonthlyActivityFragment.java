@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -31,9 +32,6 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
 //    private View root;
     private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
     private DocumentReference docRef;
-
-    private String oldestTransactionDate;
-    private String latestTransactionDate;
     private int months;
 
     @Override
@@ -43,10 +41,10 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
         docRef = FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        getOldestTransactionDate();
+        getOldestTransactionDateFromDatabase();
     }
 
-    private void getOldestTransactionDate() {
+    private void getOldestTransactionDateFromDatabase() {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.ASCENDING).limit(1)
                 .get()
@@ -57,8 +55,8 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
                             DocumentSnapshot document = task.getResult().getDocuments().get(0);
                             if (document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                oldestTransactionDate = String.valueOf(document.getData().get("date"));
-                                getLatestTransactionDate();
+                                final String oldestTransactionDate = String.valueOf(document.getData().get("date"));
+                                getLatestTransactionDateFromDatabase(oldestTransactionDate);
                             } else {
                                 Log.d(TAG, "No such document");
                             }
@@ -69,7 +67,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
                 });
     }
 
-    private void getLatestTransactionDate() {
+    private void getLatestTransactionDateFromDatabase(String oldestTransactionDate) {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.DESCENDING).limit(1)
                 .get()
@@ -80,8 +78,10 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
                             DocumentSnapshot document = task.getResult().getDocuments().get(0);
                             if (document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                latestTransactionDate = String.valueOf(document.getData().get("date"));
-                                months = getNumberOfMonths();
+                                final String latestTransactionDate = String.valueOf(document.getData().get("date"));
+                                months = getMonthsBetween(oldestTransactionDate, latestTransactionDate);
+
+
                                 initializeScreenSlidePagerAdapter();
                             } else {
                                 Log.d(TAG, "No such document");
@@ -97,10 +97,11 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
         ViewPager2 viewPager = findViewById(R.id.pager);
         FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(pagerAdapter.getItemCount() - 1, false);
     }
 
     // Count whole months
-    private int getNumberOfMonths() {
+    private int getMonthsBetween(String oldestTransactionDate, String latestTransactionDate) {
         DateTime start = new DateTime(oldestTransactionDate).withDayOfMonth(1)
                 .withTimeAtStartOfDay();
         DateTime end = new DateTime(latestTransactionDate).withDayOfMonth(1)
@@ -141,5 +142,9 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
         public int getItemCount() {
             return months;
         }
+    }
+
+    private void getCategoryFromDatabase(String category, String start, String end) {
+
     }
 }

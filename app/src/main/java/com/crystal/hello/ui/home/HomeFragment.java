@@ -28,6 +28,7 @@ import com.crystal.hello.TransactionMonthlyActivityFragment;
 import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
+import com.robinhood.spark.animation.LineSparkAnimator;
 
 import java.util.Calendar;
 import java.util.List;
@@ -116,7 +117,7 @@ public class HomeFragment extends Fragment {
 
     private void initializeSparkGraph() {
         sparkView = root.findViewById(R.id.sparkView);
-        sparkView.setSparkAnimator(null);
+        sparkView.setSparkAnimator(new LineSparkAnimator());
         sparkAdapter = new TransactionSparkAdapter();
         sparkView.setAdapter(sparkAdapter);
 
