@@ -9,23 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.crystal.hello.HomeActivity;
 import com.crystal.hello.HomeLatestTransactionsRecyclerAdapter;
 import com.crystal.hello.R;
 import com.crystal.hello.TransactionMonthlyActivityFragment;
-import com.plaid.client.response.TransactionsGetResponse;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
 import com.robinhood.spark.animation.LineSparkAnimator;
@@ -37,14 +33,15 @@ import java.util.Map;
 import java.util.Random;
 
 public class HomeFragment extends Fragment {
-    private static HomeViewModel homeViewModel;
+    private HomeViewModel homeViewModel;
     private View root;
     private SparkView sparkView;
-    private static TransactionSparkAdapter sparkAdapter;
+    private TransactionSparkAdapter sparkAdapter;
     private static double[] yData;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         root = inflater.inflate(R.layout.fragment_home, container, false);
 

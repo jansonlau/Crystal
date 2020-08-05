@@ -201,7 +201,8 @@ public class HomeViewModel extends ViewModel {
         });
     }
 
-    // Write to Firestore with paginated list of 500 transactions because WriteBatch has limit of 500 documents
+    // Write to Firestore with paginated list because of Plaid's 500 transaction limit and
+    // Firestore's WriteBatch has limit of 500 documents
     // Set Plaid Transaction to "transactions" collection with Plaid transactionId as document ID
     private void setPaginatedPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
                                                          int totalTransactions) {
@@ -271,7 +272,8 @@ public class HomeViewModel extends ViewModel {
 
     protected void getSubsetTransactionsFromDatabase() {
         docRef.collection("transactions")
-                .orderBy("date", Query.Direction.DESCENDING).limit(10)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .limit(10)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
