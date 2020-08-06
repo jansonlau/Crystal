@@ -52,6 +52,7 @@
         android:layout_height="wrap_content"
         android:text="San Francisco, CA"
         android:textAlignment="center"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailName"
         app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailName"
         app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailName" />
@@ -134,7 +135,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewMapAndAddress"
+        android:id="@+id/cardViewMapAndLocation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -211,5 +212,5 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/cardView2"
         app:layout_constraintStart_toStartOf="@+id/cardView2"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewMapAndAddress" />
+        app:layout_constraintTop_toBottomOf="@+id/cardViewMapAndLocation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

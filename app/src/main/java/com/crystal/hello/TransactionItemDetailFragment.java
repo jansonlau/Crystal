@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -30,7 +29,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final ImageView logo        = root.findViewById(R.id.imageViewTransactionDetailLogo);
         final TextView amount       = root.findViewById(R.id.textViewTransactionDetailAmount);
         final TextView name         = root.findViewById(R.id.textViewTransactionDetailName);
-        final TextView location     = root.findViewById(R.id.textViewTransactionDetailLocation);
+//        final TextView location     = root.findViewById(R.id.textViewTransactionDetailLocation);
         final TextView date         = root.findViewById(R.id.textViewTransactionDetailDate);
         final TextView status       = root.findViewById(R.id.textViewTransactionDetailStatus);
         final TextView bankName     = root.findViewById(R.id.textViewTransactionDetailBankName);
@@ -42,7 +41,7 @@ public class TransactionItemDetailFragment extends Fragment {
         int transactionItemLogo             = 0;
         String transactionItemCategory;
         String transactionItemName          = "";
-        String transactionItemLocation      = "";
+//        String transactionItemLocation      = "";
         String transactionItemDate          = "";
         String transactionItemAmount        = "";
         String transactionItemAccountName   = "";
@@ -96,19 +95,17 @@ public class TransactionItemDetailFragment extends Fragment {
         // Show location or map if available. Else, hide the views
         Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
         if (locationMap != null && locationMap.get("city") != null && locationMap.get("region") != null) {
-            transactionItemLocation += locationMap.get("city") + ", " + locationMap.get("region");
+            String locationString = locationMap.get("city") + ", " + locationMap.get("region");
 
             if (locationMap.get("address") != null && locationMap.get("postalCode") != null) {
-                String addressString = locationMap.get("address") + ", "
+                locationString = locationMap.get("address") + ", "
                         + locationMap.get("city") + ", "
                         + locationMap.get("region") + ", "
                         + locationMap.get("postalCode");
-                address.setText(addressString);
-            } else {
-                root.findViewById(R.id.cardViewMapAndAddress).setVisibility(View.GONE);
             }
+            address.setText(locationString);
         } else {
-            root.findViewById(R.id.cardViewMapAndAddress).setVisibility(View.GONE);
+            root.findViewById(R.id.cardViewMapAndLocation).setVisibility(View.GONE);
             root.findViewById(R.id.textViewTransactionDetailLocation).setVisibility(View.GONE);
         }
 
@@ -123,7 +120,7 @@ public class TransactionItemDetailFragment extends Fragment {
         logo        .setImageResource(transactionItemLogo);
         amount      .setText(transactionItemAmount);
         name        .setText(transactionItemName);
-        location    .setText(transactionItemLocation);
+//        location    .setText(transactionItemLocation);
         date        .setText(transactionItemDate);
         status      .setText(transactionStatus);
         category    .setText(transactionItemCategory);

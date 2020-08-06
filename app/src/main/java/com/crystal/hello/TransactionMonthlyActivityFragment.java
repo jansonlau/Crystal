@@ -24,6 +24,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.Months;
 
 //public class TransactionMonthlyActivityFragment extends Fragment {
@@ -34,7 +37,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
     private DocumentReference docRef;
     private int months;
     private String oldestTransactionDate;
-    private String latestTransactionDate;
+//    private String latestTransactionDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +108,8 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
 
     // Count whole months between oldest transaction and this month
     private int getMonthsBetween(String oldestTransactionDate) {
-        DateTime start = new DateTime(oldestTransactionDate).withDayOfMonth(1)
-                .withTimeAtStartOfDay();
-        DateTime end = new DateTime().withDayOfMonth(1).withTimeAtStartOfDay()
-                .plusMonths(1);
+        LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
+        LocalDate end = new LocalDate().withDayOfMonth(1).plusMonths(1);
         return Months.monthsBetween(start, end).getMonths();
     }
 
@@ -136,7 +137,7 @@ public class TransactionMonthlyActivityFragment extends AppCompatActivity {
             Fragment transactionMonthlyActivityItemFragment = new TransactionMonthlyActivityItemFragment();
 
             Bundle bundle = new Bundle();
-            bundle.putString("com.crystal.hello.OLDEST_TRANSACTION", oldestTransactionDate);
+//            bundle.putString("com.crystal.hello.OLDEST_TRANSACTION", oldestTransactionDate);
 //            bundle.putString("com.crystal.hello.LATEST_TRANSACTION", new DateTime().toString());
             bundle.putInt("com.crystal.hello.ITEM_POSITION", position);
             bundle.putInt("com.crystal.hello.ITEM_COUNT", getItemCount());

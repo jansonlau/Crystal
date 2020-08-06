@@ -101,13 +101,13 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
     }
 
     private String parseTransactionAmount(double transactionAmount) {
-        String stringAmount = String.format(Locale.US,"%.2f", transactionAmount);
+        String amountString = String.format(Locale.US,"%.2f", transactionAmount);
         if (transactionAmount >= 0.0) {
-            stringAmount = "$" + stringAmount;
+            amountString = "$" + amountString;
         } else {
-            stringAmount = new StringBuilder(stringAmount).insert(1, "$").toString();
+            amountString = new StringBuilder(amountString).insert(1, "$").toString();
         }
-        return stringAmount;
+        return amountString;
     }
 
     private String parseTransactionDate(String transactionDate) {
