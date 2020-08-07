@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,8 +25,10 @@ public class TransactionMonthlyActivityItemFragment extends Fragment {
         TransactionMonthlyActivityItemViewModel monthlyActivityItemViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityItemViewModel.class);
         View root = inflater.inflate(R.layout.fragment_transaction_monthly_activity_item, container, false);
 
-        Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap =
-                (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.TRANSACTIONS_MAP");
+        Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap = null;
+        if (getArguments() != null) {
+            oneMonthTransactionsByCategoryMap = (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.TRANSACTIONS_MAP");
+        }
 
         final MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter =
                 new MonthlyActivityItemBudgetRecyclerAdapter(getActivity(), oneMonthTransactionsByCategoryMap);

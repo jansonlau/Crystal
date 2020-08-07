@@ -95,7 +95,9 @@ public class TransactionItemDetailFragment extends Fragment {
         // Show location or map if available. Else, hide the views
         Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
         if (locationMap != null && locationMap.get("city") != null && locationMap.get("region") != null) {
-            String locationString = locationMap.get("city") + ", " + locationMap.get("region");
+            String locationString = transactionItemName + ", "
+                    + locationMap.get("city") + ", "
+                    + locationMap.get("region");
 
             if (locationMap.get("address") != null && locationMap.get("postalCode") != null) {
                 locationString = locationMap.get("address") + ", "

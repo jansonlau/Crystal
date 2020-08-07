@@ -52,6 +52,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         transactionDate     = parseTransactionDate(transactionDate);
         String parsedTransactionAmount   = parseTransactionAmount(transactionAmount);
         int drawableId      = parseTransactionLogo(categoriesList);
+        transactionName = parsePopularNames(transactionName);
         initializeTransactionItemDetailFragment(holder,
                 position,
                 drawableId,
@@ -173,5 +174,12 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
                         .commit();
             }
         });
+    }
+
+    private String parsePopularNames(String transactionName) {
+        if (transactionName.toLowerCase().contains("amazon.com")) {
+            transactionName = "Amazon.com";
+        }
+        return transactionName;
     }
 }

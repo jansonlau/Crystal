@@ -1,24 +1,18 @@
 package com.crystal.hello;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,9 +24,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 
@@ -43,57 +34,47 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class TransactionMonthlyActivityFragment extends Fragment {
-//public class TransactionMonthlyActivityFragment extends AppCompatActivity {
     private TransactionMonthlyActivityViewModel mViewModel;
     private View root;
     private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
     private DocumentReference docRef;
     private int months;
     private String oldestTransactionDate;
-
     private int monthIndex;
+    private final int numberOfCategories = 6;
     private List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList;
     private List<String> monthAndYearList;
     private Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
-        docRef = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        getOldestTransactionDateFromDatabase();
-
         allTransactionsByCategoryList = new ArrayList<>();
         monthAndYearList = new ArrayList<>();
         oneMonthTransactionsByCategoryMap = new HashMap<>();
+        docRef = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        getOldestTransactionDateFromDatabase();
         return root;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(TransactionMonthlyActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
     }
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.fragment_transaction_monthly_activity);
-//        docRef = FirebaseFirestore.getInstance()
-//                .collection("users")
-//                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-//        getOldestTransactionDateFromDatabase();
-//
-//        allTransactionsByCategoryList = new ArrayList<>();
-//        monthAndYearList = new ArrayList<>();
-//        oneMonthTransactionsByCategoryMap = new HashMap<>();
-//    }
-
-    private void getOldestTransactionDateFromDatabase() {
+    public void getOldestTransactionDateFromDatabase() {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.ASCENDING).limit(1)
                 .get()
@@ -101,10 +82,10 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                            DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
                             if (document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                oldestTransactionDate = String.valueOf(document.getData().get("date"));
+                                oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
                                 months = getMonthsBetween(oldestTransactionDate);
                                 getAllTransactionsByCategory();
                             } else {
@@ -154,18 +135,44 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     }
 
     // Categories: Shopping, Food & Drinks, Services, Travel, Entertainment, Health
-    protected void getAllTransactionsByCategory() {
+    private void getAllTransactionsByCategory() {
         LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(monthIndex);
         LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
         monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());
+        monthIndex++;
 
-        getShoppingTransactionsByCategoryAndMonthFromDatabase(
+        getTransactionsByCategory("Shopping",
                 Collections.singletonList("Shops")
+                , startDate.toString()
+                , endDate.toString());
+
+        getTransactionsByCategory("Food & Drinks",
+                Collections.singletonList("Food and Drink")
+                , startDate.toString()
+                , endDate.toString());
+
+        getTransactionsByCategory("Travel",
+                Collections.singletonList("Travel")
+                , startDate.toString()
+                , endDate.toString());
+
+        getTransactionsByCategory("Entertainment",
+                Collections.singletonList("Recreation")
+                , startDate.toString()
+                , endDate.toString());
+
+        getTransactionsByCategory("Health",
+                Collections.singletonList("Healthcare")
+                , startDate.toString()
+                , endDate.toString());
+
+        getTransactionsByCategory("Services",
+                Arrays.asList("Service", "Community", "Payment", "Bank Fees", "Interest", "Tax", "Transfer")
                 , startDate.toString()
                 , endDate.toString());
     }
 
-    protected void getShoppingTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
+    private void getTransactionsByCategory(String category, List<String> categoryList, String startDate, String endDate) {
         docRef.collection("transactions")
                 .orderBy                    ("date"     , Query.Direction.DESCENDING)
                 .whereGreaterThanOrEqualTo  ("date"     , startDate)
@@ -176,131 +183,16 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Shopping", task.getResult().getDocuments());
-                            getFoodAndDrinksTransactionsByCategoryAndMonthFromDatabase(
-                                    Collections.singletonList("Food and Drink")
-                                    , startDate
-                                    , endDate);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
+                            oneMonthTransactionsByCategoryMap.put(category, Objects.requireNonNull(task.getResult()).getDocuments());
 
-    protected void getFoodAndDrinksTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
-        docRef.collection("transactions")
-                .orderBy                    ("date"     , Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo  ("date"     , startDate)
-                .whereLessThan              ("date"     , endDate)
-                .whereArrayContainsAny      ("category" , categoryList)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Food & Drinks", task.getResult().getDocuments());
-                            getTravelTransactionsByCategoryAndMonthFromDatabase(
-                                    Collections.singletonList("Travel")
-                                    , startDate
-                                    , endDate);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    protected void getTravelTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
-        docRef.collection("transactions")
-                .orderBy                    ("date"     , Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo  ("date"     , startDate)
-                .whereLessThan              ("date"     , endDate)
-                .whereArrayContainsAny      ("category" , categoryList)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Travel", task.getResult().getDocuments());
-                            getEntertainmentTransactionsByCategoryAndMonthFromDatabase(
-                                    Collections.singletonList("Recreation")
-                                    , startDate
-                                    , endDate);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    protected void getEntertainmentTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
-        docRef.collection("transactions")
-                .orderBy                    ("date"     , Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo  ("date"     , startDate)
-                .whereLessThan              ("date"     , endDate)
-                .whereArrayContainsAny      ("category" , categoryList)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Entertainment", task.getResult().getDocuments());
-                            getHealthTransactionsByCategoryAndMonthFromDatabase(
-                                    Collections.singletonList("Healthcare")
-                                    , startDate
-                                    , endDate);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    protected void getHealthTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
-        docRef.collection("transactions")
-                .orderBy                    ("date"     , Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo  ("date"     , startDate)
-                .whereLessThan              ("date"     , endDate)
-                .whereArrayContainsAny      ("category" , categoryList)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Health", task.getResult().getDocuments());
-                            getServicesTransactionsByCategoryAndMonthFromDatabase(
-                                    Arrays.asList("Service", "Community", "Payment", "Bank Fees", "Interest", "Tax", "Transfer")
-                                    , startDate
-                                    , endDate);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    protected void getServicesTransactionsByCategoryAndMonthFromDatabase(List<String> categoryList, String startDate, String endDate) {
-        docRef.collection("transactions")
-                .orderBy                    ("date"     , Query.Direction.DESCENDING)
-                .whereGreaterThanOrEqualTo  ("date"     , startDate)
-                .whereLessThan              ("date"     , endDate)
-                .whereArrayContainsAny      ("category" , categoryList)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put("Services", task.getResult().getDocuments());
-                            monthIndex++;
-                            allTransactionsByCategoryList.add(oneMonthTransactionsByCategoryMap);
-//                            mutableAllTransactionsByCategoryList.setValue(allTransactionsByCategoryList);
-
-                            if (monthIndex < months) {
-                                oneMonthTransactionsByCategoryMap = new HashMap<>();
-                                getAllTransactionsByCategory();
-                            } else {
-                                initializeScreenSlidePagerAdapter();
+                            if (oneMonthTransactionsByCategoryMap.size() == numberOfCategories) {
+                                allTransactionsByCategoryList.add(oneMonthTransactionsByCategoryMap);
+                                if (monthIndex < months) {
+                                    oneMonthTransactionsByCategoryMap = new HashMap<>();
+                                    getAllTransactionsByCategory();
+                                } else {
+                                    initializeScreenSlidePagerAdapter();
+                                }
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapter<MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder> {
@@ -40,7 +41,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_categories, parent, false);
-        return new MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder(itemView);
+        return new ViewHolder(itemView);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         return positiveAndNegativeAmountTransactionsByCategoryMap.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final View              budgetDividerView;
         final TextView          budgetNameTextView;
         final TextView          budgetAmountTextView;
@@ -103,7 +104,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         double total = 0;
         List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
         for (DocumentSnapshot document : documents) {
-            double amount = (double) document.getData().get("amount");
+            double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
             if (amount >= 0.0) {
                 total += amount;
                 positiveAmountTransactionsList.add(document);

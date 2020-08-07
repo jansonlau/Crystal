@@ -30,6 +30,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 public class HomeFragment extends Fragment {
@@ -38,6 +39,11 @@ public class HomeFragment extends Fragment {
     private SparkView sparkView;
     private TransactionSparkAdapter sparkAdapter;
     private static double[] yData;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,17 +64,13 @@ public class HomeFragment extends Fragment {
         }
 
         // Monthly Activity fragment
-        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
         FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
         monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(getActivity(), TransactionMonthlyActivityFragment.class);
-//                startActivity(intent);
-
-                getActivity().getSupportFragmentManager()
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
+                        .replace(R.id.frameLayoutFragmentContainer, new TransactionMonthlyActivityFragment())
                         .addToBackStack(null)
                         .commit();
             }

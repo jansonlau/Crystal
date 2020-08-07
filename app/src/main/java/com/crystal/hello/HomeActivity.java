@@ -33,8 +33,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         Bundle bundle = new Bundle();
-        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
-        bundle.putBoolean("com.crystal.hello.CREATE_USER", booleanExtra);
+        boolean newUserBooleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
+        bundle.putBoolean("com.crystal.hello.CREATE_USER", newUserBooleanExtra);
+
         Fragment homeFragment = new HomeFragment();
         homeFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, homeFragment).commit();

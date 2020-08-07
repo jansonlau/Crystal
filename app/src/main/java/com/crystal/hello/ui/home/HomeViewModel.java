@@ -35,13 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
-    // SAVING STATES https://developer.android.com/topic/libraries/architecture/saving-states
     private String accessToken; // In production, store it in a secure persistent data store.
     private String itemId;
 
@@ -69,7 +69,7 @@ public class HomeViewModel extends ViewModel {
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
         docRef                          = db.collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
     }
 
     public LiveData<Double> getCurrentTotalBalance() {
@@ -280,7 +280,7 @@ public class HomeViewModel extends ViewModel {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             subsetTransactionsList = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 subsetTransactionsList.add(document.getData());
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                             }
@@ -301,7 +301,7 @@ public class HomeViewModel extends ViewModel {
                         if (task.isSuccessful()) {
                             double totalBalance = 0.0;
                             bankAccountsList = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 bankAccountsList.add((HashMap<String, Object>) document.getData());
 
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
