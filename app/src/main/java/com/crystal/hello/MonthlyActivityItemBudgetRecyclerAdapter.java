@@ -14,10 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,7 +39,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_budget, parent, false);
+        View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_categories, parent, false);
         return new MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder(itemView);
     }
 
@@ -68,7 +66,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         // Set view
         Map.Entry<String, Double> transaction = sortedPositiveAmountByCategoryList.get(position);
         holder.budgetNameTextView.setText(transaction.getKey());
-        holder.budgetProgressBar.setProgress(transaction.getValue().intValue());
+        holder.budgetProgressBar.setProgress(transaction.getValue().intValue(), true);
 
         String amountString = String.format(Locale.US,"%.2f", transaction.getValue());
         amountString = "$" + amountString;

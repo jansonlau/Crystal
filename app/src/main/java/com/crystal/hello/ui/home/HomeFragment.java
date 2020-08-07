@@ -58,19 +58,19 @@ public class HomeFragment extends Fragment {
         }
 
         // Monthly Activity fragment
-//        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
+        Fragment transactionMonthlyActivityFragment = new TransactionMonthlyActivityFragment();
         FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
         monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), TransactionMonthlyActivityFragment.class);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), TransactionMonthlyActivityFragment.class);
+//                startActivity(intent);
 
-//                getActivity().getSupportFragmentManager()
-//                        .beginTransaction()
-//                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
-//                        .addToBackStack(null)
-//                        .commit();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frameLayoutFragmentContainer, transactionMonthlyActivityFragment)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
