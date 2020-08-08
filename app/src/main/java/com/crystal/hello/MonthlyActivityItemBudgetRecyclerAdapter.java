@@ -24,17 +24,16 @@ import java.util.stream.Collectors;
 
 public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapter<MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder> {
     private final LayoutInflater layoutInflater;
-    private final Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap;
-    private Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap;
-    private Map<String, Double> positiveAmountByCategoryMap;
+    private final Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap; // Key: Category, Value: Documents
+    private final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
 
     public MonthlyActivityItemBudgetRecyclerAdapter(FragmentActivity activity
-            , Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap) {
-        layoutInflater = LayoutInflater.from(activity);
+            , Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap
+            , List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList) {
 
-        this.positiveAndNegativeAmountTransactionsByCategoryMap = positiveAndNegativeAmountTransactionsByCategoryMap;
-        positiveAmountTransactionsByCategoryMap = new HashMap<>();
-        positiveAmountByCategoryMap = new HashMap<>();
+        layoutInflater = LayoutInflater.from(activity);
+        this.oneMonthTransactionsByCategoryMap = oneMonthTransactionsByCategoryMap;
+        this.sortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
     }
 
     @NonNull
@@ -46,24 +45,6 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Get only positive amount transactions
-        for (Map.Entry<String, List<DocumentSnapshot>> entry : positiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
-            String category = entry.getKey();
-            List<DocumentSnapshot> documents = entry.getValue();
-            positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents));
-        }
-
-        // Sort positive amounts then add to list to keep order
-        List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = positiveAmountByCategoryMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
-                    @Override
-                    public int compare(Double K, Double V) {
-                        return V.compareTo(K);
-                    }
-                }))
-                .collect(Collectors.toList());
-
         // Set view
         Map.Entry<String, Double> transaction = sortedPositiveAmountByCategoryList.get(position);
         holder.budgetNameTextView.setText(transaction.getKey());
@@ -80,7 +61,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public int getItemCount() {
-        return positiveAndNegativeAmountTransactionsByCategoryMap.size();
+        return sortedPositiveAmountByCategoryList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -98,19 +79,5 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
             budgetProgressBar       = itemView.findViewById(R.id.budgetProgressBar);
             budgetConstraintLayout  = itemView.findViewById(R.id.budgetConstraintLayout);
         }
-    }
-
-    private double getTotalTransactionAmount(String category, List<DocumentSnapshot> documents) {
-        double total = 0;
-        List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
-        for (DocumentSnapshot document : documents) {
-            double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
-            if (amount >= 0.0) {
-                total += amount;
-                positiveAmountTransactionsList.add(document);
-            }
-        }
-        positiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
-        return total;
     }
 }

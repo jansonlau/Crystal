@@ -43,16 +43,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        root = inflater.inflate(R.layout.fragment_home, container, false);
-
-        observeTransactionList();
-        observeCurrentBalance();
 
         // New user from create account
         if (getArguments() != null && getArguments().getBoolean("com.crystal.hello.CREATE_USER")) {
@@ -62,8 +53,19 @@ public class HomeFragment extends Fragment {
             homeViewModel.getSubsetTransactionsFromDatabase();
             homeViewModel.getBalancesFromDatabase();
         }
+    }
 
-        // Monthly Activity fragment
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        root = inflater.inflate(R.layout.fragment_home, container, false);
+        setMonthlyActivityOnClickListener();
+        observeTransactionList();
+        observeCurrentBalance();
+        return root;
+    }
+
+    private void setMonthlyActivityOnClickListener() {
         FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
         monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,8 +77,6 @@ public class HomeFragment extends Fragment {
                         .commit();
             }
         });
-
-        return root;
     }
 
     private void observeTransactionList() {

@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class TransactionMonthlyActivityItemFragment extends Fragment {
     @Override
@@ -25,20 +26,23 @@ public class TransactionMonthlyActivityItemFragment extends Fragment {
         TransactionMonthlyActivityItemViewModel monthlyActivityItemViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityItemViewModel.class);
         View root = inflater.inflate(R.layout.fragment_transaction_monthly_activity_item, container, false);
 
-        Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap = null;
-        if (getArguments() != null) {
-            oneMonthTransactionsByCategoryMap = (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.TRANSACTIONS_MAP");
-        }
+        Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap =
+                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.TRANSACTIONS_MAP");
+
+        List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList =
+                (List<Map.Entry<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter =
-                new MonthlyActivityItemBudgetRecyclerAdapter(getActivity(), oneMonthTransactionsByCategoryMap);
+                new MonthlyActivityItemBudgetRecyclerAdapter(getActivity()
+                        , oneMonthTransactionsByCategoryMap
+                        , sortedPositiveAmountByCategoryList);
 
         RecyclerView recyclerView = root.findViewById(R.id.recyclerViewBudget);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
 
-        String monthAndYearString = getArguments().getString("com.crystal.hello.MONTH_YEAR");
         TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
+        String monthAndYearString = getArguments().getString("com.crystal.hello.MONTH_YEAR");
         monthAndYearTextView.setText(monthAndYearString);
         return root;
     }

@@ -31,13 +31,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TransactionMonthlyActivityFragment extends Fragment {
-    private TransactionMonthlyActivityViewModel mViewModel;
+    private TransactionMonthlyActivityViewModel viewModel;
     private View root;
     private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
     private DocumentReference docRef;
@@ -48,33 +50,33 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     private List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList;
     private List<String> monthAndYearList;
     private Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap;
+    private HashMap<String, List<String>> categoriesMap;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel                           = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
+        allTransactionsByCategoryList       = new ArrayList<>();
+        monthAndYearList                    = new ArrayList<>();
+        oneMonthTransactionsByCategoryMap   = new HashMap<>();
+        categoriesMap = new HashMap<>();
+        docRef                              = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+
+        initializeCategoriesMap();
+        getOldestTransactionDateFromDatabase();
+
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_monthly_activity, container, false);
-        allTransactionsByCategoryList = new ArrayList<>();
-        monthAndYearList = new ArrayList<>();
-        oneMonthTransactionsByCategoryMap = new HashMap<>();
-        docRef = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-        getOldestTransactionDateFromDatabase();
         return root;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
-    }
-
-    public void getOldestTransactionDateFromDatabase() {
+    private void getOldestTransactionDateFromDatabase() {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.ASCENDING).limit(1)
                 .get()
@@ -98,7 +100,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                 });
     }
 
-    // Count whole months between oldest transaction and this month
+    // Count whole months between oldest transaction and current month
     private int getMonthsBetween(String oldestTransactionDate) {
         LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
         LocalDate end = new LocalDate().withDayOfMonth(1).plusMonths(1);
@@ -120,11 +122,37 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         @NotNull
         @Override
         public Fragment createFragment(int position) {
+            // Filter positive and negative amounts from allTransactionsByCategoryList
+            // to positiveAmountTransactionsByCategoryMap with positive amounts
+            Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap = allTransactionsByCategoryList.get(position);
+            Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap = new HashMap<>();
+            Map<String, Double> positiveAmountByCategoryMap = new HashMap<>();
+
+            // Get only positive amount transactions
+            for (Map.Entry<String, List<DocumentSnapshot>> entry : positiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
+                String category = entry.getKey();
+                List<DocumentSnapshot> documents = entry.getValue();
+                positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents, positiveAmountTransactionsByCategoryMap));
+            }
+
+            // Sort positive amounts then add to list to keep order
+            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = positiveAmountByCategoryMap.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
+                        @Override
+                        public int compare(Double K, Double V) {
+                            return V.compareTo(K);
+                        }
+                    }))
+                    .collect(Collectors.toList());
+
             Fragment transactionMonthlyActivityItemFragment = new TransactionMonthlyActivityItemFragment();
             Bundle bundle = new Bundle();
             bundle.putString("com.crystal.hello.MONTH_YEAR", monthAndYearList.get(position));
-            bundle.putSerializable("com.crystal.hello.TRANSACTIONS_MAP", (Serializable) allTransactionsByCategoryList.get(position));
+            bundle.putSerializable("com.crystal.hello.TRANSACTIONS_MAP", (Serializable) positiveAmountTransactionsByCategoryMap);
+            bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST", (Serializable) sortedPositiveAmountByCategoryList);
             transactionMonthlyActivityItemFragment.setArguments(bundle);
+
             return transactionMonthlyActivityItemFragment;
         }
 
@@ -134,42 +162,46 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         }
     }
 
-    // Categories: Shopping, Food & Drinks, Services, Travel, Entertainment, Health
+    private double getTotalTransactionAmount(String category, @NotNull List<DocumentSnapshot> documents, Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap) {
+        double total = 0;
+        List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
+            if (amount >= 0.0) {
+                total += amount;
+                positiveAmountTransactionsList.add(document);
+            }
+        }
+        positiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
+        return total;
+    }
+
+    // Key: Crystal categories
+    // Value: Plaid categories
+    private void initializeCategoriesMap() {
+        categoriesMap.put("Shopping"       , Collections.singletonList("Shops"));
+        categoriesMap.put("Food & Drinks"  , Collections.singletonList("Food and Drink"));
+        categoriesMap.put("Travel"         , Collections.singletonList("Travel"));
+        categoriesMap.put("Entertainment"  , Collections.singletonList("Recreation"));
+        categoriesMap.put("Health"         , Collections.singletonList("Healthcare"));
+        categoriesMap.put("Services"       , Arrays.asList("Service", "Community", "Payment"
+                , "Bank Fees", "Interest", "Tax", "Transfer"));
+    }
+
+    // Start monthly activity with the oldest transaction up to current month
+    // Get all 6 categories for each month
     private void getAllTransactionsByCategory() {
         LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(monthIndex);
         LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
         monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());
         monthIndex++;
 
-        getTransactionsByCategory("Shopping",
-                Collections.singletonList("Shops")
-                , startDate.toString()
-                , endDate.toString());
-
-        getTransactionsByCategory("Food & Drinks",
-                Collections.singletonList("Food and Drink")
-                , startDate.toString()
-                , endDate.toString());
-
-        getTransactionsByCategory("Travel",
-                Collections.singletonList("Travel")
-                , startDate.toString()
-                , endDate.toString());
-
-        getTransactionsByCategory("Entertainment",
-                Collections.singletonList("Recreation")
-                , startDate.toString()
-                , endDate.toString());
-
-        getTransactionsByCategory("Health",
-                Collections.singletonList("Healthcare")
-                , startDate.toString()
-                , endDate.toString());
-
-        getTransactionsByCategory("Services",
-                Arrays.asList("Service", "Community", "Payment", "Bank Fees", "Interest", "Tax", "Transfer")
-                , startDate.toString()
-                , endDate.toString());
+        for (Map.Entry<String, List<String>> entry : categoriesMap.entrySet()) {
+            getTransactionsByCategory(entry.getKey()
+                    , entry.getValue()
+                    , startDate.toString()
+                    , endDate.toString());
+        }
     }
 
     private void getTransactionsByCategory(String category, List<String> categoryList, String startDate, String endDate) {
@@ -187,7 +219,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
 
                             if (oneMonthTransactionsByCategoryMap.size() == numberOfCategories) {
                                 allTransactionsByCategoryList.add(oneMonthTransactionsByCategoryMap);
-                                if (monthIndex < months) {
+                                if (monthIndex < months) { // More months of transactions to get
                                     oneMonthTransactionsByCategoryMap = new HashMap<>();
                                     getAllTransactionsByCategory();
                                 } else {
