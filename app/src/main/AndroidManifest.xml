@@ -25,7 +25,7 @@
         </activity>
 
         <activity
-            android:name=".InitialConnectActivity">
+            android:name=".signup.InitialConnectActivity">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
@@ -49,19 +49,19 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".MobileNumberActivity"
+            android:name=".signup.MobileNumberActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".PasswordActivity"
+            android:name=".signup.PasswordActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".NameActivity"
+            android:name=".signup.NameActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".EmailActivity"
+            android:name=".signup.EmailActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <meta-data

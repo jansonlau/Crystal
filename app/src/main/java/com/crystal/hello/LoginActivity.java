@@ -1,12 +1,8 @@
 package com.crystal.hello;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
@@ -14,13 +10,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.crystal.hello.signup.EmailActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
+
+import java.util.List;
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
     private TextInputLayout usernameLayout;
@@ -54,7 +58,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Clear the error once more than 8 characters are typed.
         passwordEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -65,17 +68,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Set an error if the password is less than 8 characters.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                signIn(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
+                fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
             }
         });
     }
 
     private boolean isPasswordValid(Editable text) {
-        return text != null && text.length() >= 8;
+        return text != null && text.length() >= 6;
     }
 
     private boolean isUsernameValid(Editable text) {
@@ -86,14 +88,14 @@ public class LoginActivity extends AppCompatActivity {
         boolean valid = true;
 
         if (!isPasswordValid(passwordEditText.getText())) {
-            passwordLayout.setError("Must have at least 8 characters");
+            passwordLayout.setError("Must have at least 6 characters");
             valid = false;
         } else {
             passwordLayout.setError(null);
         }
 
         if (!isUsernameValid(usernameEditText.getText())) {
-            usernameLayout.setError("Invalid email address");
+            usernameLayout.setError("Please enter a valid email.");
             valid = false;
         } else {
             usernameLayout.setError(null);
@@ -103,12 +105,37 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // Sign in user and start HomeActivity
-    private void signIn(String email, String password) {
+    private void fetchSignInMethodsForEmail(String email, String password) {
         Log.d(LoginActivity.class.getSimpleName(), "signIn:" + email);
         if (!validateForm()) {
             return;
         }
 
+        // Check if email exists
+        auth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                        if (task.isSuccessful()) {
+                            SignInMethodQueryResult result = task.getResult();
+                            List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
+
+                            if (Objects.requireNonNull(signInMethods).contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
+                                signIn(email, password);
+                            } else {
+                                Toast.makeText(LoginActivity.this
+                                        , "The email you entered doesn't belong to an account."
+                                        , Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Log.e(EmailActivity.class.getSimpleName(), "Error getting sign in methods for user", task.getException());
+                        }
+                    }
+                });
+    }
+
+    // Check if password is correct
+    private void signIn(String email, String password) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -125,8 +152,8 @@ public class LoginActivity extends AppCompatActivity {
                             , task.getException());
                     if (task.getException() != null) {
                         Toast.makeText(LoginActivity.this
-                                , "Your username or password was incorrect."
-                                , Toast.LENGTH_SHORT).show();
+                                , "Sorry, your password was incorrect."
+                                , Toast.LENGTH_LONG).show();
                     }
                 }
             }

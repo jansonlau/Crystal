@@ -43,14 +43,14 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     private View root;
     private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
     private DocumentReference docRef;
-    private int months;
     private String oldestTransactionDate;
+    private int months;
     private int monthIndex;
     private final int numberOfCategories = 6;
     private List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList;
     private List<String> monthAndYearList;
     private Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap;
-    private HashMap<String, List<String>> categoriesMap;
+    private HashMap<String, List<String>> categoriesMap; // Key: Crystal categories, Value: Plaid categories
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,14 +59,13 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         allTransactionsByCategoryList       = new ArrayList<>();
         monthAndYearList                    = new ArrayList<>();
         oneMonthTransactionsByCategoryMap   = new HashMap<>();
-        categoriesMap = new HashMap<>();
+        categoriesMap                       = new HashMap<>();
         docRef                              = FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
         initializeCategoriesMap();
         getOldestTransactionDateFromDatabase();
-
     }
 
     @Override
@@ -115,6 +114,8 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
+        Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap = new HashMap<>();
+
         public ScreenSlidePagerAdapter(FragmentActivity fa) {
             super(fa);
         }
@@ -122,29 +123,8 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         @NotNull
         @Override
         public Fragment createFragment(int position) {
-            // Filter positive and negative amounts from allTransactionsByCategoryList
-            // to positiveAmountTransactionsByCategoryMap with positive amounts
             Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap = allTransactionsByCategoryList.get(position);
-            Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap = new HashMap<>();
-            Map<String, Double> positiveAmountByCategoryMap = new HashMap<>();
-
-            // Get only positive amount transactions
-            for (Map.Entry<String, List<DocumentSnapshot>> entry : positiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
-                String category = entry.getKey();
-                List<DocumentSnapshot> documents = entry.getValue();
-                positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents, positiveAmountTransactionsByCategoryMap));
-            }
-
-            // Sort positive amounts then add to list to keep order
-            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = positiveAmountByCategoryMap.entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
-                        @Override
-                        public int compare(Double K, Double V) {
-                            return V.compareTo(K);
-                        }
-                    }))
-                    .collect(Collectors.toList());
+            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = getSortedListOfAmountsByCategories(positiveAndNegativeAmountTransactionsByCategoryMap);
 
             Fragment transactionMonthlyActivityItemFragment = new TransactionMonthlyActivityItemFragment();
             Bundle bundle = new Bundle();
@@ -160,24 +140,46 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         public int getItemCount() {
             return months;
         }
-    }
 
-    private double getTotalTransactionAmount(String category, @NotNull List<DocumentSnapshot> documents, Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap) {
-        double total = 0;
-        List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
-        for (DocumentSnapshot document : documents) {
-            double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
-            if (amount >= 0.0) {
-                total += amount;
-                positiveAmountTransactionsList.add(document);
+        // Filter positive and negative amounts from allTransactionsByCategoryList
+        // to positiveAmountTransactionsByCategoryMap with positive amounts
+        private List<Map.Entry<String, Double>> getSortedListOfAmountsByCategories(Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap) {
+            Map<String, Double> positiveAmountByCategoryMap = new HashMap<>();
+
+            // Get only positive amount transactions
+            for (Map.Entry<String, List<DocumentSnapshot>> entry : positiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
+                String category = entry.getKey();
+                List<DocumentSnapshot> documents = entry.getValue();
+                positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents));
             }
+
+            // Sort positive amounts in descending order then add to list to keep order
+            return positiveAmountByCategoryMap.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
+                        @Override
+                        public int compare(Double K, Double V) {
+                            return V.compareTo(K);
+                        }
+                    }))
+                    .collect(Collectors.toList());
         }
-        positiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
-        return total;
+
+        private double getTotalTransactionAmount(String category, @NotNull List<DocumentSnapshot> documents) {
+            double total = 0;
+            List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
+            for (DocumentSnapshot document : documents) {
+                double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
+                if (amount >= 0.0) {
+                    total += amount;
+                    positiveAmountTransactionsList.add(document);
+                }
+            }
+            positiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
+            return total;
+        }
     }
 
-    // Key: Crystal categories
-    // Value: Plaid categories
     private void initializeCategoriesMap() {
         categoriesMap.put("Shopping"       , Collections.singletonList("Shops"));
         categoriesMap.put("Food & Drinks"  , Collections.singletonList("Food and Drink"));

@@ -1,4 +1,4 @@
-package com.crystal.hello;
+package com.crystal.hello.signup;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.crystal.hello.HomeActivity;
+import com.crystal.hello.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -19,7 +21,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.plaid.link.Plaid;
 import com.plaid.linkbase.models.configuration.LinkConfiguration;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import kotlin.Unit;
 
@@ -50,9 +52,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
-        button.setOnClickListener(view -> {
-            createUserWithEmailAndPassword();
-        });
+        button.setOnClickListener(view -> createUserWithEmailAndPassword());
     }
 
     private void openLink() {
@@ -160,7 +160,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
 
                             openLink();
-//                            sendEmailVerification();
+                            sendEmailVerification();
                             setUserToDatabase(email, firstName, lastName, mobileNumber);
 
                         } else { // Invalid email or password
@@ -168,7 +168,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                             if (task.getException() != null) {
                                 Toast.makeText(InitialConnectActivity.this
                                         , task.getException().getMessage()
-                                        , Toast.LENGTH_SHORT).show();
+                                        , Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -177,7 +177,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     private void sendEmailVerification() {
         FirebaseUser user = auth.getCurrentUser();
-        user.sendEmailVerification()
+        Objects.requireNonNull(user).sendEmailVerification()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -185,12 +185,12 @@ public class InitialConnectActivity extends AppCompatActivity {
                             Log.d(TAG, "sendEmailVerification:success");
                             Toast.makeText(InitialConnectActivity.this
                                     , "Verification email sent to " + user.getEmail()
-                                    , Toast.LENGTH_SHORT).show();
+                                    , Toast.LENGTH_LONG).show();
                         } else {
                             Log.e(TAG, "sendEmailVerification:failure", task.getException());
                             Toast.makeText(InitialConnectActivity.this
                                     , "Failed to send verification email."
-                                    , Toast.LENGTH_SHORT).show();
+                                    , Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -205,7 +205,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("mobile", mobileNumber);
 
         db.collection("users")
-                .document(auth.getCurrentUser().getUid())
+                .document(Objects.requireNonNull(auth.getCurrentUser()).getUid())
                 .set(userData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NameActivity">
+    tools:context=".signup.NameActivity">
 
     <TextView
         android:id="@+id/textName"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutFirstName"
+        android:id="@+id/firstNameInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
@@ -33,7 +33,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextFirstName"
+            android:id="@+id/firstNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="First name"
@@ -41,17 +41,17 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutLastName"
+        android:id="@+id/lastNameInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/inputLayoutFirstName"
-        app:layout_constraintStart_toStartOf="@+id/inputLayoutFirstName"
-        app:layout_constraintTop_toBottomOf="@+id/inputLayoutFirstName"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/firstNameInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/firstNameInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/firstNameInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextLastName"
+            android:id="@+id/lastNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Last name"
@@ -70,7 +70,7 @@
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/button_corner_radius"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/inputLayoutFirstName"
-        app:layout_constraintStart_toStartOf="@+id/inputLayoutFirstName" />
+        app:layout_constraintEnd_toEndOf="@+id/firstNameInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/firstNameInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
