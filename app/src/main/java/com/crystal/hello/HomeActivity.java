@@ -1,46 +1,34 @@
 package com.crystal.hello;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.ui.home.HomeFragment;
 import com.crystal.hello.ui.profile.ProfileFragment;
 import com.crystal.hello.ui.saved.SavedFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.jetbrains.annotations.NotNull;
-
 public class HomeActivity extends AppCompatActivity {
-    public static String publicToken;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        boolean newUserBooleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER_BOOLEAN", false);
+        String publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN_STRING");
+
         Bundle bundle = new Bundle();
-        boolean newUserBooleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
-        bundle.putBoolean("com.crystal.hello.CREATE_USER", newUserBooleanExtra);
+        bundle.putBoolean("com.crystal.hello.CREATE_USER_BOOLEAN", newUserBooleanExtra);
+        bundle.putString("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
 
         Fragment homeFragment = new HomeFragment();
         homeFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, homeFragment).commit();
-
-        publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN");
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         setBottomNavigationItemSelectedListener(navView);
@@ -61,8 +49,8 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                     default:
                         Bundle bundle = new Bundle();
-                        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER", false);
-                        bundle.putBoolean("com.crystal.hello.CREATE_USER", booleanExtra);
+                        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER_BOOLEAN", false);
+                        bundle.putBoolean("com.crystal.hello.CREATE_USER_BOOLEAN", booleanExtra);
                         fragment = new HomeFragment();
                         fragment.setArguments(bundle);
                         break;

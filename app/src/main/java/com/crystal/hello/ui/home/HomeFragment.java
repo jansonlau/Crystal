@@ -1,6 +1,5 @@
 package com.crystal.hello.ui.home;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -46,9 +45,10 @@ public class HomeFragment extends Fragment {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         // New user from create account
-        if (getArguments() != null && getArguments().getBoolean("com.crystal.hello.CREATE_USER")) {
+        if (getArguments() != null && getArguments().getBoolean("com.crystal.hello.CREATE_USER_BOOLEAN")) {
+            String publicToken = getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
             homeViewModel.buildPlaidClient();
-            homeViewModel.exchangeAccessToken();
+            homeViewModel.exchangeAccessToken(publicToken);
         } else { // Log in
             homeViewModel.getSubsetTransactionsFromDatabase();
             homeViewModel.getBalancesFromDatabase();

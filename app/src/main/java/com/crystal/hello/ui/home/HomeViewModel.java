@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.crystal.hello.HomeActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -96,10 +95,10 @@ public class HomeViewModel extends ViewModel {
                 .build();
     }
 
-    // Asynchronously get token for a bank account
-    protected void exchangeAccessToken() {
+    // Asynchronously get access token for a bank account
+    protected void exchangeAccessToken(String publicToken) {
         plaidClient.service()
-                .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(HomeActivity.publicToken))
+                .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
                     @Override
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
@@ -203,7 +202,7 @@ public class HomeViewModel extends ViewModel {
 
     // Write to Firestore with paginated list because of Plaid's 500 transaction limit and
     // Firestore's WriteBatch has limit of 500 documents
-    // Set Plaid Transaction to "transactions" collection with Plaid transactionId as document ID
+    // Set Plaid Transaction to Firestore's "transactions" collection with Plaid transactionId as document ID
     private void setPaginatedPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
                                                          int totalTransactions) {
         final WriteBatch batch = db.batch();

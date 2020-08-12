@@ -99,8 +99,8 @@ public class InitialConnectActivity extends AppCompatActivity {
                 // Show alert dialog if credit card account is missing
                 if (hasCreditCardAccount) {
                     Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
-                            .putExtra("com.crystal.hello.PUBLIC_TOKEN", publicToken)
-                            .putExtra("com.crystal.hello.CREATE_USER", true);
+                            .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
+                            .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
                     startActivity(intent);
                     finishAffinity();
                 } else {
