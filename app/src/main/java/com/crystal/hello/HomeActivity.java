@@ -64,10 +64,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setBottomNavigationItemReselectedListener(BottomNavigationView navView) {
-        navView.setOnNavigationItemReselectedListener(item -> {
-            if (item.getItemId() == R.id.navigation_home) {
-                NestedScrollView nestedScrollView = findViewById(R.id.nestedScrollViewHome);
-                nestedScrollView.smoothScrollTo(0, 0);
+        navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.navigation_home) {
+                    NestedScrollView nestedScrollView = HomeActivity.this.findViewById(R.id.nestedScrollViewHome);
+                    nestedScrollView.smoothScrollTo(0, 0);
+                }
             }
         });
     }

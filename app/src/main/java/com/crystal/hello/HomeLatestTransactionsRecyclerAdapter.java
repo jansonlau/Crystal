@@ -80,7 +80,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         return transactionsList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         final ConstraintLayout transactionConstraintLayout;
         final ImageView transactionLogoImageView;
         final TextView transactionNameTextView;
@@ -134,16 +134,22 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         int drawableInt = R.drawable.ic_outline_room_service_24;
 
         if (categoriesList != null) {
-            if (category.equals("Food and Drink")) {
-                drawableInt = R.drawable.ic_outline_fastfood_24;
-            } else if (category.equals("Shops")) {
-                drawableInt = R.drawable.ic_outline_shopping_cart_24;
-            } else if (category.equals("Travel")) {
-                drawableInt = R.drawable.ic_outline_airplanemode_active_24;
-            } else if (category.equals("Recreation")) {
-                drawableInt = R.drawable.ic_outline_local_movies_24;
-            } else if (category.equals("Healthcare")) {
-                drawableInt = R.drawable.ic_outline_healing_24;
+            switch (category) {
+                case "Food and Drink":
+                    drawableInt = R.drawable.ic_outline_fastfood_24;
+                    break;
+                case "Shops":
+                    drawableInt = R.drawable.ic_outline_shopping_cart_24;
+                    break;
+                case "Travel":
+                    drawableInt = R.drawable.ic_outline_airplanemode_active_24;
+                    break;
+                case "Recreation":
+                    drawableInt = R.drawable.ic_outline_local_movies_24;
+                    break;
+                case "Healthcare":
+                    drawableInt = R.drawable.ic_outline_healing_24;
+                    break;
             }
         }
         return drawableInt;
@@ -155,7 +161,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
                                                          String transactionName,
                                                          String transactionDate,
                                                          String transactionAmount) {
-        Bundle bundle = new Bundle();
+        final Bundle bundle = new Bundle();
         bundle.putInt("TRANSACTION_ITEM_POSITION", position);
         bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
         bundle.putString("TRANSACTION_ITEM_NAME", transactionName);

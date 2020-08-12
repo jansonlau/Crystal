@@ -165,6 +165,8 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                     .collect(Collectors.toList());
         }
 
+        // Calculate total amount for a category
+        // Put positive amount into positiveAmountTransactionsByCategoryMap
         private double getTotalTransactionAmount(String category, @NotNull List<DocumentSnapshot> documents) {
             double total = 0;
             List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();

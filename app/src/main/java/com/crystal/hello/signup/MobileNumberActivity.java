@@ -37,18 +37,21 @@ public class MobileNumberActivity extends AppCompatActivity {
         });
 
         Button button = findViewById(R.id.buttonMobileNumberContinue);
-        button.setOnClickListener(view -> {
-            if (!validateForm()) {
-                return;
-            }
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!MobileNumberActivity.this.validateForm()) {
+                    return;
+                }
 
-            Intent intent = new Intent(MobileNumberActivity.this, InitialConnectActivity.class)
-                    .putExtra("com.crystal.hello.FIRST_NAME", getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
-                    .putExtra("com.crystal.hello.LAST_NAME", getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
-                    .putExtra("com.crystal.hello.EMAIL", getIntent().getStringExtra("com.crystal.hello.EMAIL"))
-                    .putExtra("com.crystal.hello.PASSWORD", getIntent().getStringExtra("com.crystal.hello.PASSWORD"))
-                    .putExtra("com.crystal.hello.MOBILE_NUMBER", String.valueOf(mobileEditText.getText()));
-            startActivity(intent);
+                Intent intent = new Intent(MobileNumberActivity.this, InitialConnectActivity.class)
+                        .putExtra("com.crystal.hello.FIRST_NAME", MobileNumberActivity.this.getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
+                        .putExtra("com.crystal.hello.LAST_NAME", MobileNumberActivity.this.getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
+                        .putExtra("com.crystal.hello.EMAIL", MobileNumberActivity.this.getIntent().getStringExtra("com.crystal.hello.EMAIL"))
+                        .putExtra("com.crystal.hello.PASSWORD", MobileNumberActivity.this.getIntent().getStringExtra("com.crystal.hello.PASSWORD"))
+                        .putExtra("com.crystal.hello.MOBILE_NUMBER", String.valueOf(mobileEditText.getText()));
+                MobileNumberActivity.this.startActivity(intent);
+            }
         });
     }
 

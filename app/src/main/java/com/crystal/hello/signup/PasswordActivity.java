@@ -36,18 +36,21 @@ public class PasswordActivity extends AppCompatActivity {
         });
 
         Button button = findViewById(R.id.buttonPasswordContinue);
-        button.setOnClickListener(view -> {
-            if (!validateForm()) {
-                return;
-            }
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!PasswordActivity.this.validateForm()) {
+                    return;
+                }
 
-            TextInputEditText passwordEditText = findViewById(R.id.editTextPassword);
-            Intent intent = new Intent(PasswordActivity.this, MobileNumberActivity.class)
-                    .putExtra("com.crystal.hello.FIRST_NAME", getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
-                    .putExtra("com.crystal.hello.LAST_NAME", getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
-                    .putExtra("com.crystal.hello.EMAIL", getIntent().getStringExtra("com.crystal.hello.EMAIL"))
-                    .putExtra("com.crystal.hello.PASSWORD", String.valueOf(passwordEditText));
-            startActivity(intent);
+                TextInputEditText passwordEditText = PasswordActivity.this.findViewById(R.id.editTextPassword);
+                Intent intent = new Intent(PasswordActivity.this, MobileNumberActivity.class)
+                        .putExtra("com.crystal.hello.FIRST_NAME", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
+                        .putExtra("com.crystal.hello.LAST_NAME", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
+                        .putExtra("com.crystal.hello.EMAIL", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.EMAIL"))
+                        .putExtra("com.crystal.hello.PASSWORD", String.valueOf(passwordEditText));
+                PasswordActivity.this.startActivity(intent);
+            }
         });
     }
 

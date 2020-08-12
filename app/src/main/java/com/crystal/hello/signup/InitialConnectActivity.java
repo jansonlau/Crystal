@@ -7,18 +7,12 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.crystal.hello.HomeActivity;
 import com.crystal.hello.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,6 +36,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     private final int LINK_REQUEST_CODE = 1;
     private final String TAG = InitialConnectActivity.class.getSimpleName();
     private FirebaseAuth auth;
+    private FirebaseUser user;
     private FirebaseFirestore db;
 
     @Override
@@ -49,10 +44,11 @@ public class InitialConnectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
-        button.setOnClickListener(view -> createUserWithEmailAndPassword());
+        button.setOnClickListener(view -> InitialConnectActivity.this.createUserWithEmailAndPassword());
     }
 
     private void openLink() {
@@ -76,7 +72,7 @@ public class InitialConnectActivity extends AppCompatActivity {
             // Metadata gives accountNumber if it's useful in the future
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
-                Log.i(TAG, getString(
+                Log.i(TAG, InitialConnectActivity.this.getString(
                         R.string.content_success,
                         linkConnection.getPublicToken(),
                         metadata.getAccounts().get(0).getAccountId(),
@@ -101,10 +97,10 @@ public class InitialConnectActivity extends AppCompatActivity {
                     Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
                             .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
                             .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
-                    startActivity(intent);
-                    finishAffinity();
+                    InitialConnectActivity.this.startActivity(intent);
+                    InitialConnectActivity.this.finishAffinity();
                 } else {
-                    new MaterialAlertDialogBuilder(this)
+                    new MaterialAlertDialogBuilder(InitialConnectActivity.this)
                             .setTitle("Missing Credit Card")
                             .setMessage("Crystal requires a bank account with a credit card")
                             .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
@@ -119,9 +115,9 @@ public class InitialConnectActivity extends AppCompatActivity {
             // Handle onCancelled (close button / Android back button)
             linkCancellation -> {
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
-                startActivity(intent);
-                finishAffinity();
-                Log.i(TAG, getString(
+                InitialConnectActivity.this.startActivity(intent);
+                InitialConnectActivity.this.finishAffinity();
+                Log.i(TAG, InitialConnectActivity.this.getString(
                         R.string.content_cancelled,
                         linkCancellation.getInstitutionId(),
                         linkCancellation.getInstitutionName(),
@@ -132,7 +128,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
             // Handle onExit (close button???)
             plaidApiError -> {
-                Log.i(TAG, getString(
+                Log.i(TAG, InitialConnectActivity.this.getString(
                         R.string.content_exit,
                         plaidApiError.getDisplayMessage(),
                         plaidApiError.getErrorCode(),
@@ -146,52 +142,43 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     // Add account to database only if account was successfully created in Firebase Auth
     private void createUserWithEmailAndPassword() {
-        String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
-        String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
-        String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
-        String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME"));
-        String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER"));
+        final String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
+        final String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
+        final String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
+        final String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME"));
+        final String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER"));
 
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "createUserWithEmail:success");
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "createUserWithEmail:success");
 
-                            openLink();
-                            sendEmailVerification();
-                            setUserToDatabase(email, firstName, lastName, mobileNumber);
+                        openLink();
+                        sendEmailVerification();
+                        setUserToDatabase(email, firstName, lastName, mobileNumber);
 
-                        } else { // Invalid email or password
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            if (task.getException() != null) {
-                                Toast.makeText(InitialConnectActivity.this
-                                        , task.getException().getMessage()
-                                        , Toast.LENGTH_LONG).show();
-                            }
-                        }
+                    } else { // Invalid email or password
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(InitialConnectActivity.this
+                                , Objects.requireNonNull(task.getException()).getMessage()
+                                , Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     private void sendEmailVerification() {
-        FirebaseUser user = auth.getCurrentUser();
         Objects.requireNonNull(user).sendEmailVerification()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "sendEmailVerification:success");
-                            Toast.makeText(InitialConnectActivity.this
-                                    , "Verification email sent to " + user.getEmail()
-                                    , Toast.LENGTH_LONG).show();
-                        } else {
-                            Log.e(TAG, "sendEmailVerification:failure", task.getException());
-                            Toast.makeText(InitialConnectActivity.this
-                                    , "Failed to send verification email."
-                                    , Toast.LENGTH_LONG).show();
-                        }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "sendEmailVerification:success");
+                        Toast.makeText(InitialConnectActivity.this
+                                , "Verification email sent to " + user.getEmail()
+                                , Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.e(TAG, "sendEmailVerification:failure", task.getException());
+                        Toast.makeText(InitialConnectActivity.this
+                                , "Failed to send verification email."
+                                , Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -205,19 +192,9 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("mobile", mobileNumber);
 
         db.collection("users")
-                .document(Objects.requireNonNull(auth.getCurrentUser()).getUid())
+                .document(user.getUid())
                 .set(userData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 }

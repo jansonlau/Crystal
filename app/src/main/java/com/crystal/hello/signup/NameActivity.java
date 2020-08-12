@@ -2,6 +2,7 @@ package com.crystal.hello.signup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,14 +28,17 @@ public class NameActivity extends AppCompatActivity {
         lastNameInputLayout = findViewById(R.id.lastNameInputLayout);
 
         Button nameContinueButton = findViewById(R.id.buttonNameContinue);
-        nameContinueButton.setOnClickListener(view -> {
-            TextInputEditText firstNameEditText = findViewById(R.id.firstNameEditText);
-            TextInputEditText lastNameEditText = findViewById(R.id.lastNameEditText);
+        nameContinueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextInputEditText firstNameEditText = NameActivity.this.findViewById(R.id.firstNameEditText);
+                TextInputEditText lastNameEditText = NameActivity.this.findViewById(R.id.lastNameEditText);
 
-            Intent intent = new Intent(NameActivity.this, EmailActivity.class)
-                    .putExtra("com.crystal.hello.FIRST_NAME", String.valueOf(firstNameEditText.getText()))
-                    .putExtra("com.crystal.hello.LAST_NAME", String.valueOf(lastNameEditText.getText()));
-            startActivity(intent);
+                Intent intent = new Intent(NameActivity.this, EmailActivity.class)
+                        .putExtra("com.crystal.hello.FIRST_NAME", String.valueOf(firstNameEditText.getText()))
+                        .putExtra("com.crystal.hello.LAST_NAME", String.valueOf(lastNameEditText.getText()));
+                NameActivity.this.startActivity(intent);
+            }
         });
     }
 }

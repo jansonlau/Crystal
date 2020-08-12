@@ -1,5 +1,7 @@
 package com.crystal.hello.ui.home;
 
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -7,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.crystal.hello.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,6 +31,16 @@ import com.plaid.client.response.TransactionsGetResponse;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,19 +49,29 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
-    private String accessToken; // In production, store it in a secure persistent data store.
-    private String itemId;
+    // Key Initialization vector, Value encrypted data
+    private Map<byte[], byte[]> encryptedAccessTokenMap;
+    private Map<byte[], byte[]> encryptedItemIdMap;
 
     private String clientIdKey          = "5e9e830fd1ed690012c3be3c";
     private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
     private String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
-    private String publicKey            = "bbf9cf93da45517aa5283841dfc534";
     private final String TAG            = HomeViewModel.class.getSimpleName();
+    private static final String PROVIDER = "AndroidKeyStore";
+    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
     private MutableLiveData<Double> currentTotalBalance;
     private MutableLiveData<List<Map<String, Object>>> mutableSubsetTransactionsList;
@@ -90,7 +113,7 @@ public class HomeViewModel extends ViewModel {
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(clientIdKey, sandboxSecretKey)
-                .publicKey(publicKey)
+                .publicKey(String.valueOf(R.string.plaid_public_key))
                 .sandboxBaseUrl()
                 .build();
     }
@@ -104,10 +127,22 @@ public class HomeViewModel extends ViewModel {
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            accessToken = response.body().getAccessToken();
-                            itemId = response.body().getItemId();
-                            Log.i(TAG + ":plaid_accessToken:", response.body().getAccessToken());
-                            Log.i(TAG + ":plaid_itemId:", response.body().getItemId());
+                            ItemPublicTokenExchangeResponse responseBody = response.body();
+                            try {
+                                encryptedAccessTokenMap = encrypt("accessToken", responseBody.getAccessToken());
+                                encryptedItemIdMap = encrypt("itemId", responseBody.getItemId());
+                            } catch (NoSuchProviderException
+                                    | NoSuchAlgorithmException
+                                    | InvalidAlgorithmParameterException
+                                    | NoSuchPaddingException
+                                    | InvalidKeyException
+                                    | BadPaddingException
+                                    | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+
+                            Log.i(TAG, "retrieved_plaid_accessToken");
+                            Log.i(TAG, "retrieved_plaid_itemId");
                             getPlaidAccountsAndTransactions(transactionOffset);
                         }
                     }
@@ -118,6 +153,54 @@ public class HomeViewModel extends ViewModel {
                         Log.w(TAG + "accessToken_failure", call.toString());
                     }
                 });
+    }
+
+    private Map<byte[], byte[]> encrypt(String alias, String data) throws NoSuchProviderException,
+            NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException,
+            NoSuchPaddingException,
+            InvalidKeyException,
+            BadPaddingException,
+            IllegalBlockSizeException {
+        final KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, PROVIDER);
+        keyGenerator.init(new KeyGenParameterSpec
+                .Builder(alias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .build());
+
+        final SecretKey secretKey = keyGenerator.generateKey();
+        final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        byte[] initializationVector = cipher.getIV();
+        byte[] encryptedData = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
+        Map<byte[], byte[]> IVAndDataMap = new HashMap<>();
+        IVAndDataMap.put(initializationVector, encryptedData);
+        return IVAndDataMap;
+    }
+
+    private String decrypt(String alias, byte[] initializationVector, byte[] encryptedData) throws KeyStoreException,
+            CertificateException,
+            NoSuchAlgorithmException,
+            IOException,
+            UnrecoverableEntryException,
+            InvalidAlgorithmParameterException,
+            InvalidKeyException,
+            NoSuchPaddingException,
+            BadPaddingException,
+            IllegalBlockSizeException {
+        KeyStore keyStore = KeyStore.getInstance(PROVIDER);
+        keyStore.load(null);
+
+        final KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, null);
+        final SecretKey secretKey = secretKeyEntry.getSecretKey();
+        final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        final GCMParameterSpec spec = new GCMParameterSpec(128, initializationVector);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+        final byte[] decodedData = cipher.doFinal(encryptedData);
+        return new String(decodedData, StandardCharsets.UTF_8);
     }
 
     // TODO: Plaid Liabilities for upcoming bill amount
@@ -147,7 +230,24 @@ public class HomeViewModel extends ViewModel {
         Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
 //        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
         Date endDate = new Date();
-        TransactionsGetRequest request = new TransactionsGetRequest(accessToken, startDate, endDate)
+
+        String accessToken = null;
+        for (Map.Entry<byte[], byte[]> entry : encryptedAccessTokenMap.entrySet()) {
+            try {
+                accessToken = decrypt("accessToken", entry.getKey(), entry.getValue());
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException
+                    | IOException
+                    | UnrecoverableEntryException
+                    | InvalidAlgorithmParameterException
+                    | InvalidKeyException
+                    | NoSuchPaddingException
+                    | BadPaddingException
+                    | IllegalBlockSizeException e) {
+                e.printStackTrace();
+            }
+        }
+
+        TransactionsGetRequest request = new TransactionsGetRequest(Objects.requireNonNull(accessToken), startDate, endDate)
                 .withCount(count)
                 .withOffset(offset);
 
@@ -237,6 +337,38 @@ public class HomeViewModel extends ViewModel {
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
     private void setPlaidAccountsToDatabase() {
+        String accessToken = null;
+        for (Map.Entry<byte[], byte[]> entry : encryptedAccessTokenMap.entrySet()) {
+            try {
+                accessToken = decrypt("accessToken", entry.getKey(), entry.getValue());
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException
+                    | IOException
+                    | UnrecoverableEntryException
+                    | InvalidAlgorithmParameterException
+                    | InvalidKeyException
+                    | NoSuchPaddingException
+                    | BadPaddingException
+                    | IllegalBlockSizeException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String itemId = null;
+        for (Map.Entry<byte[], byte[]> entry : encryptedItemIdMap.entrySet()) {
+            try {
+                itemId = decrypt("itemId", entry.getKey(), entry.getValue());
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException
+                    | IOException
+                    | UnrecoverableEntryException
+                    | InvalidAlgorithmParameterException
+                    | InvalidKeyException
+                    | NoSuchPaddingException
+                    | BadPaddingException
+                    | IllegalBlockSizeException e) {
+                e.printStackTrace();
+            }
+        }
+
         final WriteBatch batch = db.batch();
         for (Account account : accountIdToAccountMap.values()) {
             Map<String, Object> identifiers = new HashMap<>();
@@ -304,7 +436,7 @@ public class HomeViewModel extends ViewModel {
                                 bankAccountsList.add((HashMap<String, Object>) document.getData());
 
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
-                                totalBalance += (double) balances.get("current");
+                                totalBalance += (double) Objects.requireNonNull(balances).get("current");
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                             }
                             currentTotalBalance.setValue(totalBalance);

@@ -147,12 +147,12 @@ public class HomeFragment extends Fragment {
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         float monthSoFarRatio = (float) day / month; // convert to current day of month / # of days in month
-        int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
+        final int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
 
-        TextView oneMonthTextView = root.findViewById(R.id.textViewOneMonth);
-        TextView threeMonthTextView = root.findViewById(R.id.textViewThreeMonths);
-        TextView oneYearTextView = root.findViewById(R.id.textViewOneYear);
+        final TextView oneMonthTextView = root.findViewById(R.id.textViewOneMonth);
+        final TextView threeMonthTextView = root.findViewById(R.id.textViewThreeMonths);
+        final TextView oneYearTextView = root.findViewById(R.id.textViewOneYear);
 
         oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
         oneMonthTextView.setSelected(true);

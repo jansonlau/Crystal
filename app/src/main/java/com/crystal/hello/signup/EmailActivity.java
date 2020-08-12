@@ -51,16 +51,19 @@ public class EmailActivity extends AppCompatActivity {
         });
 
         Button emailContinueButton = findViewById(R.id.buttonEmailContinue);
-        emailContinueButton.setOnClickListener(view -> {
-            if (!validateForm()) {
-                return;
+        emailContinueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!EmailActivity.this.validateForm()) {
+                    return;
+                }
+                EmailActivity.this.fetchSignInMethodsForEmail();
             }
-            fetchSignInMethodsForEmail();
         });
     }
 
     private void fetchSignInMethodsForEmail() {
-        String email = String.valueOf(emailEditText.getText());
+        final String email = String.valueOf(emailEditText.getText());
         auth.fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                     @Override
