@@ -73,23 +73,29 @@ public class TransactionItemDetailFragment extends Fragment {
 
         // Category
         switch (transactionItemLogo) {
-            case R.drawable.ic_outline_shopping_cart_24:
+            case R.drawable.shopping:
                 transactionItemCategory = "Shopping";
+                logo.setBackgroundResource(R.drawable.shopping_background);
                 break;
-            case R.drawable.ic_outline_fastfood_24:
+            case R.drawable.food:
                 transactionItemCategory = "Food & Drinks";
+                logo.setBackgroundResource(R.drawable.food_background);
                 break;
-            case R.drawable.ic_outline_healing_24:
+            case R.drawable.health:
                 transactionItemCategory = "Health";
+                logo.setBackgroundResource(R.drawable.health_background);
                 break;
-            case R.drawable.ic_outline_local_movies_24:
+            case R.drawable.entertainment:
                 transactionItemCategory = "Entertainment";
+                logo.setBackgroundResource(R.drawable.entertainment_background);
                 break;
-            case R.drawable.ic_outline_airplanemode_active_24:
+            case R.drawable.travel:
                 transactionItemCategory = "Travel";
+                logo.setBackgroundResource(R.drawable.travel_background);
                 break;
             default:
                 transactionItemCategory = "Services";
+                logo.setBackgroundResource(R.drawable.services_background);
         }
 
         // Show location or map if available. Else, hide the views

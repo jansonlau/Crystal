@@ -49,9 +49,9 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         boolean transactionPending  = (boolean) transaction.get("pending");
 
         // Parse transaction fields
-        transactionDate     = parseTransactionDate(transactionDate);
-        String parsedTransactionAmount   = parseTransactionAmount(transactionAmount);
-        int drawableId      = parseTransactionLogo(categoriesList);
+        transactionDate = parseTransactionDate(transactionDate);
+        String parsedTransactionAmount = parseTransactionAmount(transactionAmount);
+        int drawableId = parseTransactionLogo(holder, categoriesList);
         transactionName = parsePopularNames(transactionName);
         initializeTransactionItemDetailFragment(holder,
                 position,
@@ -126,30 +126,37 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         return transactionDate;
     }
 
-    private int parseTransactionLogo(List<String> categoriesList) {
+    private int parseTransactionLogo(ViewHolder holder, List<String> categoriesList) {
         String category = "";
         if (categoriesList != null) {
             category = categoriesList.get(0);
         }
-        int drawableInt = R.drawable.ic_outline_room_service_24;
 
+        int drawableInt = R.drawable.services;
         if (categoriesList != null) {
             switch (category) {
                 case "Food and Drink":
-                    drawableInt = R.drawable.ic_outline_fastfood_24;
+                    drawableInt = R.drawable.food;
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.food_background);
                     break;
                 case "Shops":
-                    drawableInt = R.drawable.ic_outline_shopping_cart_24;
+                    drawableInt = R.drawable.shopping;
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.shopping_background);
                     break;
                 case "Travel":
-                    drawableInt = R.drawable.ic_outline_airplanemode_active_24;
+                    drawableInt = R.drawable.travel;
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.travel_background);
                     break;
                 case "Recreation":
-                    drawableInt = R.drawable.ic_outline_local_movies_24;
+                    drawableInt = R.drawable.entertainment;
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.entertainment_background);
                     break;
                 case "Healthcare":
-                    drawableInt = R.drawable.ic_outline_healing_24;
+                    drawableInt = R.drawable.health;
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.health_background);
                     break;
+                default:
+                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.services_background);
             }
         }
         return drawableInt;
