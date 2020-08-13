@@ -27,7 +27,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="@+id/textMobileNumber"
         app:layout_constraintStart_toStartOf="@+id/textMobileNumber"
         app:layout_constraintTop_toBottomOf="@+id/textMobileNumber">

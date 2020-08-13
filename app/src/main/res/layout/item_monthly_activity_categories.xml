@@ -12,15 +12,15 @@
         android:id="@+id/budgetNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="8dp"
         android:lines="1"
         android:text="Shopping"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/budgetArrowImageView"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/budgetLogoImageView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -39,8 +39,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:max="5000"
+        android:layout_marginBottom="10dp"
+        android:max="100"
+        android:progress="40"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/budgetAmountTextView"
         app:layout_constraintStart_toStartOf="@+id/budgetNameTextView"
@@ -48,9 +49,11 @@
 
     <TextView
         android:id="@+id/budgetAmountTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="$10 / $100"
+        android:layout_width="88dp"
+        android:layout_height="0dp"
+        android:maxLines="1"
+        android:text="$1000000.00"
+        android:textAlignment="textStart"
         app:layout_constraintBottom_toBottomOf="@+id/budgetProgressBar"
         app:layout_constraintEnd_toEndOf="@+id/budgetNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/budgetNameTextView" />
@@ -58,9 +61,21 @@
     <View
         android:id="@+id/budgetDividerView"
         android:layout_width="0dp"
-        android:layout_height="0.75dp"
+        android:layout_height="0.7dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/budgetNameTextView" />
+        app:layout_constraintStart_toStartOf="@+id/budgetLogoImageView" />
+
+    <ImageView
+        android:id="@+id/budgetLogoImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/shopping_background"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/budgetProgressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/budgetNameTextView"
+        app:srcCompat="@drawable/shopping" />
 </androidx.constraintlayout.widget.ConstraintLayout>

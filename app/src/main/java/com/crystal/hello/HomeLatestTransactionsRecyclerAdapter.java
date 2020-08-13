@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<HomeLatestTransactionsRecyclerAdapter.ViewHolder> {
     private final List<Map<String, Object>> transactionsList;
@@ -51,7 +52,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         // Parse transaction fields
         transactionDate = parseTransactionDate(transactionDate);
         String parsedTransactionAmount = parseTransactionAmount(transactionAmount);
-        int drawableId = parseTransactionLogo(holder, categoriesList);
+        int drawableId = parseTransactionLogo(holder, Objects.requireNonNull(categoriesList));
         transactionName = parsePopularNames(transactionName);
         initializeTransactionItemDetailFragment(holder,
                 position,
@@ -126,38 +127,35 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         return transactionDate;
     }
 
+    // Categories from Plaid are stored in a list
     private int parseTransactionLogo(ViewHolder holder, List<String> categoriesList) {
         String category = "";
-        if (categoriesList != null) {
-            category = categoriesList.get(0);
-        }
+        category = categoriesList.get(0);
 
         int drawableInt = R.drawable.services;
-        if (categoriesList != null) {
-            switch (category) {
-                case "Food and Drink":
-                    drawableInt = R.drawable.food;
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.food_background);
-                    break;
-                case "Shops":
-                    drawableInt = R.drawable.shopping;
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.shopping_background);
-                    break;
-                case "Travel":
-                    drawableInt = R.drawable.travel;
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.travel_background);
-                    break;
-                case "Recreation":
-                    drawableInt = R.drawable.entertainment;
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.entertainment_background);
-                    break;
-                case "Healthcare":
-                    drawableInt = R.drawable.health;
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.health_background);
-                    break;
-                default:
-                    holder.transactionLogoImageView.setBackgroundResource(R.drawable.services_background);
-            }
+        switch (category) {
+            case "Food and Drink":
+                drawableInt = R.drawable.food;
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.food_background);
+                break;
+            case "Shops":
+                drawableInt = R.drawable.shopping;
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.shopping_background);
+                break;
+            case "Travel":
+                drawableInt = R.drawable.travel;
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.travel_background);
+                break;
+            case "Recreation":
+                drawableInt = R.drawable.entertainment;
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.entertainment_background);
+                break;
+            case "Healthcare":
+                drawableInt = R.drawable.health;
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.health_background);
+                break;
+            default:
+                holder.transactionLogoImageView.setBackgroundResource(R.drawable.services_background);
         }
         return drawableInt;
     }

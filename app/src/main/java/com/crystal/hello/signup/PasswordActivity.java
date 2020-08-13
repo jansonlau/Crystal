@@ -62,7 +62,7 @@ public class PasswordActivity extends AppCompatActivity {
         boolean valid = true;
 
         if (!isPasswordValid(passwordEditText.getText())) {
-            passwordLayout.setError("Must have at least 6 characters");
+            passwordLayout.setError("Must have at least 6 characters.");
             valid = false;
         } else {
             passwordLayout.setError(null);

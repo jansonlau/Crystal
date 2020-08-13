@@ -104,6 +104,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
         LocalDate end = new LocalDate().withDayOfMonth(1).plusMonths(1);
         return Months.monthsBetween(start, end).getMonths();
+//        return 1;
     }
 
     private void initializeScreenSlidePagerAdapter() {
