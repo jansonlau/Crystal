@@ -2,7 +2,6 @@ package com.crystal.hello.ui.home;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -69,7 +67,6 @@ public class HomeViewModel extends ViewModel {
     private String clientIdKey          = "5e9e830fd1ed690012c3be3c";
     private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
     private String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
-    private final String TAG            = HomeViewModel.class.getSimpleName();
     private static final String PROVIDER = "AndroidKeyStore";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
@@ -141,8 +138,6 @@ public class HomeViewModel extends ViewModel {
                                 e.printStackTrace();
                             }
 
-                            Log.i(TAG, "retrieved_plaid_accessToken");
-                            Log.i(TAG, "retrieved_plaid_itemId");
                             getPlaidAccountsAndTransactions(transactionOffset);
                         }
                     }
@@ -150,7 +145,6 @@ public class HomeViewModel extends ViewModel {
                     @Override
                     public void onFailure(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                           @NotNull Throwable t) {
-                        Log.w(TAG + "accessToken_failure", call.toString());
                     }
                 });
     }
@@ -281,12 +275,6 @@ public class HomeViewModel extends ViewModel {
                         }
                     }
 
-                    for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
-                        Log.d(TAG + " plaid_transaction", transaction.getDate() + " "
-                                + String.format(Locale.US,"%.2f", transaction.getAmount()) + " "
-                                + transaction.getName());
-                    }
-
                     transactionOffset += count;
                     int totalTransactions = responseBody.getTotalTransactions();
                     setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
@@ -295,7 +283,6 @@ public class HomeViewModel extends ViewModel {
 
             @Override
             public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
-                Log.w(TAG + "transaction_failure", call.toString());
             }
         });
     }
@@ -317,8 +304,6 @@ public class HomeViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-
                         // If there are more than 500 transactions, get more because they're paginated
                         if (transactionOffset < totalTransactions) {
                             getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
@@ -330,7 +315,6 @@ public class HomeViewModel extends ViewModel {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
                     }
                 });
     }
@@ -389,14 +373,12 @@ public class HomeViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
                         getBalancesFromDatabase();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
                     }
                 });
     }
@@ -413,11 +395,8 @@ public class HomeViewModel extends ViewModel {
                             subsetTransactionsList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 subsetTransactionsList.add(document.getData());
-                                Log.d(TAG, document.getId() + " => " + document.getData());
                             }
                             mutableSubsetTransactionsList.setValue(subsetTransactionsList);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -437,11 +416,8 @@ public class HomeViewModel extends ViewModel {
 
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
                                 totalBalance += (double) Objects.requireNonNull(balances).get("current");
-                                Log.d(TAG, document.getId() + " => " + document.getData());
                             }
                             currentTotalBalance.setValue(totalBalance);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });

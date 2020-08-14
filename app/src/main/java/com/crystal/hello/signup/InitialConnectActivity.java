@@ -3,7 +3,6 @@ package com.crystal.hello.signup;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -34,7 +33,6 @@ import kotlin.Unit;
 
 public class InitialConnectActivity extends AppCompatActivity {
     private final int LINK_REQUEST_CODE = 1;
-    private final String TAG = InitialConnectActivity.class.getSimpleName();
     private FirebaseAuth auth;
     private FirebaseUser user;
     private FirebaseFirestore db;
@@ -62,9 +60,6 @@ public class InitialConnectActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (!myPlaidResultHandler.onActivityResult(requestCode, resultCode, data)) {
-            Log.i(TAG, " Not handled");
-        }
     }
 
     private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(LINK_REQUEST_CODE,
@@ -72,13 +67,6 @@ public class InitialConnectActivity extends AppCompatActivity {
             // Metadata gives accountNumber if it's useful in the future
             linkConnection -> {
                 LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
-                Log.i(TAG, InitialConnectActivity.this.getString(
-                        R.string.content_success,
-                        linkConnection.getPublicToken(),
-                        metadata.getAccounts().get(0).getAccountId(),
-                        metadata.getAccounts().get(0).getAccountName(),
-                        metadata.getInstitutionId(),
-                        metadata.getInstitutionName()));
                 String publicToken = linkConnection.getPublicToken();
 
                 // Look for credit card accounts
@@ -117,25 +105,14 @@ public class InitialConnectActivity extends AppCompatActivity {
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
                 InitialConnectActivity.this.startActivity(intent);
                 InitialConnectActivity.this.finishAffinity();
-                Log.i(TAG, InitialConnectActivity.this.getString(
-                        R.string.content_cancelled,
-                        linkCancellation.getInstitutionId(),
-                        linkCancellation.getInstitutionName(),
-                        linkCancellation.getLinkSessionId(),
-                        linkCancellation.getStatus()));
                 return Unit.INSTANCE;
             },
 
             // Handle onExit (close button???)
             plaidApiError -> {
-                Log.i(TAG, InitialConnectActivity.this.getString(
-                        R.string.content_exit,
-                        plaidApiError.getDisplayMessage(),
-                        plaidApiError.getErrorCode(),
-                        plaidApiError.getErrorMessage(),
-                        plaidApiError.getLinkExitMetadata().getInstitutionId(),
-                        plaidApiError.getLinkExitMetadata().getInstitutionName(),
-                        plaidApiError.getLinkExitMetadata().getStatus()));
+                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
+                InitialConnectActivity.this.startActivity(intent);
+                InitialConnectActivity.this.finishAffinity();
                 return Unit.INSTANCE;
             }
     );
@@ -151,14 +128,11 @@ public class InitialConnectActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "createUserWithEmail:success");
-
                         openLink();
                         sendEmailVerification();
                         setUserToDatabase(email, firstName, lastName, mobileNumber);
 
                     } else { // Invalid email or password
-                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
                         Toast.makeText(InitialConnectActivity.this
                                 , Objects.requireNonNull(task.getException()).getMessage()
                                 , Toast.LENGTH_LONG).show();
@@ -170,14 +144,8 @@ public class InitialConnectActivity extends AppCompatActivity {
         Objects.requireNonNull(user).sendEmailVerification()
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "sendEmailVerification:success");
                         Toast.makeText(InitialConnectActivity.this
                                 , "Verification email sent to " + user.getEmail()
-                                , Toast.LENGTH_LONG).show();
-                    } else {
-                        Log.e(TAG, "sendEmailVerification:failure", task.getException());
-                        Toast.makeText(InitialConnectActivity.this
-                                , "Failed to send verification email."
                                 , Toast.LENGTH_LONG).show();
                     }
                 });
@@ -193,8 +161,6 @@ public class InitialConnectActivity extends AppCompatActivity {
 
         db.collection("users")
                 .document(user.getUid())
-                .set(userData)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                .set(userData);
     }
 }

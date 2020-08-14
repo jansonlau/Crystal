@@ -47,6 +47,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewBudgetTitle">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/categoriesConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -58,7 +59,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewBudgetTitle"
+                app:layout_constraintTop_toBottomOf="parent"
                 tools:itemCount="6"
                 tools:listitem="@layout/item_monthly_activity_categories" />
 

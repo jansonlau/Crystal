@@ -3,7 +3,6 @@ package com.crystal.hello;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.crystal.hello.signup.EmailActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -106,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
 
     // Sign in user and start HomeActivity
     private void fetchSignInMethodsForEmail(String email, String password) {
-        Log.d(LoginActivity.class.getSimpleName(), "signIn:" + email);
         if (!validateForm()) {
             return;
         }
@@ -127,8 +124,6 @@ public class LoginActivity extends AppCompatActivity {
                                         , "The email you entered doesn't belong to an account."
                                         , Toast.LENGTH_LONG).show();
                             }
-                        } else {
-                            Log.e(EmailActivity.class.getSimpleName(), "Error getting sign in methods for user", task.getException());
                         }
                     }
                 });
@@ -141,20 +136,14 @@ public class LoginActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
-                    Log.d(LoginActivity.class.getSimpleName(), "signInWithEmail:success");
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
                     finishAffinity();
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(LoginActivity.class.getSimpleName()
-                            , "signInWithEmail:failure"
-                            , task.getException());
-                    if (task.getException() != null) {
-                        Toast.makeText(LoginActivity.this
-                                , "Sorry, your password was incorrect."
-                                , Toast.LENGTH_LONG).show();
-                    }
+                    // If sign in fails, display a message to the user
+                    Toast.makeText(LoginActivity.this
+                            , "Sorry, your password was incorrect."
+                            , Toast.LENGTH_LONG).show();
                 }
             }
         });

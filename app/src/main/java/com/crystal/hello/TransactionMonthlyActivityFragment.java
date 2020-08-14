@@ -1,7 +1,6 @@
 package com.crystal.hello;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -39,9 +37,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TransactionMonthlyActivityFragment extends Fragment {
-    private TransactionMonthlyActivityViewModel viewModel;
+//    private TransactionMonthlyActivityViewModel viewModel;
     private View root;
-    private final String TAG = TransactionMonthlyActivityFragment.class.getSimpleName();
     private DocumentReference docRef;
     private String oldestTransactionDate;
     private int months;
@@ -55,7 +52,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel                           = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
+//        viewModel                           = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
         allTransactionsByCategoryList       = new ArrayList<>();
         monthAndYearList                    = new ArrayList<>();
         oneMonthTransactionsByCategoryMap   = new HashMap<>();
@@ -79,21 +76,13 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.ASCENDING).limit(1)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
-                            if (document.exists()) {
-                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
-                                months = getMonthsBetween(oldestTransactionDate);
-                                getAllTransactionsByCategory();
-                            } else {
-                                Log.d(TAG, "No such document");
-                            }
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
+                        if (document.exists()) {
+                            oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
+                            months = getMonthsBetween(oldestTransactionDate);
+                            getAllTransactionsByCategory();
                         }
                     }
                 });
@@ -104,21 +93,22 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
         LocalDate end = new LocalDate().withDayOfMonth(1).plusMonths(1);
         return Months.monthsBetween(start, end).getMonths();
-//        return 1;
     }
 
     private void initializeScreenSlidePagerAdapter() {
-        ViewPager2 viewPager = root.findViewById(R.id.pager);
-        FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setCurrentItem(months - 1, false);
+        if (getActivity() != null) {
+            ViewPager2 viewPager = root.findViewById(R.id.pager);
+            FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
+            viewPager.setAdapter(pagerAdapter);
+            viewPager.setCurrentItem(months - 1, false);
+        }
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
         Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap = new HashMap<>();
 
-        public ScreenSlidePagerAdapter(FragmentActivity fa) {
-            super(fa);
+        public ScreenSlidePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
         }
 
         @NotNull
@@ -231,8 +221,6 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                                     initializeScreenSlidePagerAdapter();
                                 }
                             }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });

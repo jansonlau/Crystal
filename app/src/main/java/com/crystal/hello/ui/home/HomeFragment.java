@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,12 +22,9 @@ import com.crystal.hello.R;
 import com.crystal.hello.TransactionMonthlyActivityFragment;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
-import com.robinhood.spark.animation.LineSparkAnimator;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -67,56 +63,46 @@ public class HomeFragment extends Fragment {
 
     private void setMonthlyActivityOnClickListener() {
         FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
-        monthlyActivityFrameLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, new TransactionMonthlyActivityFragment())
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
+        monthlyActivityFrameLayout.setOnClickListener(v -> Objects.requireNonNull(getActivity())
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frameLayoutFragmentContainer, new TransactionMonthlyActivityFragment())
+                .addToBackStack(null)
+                .commit());
     }
 
     private void observeTransactionList() {
-        homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), new Observer<List<Map<String, Object>>>() {
-            @Override
-            public void onChanged(List<Map<String, Object>> list) {
-                final HomeLatestTransactionsRecyclerAdapter recyclerAdapter = new HomeLatestTransactionsRecyclerAdapter(getActivity(), list);
-                RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recyclerView.setAdapter(recyclerAdapter);
-            }
+        homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), list -> {
+            final HomeLatestTransactionsRecyclerAdapter recyclerAdapter = new HomeLatestTransactionsRecyclerAdapter(getActivity(), list);
+            RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(recyclerAdapter);
         });
     }
 
     private void observeCurrentBalance() {
-        homeViewModel.getCurrentTotalBalance().observe(getViewLifecycleOwner(), new Observer<Double>() {
-            @Override
-            public void onChanged(Double aDouble) {
-                String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
-                TextView currentBalanceTextView = root.findViewById(R.id.textViewCurrentBalanceAmount);
+        homeViewModel.getCurrentTotalBalance().observe(getViewLifecycleOwner(), aDouble -> {
+            String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
+            TextView currentBalanceTextView = root.findViewById(R.id.textViewCurrentBalanceAmount);
 
-                if (aDouble >= 0.0) {
-                    currentBalanceString = "$" + currentBalanceString;
-                } else { // Negative transactions
-                    currentBalanceString = new StringBuilder(currentBalanceString).insert(1, "$").toString();
-                }
-                currentBalanceTextView.setText(currentBalanceString);
+            if (aDouble >= 0.0) {
+                currentBalanceString = "$" + currentBalanceString;
+            } else { // Negative transactions
+                currentBalanceString = new StringBuilder(currentBalanceString).insert(1, "$").toString();
+            }
+            currentBalanceTextView.setText(currentBalanceString);
 
-                initializeSparkGraph();
+            initializeSparkGraph();
 //                for (int i = 0, count = yData.length; i < count; i++) {
 //                    yData[i] = aDouble;
 //                }
 //                sparkAdapter.notifyDataSetChanged();
-            }
         });
     }
 
     private void initializeSparkGraph() {
         sparkView = root.findViewById(R.id.sparkView);
-        sparkView.setSparkAnimator(new LineSparkAnimator());
+//        sparkView.setSparkAnimator(new LineSparkAnimator());
         sparkAdapter = new TransactionSparkAdapter();
         sparkView.setAdapter(sparkAdapter);
 
@@ -158,73 +144,64 @@ public class HomeFragment extends Fragment {
         oneMonthTextView.setSelected(true);
         oneMonthTextView.setBackgroundResource(R.drawable.round_corner);
 
-        oneMonthTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.isSelected()) {
-                    return;
-                }
-                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
-                sparkAdapter.randomize();
-
-                oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-                v.setSelected(true);
-                v.setBackgroundResource(R.drawable.round_corner);
-
-                threeMonthTextView.setSelected(false);
-                threeMonthTextView.setTextColor(Color.parseColor("#000000"));
-                threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-                oneYearTextView.setSelected(false);
-                oneYearTextView.setTextColor(Color.parseColor("#000000"));
-                oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
+        oneMonthTextView.setOnClickListener(v -> {
+            if (v.isSelected()) {
+                return;
             }
+            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
+            sparkAdapter.randomize();
+
+            oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+            v.setSelected(true);
+            v.setBackgroundResource(R.drawable.round_corner);
+
+            threeMonthTextView.setSelected(false);
+            threeMonthTextView.setTextColor(Color.parseColor("#000000"));
+            threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+            oneYearTextView.setSelected(false);
+            oneYearTextView.setTextColor(Color.parseColor("#000000"));
+            oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
         });
 
-        threeMonthTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.isSelected()) {
-                    return;
-                }
-                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
-                sparkAdapter.randomize();
-
-                oneMonthTextView.setSelected(false);
-                oneMonthTextView.setTextColor(Color.parseColor("#000000"));
-                oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-                threeMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-                v.setSelected(true);
-                v.setBackgroundResource(R.drawable.round_corner);
-
-                oneYearTextView.setSelected(false);
-                oneYearTextView.setTextColor(Color.parseColor("#000000"));
-                oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
+        threeMonthTextView.setOnClickListener(v -> {
+            if (v.isSelected()) {
+                return;
             }
+            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
+            sparkAdapter.randomize();
+
+            oneMonthTextView.setSelected(false);
+            oneMonthTextView.setTextColor(Color.parseColor("#000000"));
+            oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+            threeMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+            v.setSelected(true);
+            v.setBackgroundResource(R.drawable.round_corner);
+
+            oneYearTextView.setSelected(false);
+            oneYearTextView.setTextColor(Color.parseColor("#000000"));
+            oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
         });
 
-        oneYearTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.isSelected()) {
-                    return;
-                }
-                sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
-                sparkAdapter.randomize();
-
-                oneMonthTextView.setSelected(false);
-                oneMonthTextView.setTextColor(Color.parseColor("#000000"));
-                oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-                threeMonthTextView.setSelected(false);
-                threeMonthTextView.setTextColor(Color.parseColor("#000000"));
-                threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-                oneYearTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-                v.setSelected(true);
-                v.setBackgroundResource(R.drawable.round_corner);
+        oneYearTextView.setOnClickListener(v -> {
+            if (v.isSelected()) {
+                return;
             }
+            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
+            sparkAdapter.randomize();
+
+            oneMonthTextView.setSelected(false);
+            oneMonthTextView.setTextColor(Color.parseColor("#000000"));
+            oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+            threeMonthTextView.setSelected(false);
+            threeMonthTextView.setTextColor(Color.parseColor("#000000"));
+            threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+
+            oneYearTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
+            v.setSelected(true);
+            v.setBackgroundResource(R.drawable.round_corner);
         });
     }
 

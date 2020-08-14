@@ -28,7 +28,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Start Understanding Spend at a Glance"
+        android:text="Understand Credit Card Spend"
         android:textAlignment="center"
         android:textColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="@+id/text_welcome"
