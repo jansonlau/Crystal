@@ -133,17 +133,17 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         // Filter positive and negative amounts from allTransactionsByCategoryList
         // to positiveAmountTransactionsByCategoryMap with positive amounts
         private List<Map.Entry<String, Double>> getSortedListOfAmountsByCategories(Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap) {
-            Map<String, Double> positiveAmountByCategoryMap = new HashMap<>();
+            Map<String, Double> sortedPositiveAmountByCategoryList = new HashMap<>();
 
             // Get only positive amount transactions
             for (Map.Entry<String, List<DocumentSnapshot>> entry : oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
                 String category = entry.getKey();
                 List<DocumentSnapshot> documents = entry.getValue();
-                positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents));
+                sortedPositiveAmountByCategoryList.put(category, getTotalTransactionAmount(category, documents));
             }
 
             // Sort positive amounts in descending order then add to list to keep order
-            return positiveAmountByCategoryMap.entrySet()
+            return sortedPositiveAmountByCategoryList.entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
                         @Override
