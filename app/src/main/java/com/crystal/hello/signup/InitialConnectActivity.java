@@ -34,7 +34,6 @@ import kotlin.Unit;
 public class InitialConnectActivity extends AppCompatActivity {
     private final int LINK_REQUEST_CODE = 1;
     private FirebaseAuth auth;
-    private FirebaseUser user;
     private FirebaseFirestore db;
 
     @Override
@@ -127,11 +126,10 @@ public class InitialConnectActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        user = auth.getCurrentUser();
+                        final FirebaseUser user = auth.getCurrentUser();
+                        sendEmailVerification(Objects.requireNonNull(user));
+                        setUserToDatabase(user, email, firstName, lastName, mobileNumber);
                         openLink();
-                        sendEmailVerification();
-                        setUserToDatabase(email, firstName, lastName, mobileNumber);
-
                     } else { // Invalid email or password
                         Toast.makeText(InitialConnectActivity.this
                                 , Objects.requireNonNull(task.getException()).getMessage()
@@ -140,7 +138,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 });
     }
 
-    private void sendEmailVerification() {
+    private void sendEmailVerification(FirebaseUser user) {
         user.sendEmailVerification()
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -152,7 +150,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     // Set user profile information to "users" collection with Firebase Auth Uid as document ID
-    private void setUserToDatabase(String email, String firstName, String lastName, String mobileNumber) {
+    private void setUserToDatabase(FirebaseUser user, String email, String firstName, String lastName, String mobileNumber) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
         userData.put("first", firstName);
