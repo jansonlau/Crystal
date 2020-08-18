@@ -75,12 +75,14 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
-                        if (document.exists()) {
+                        if (Objects.requireNonNull(task.getResult()).isEmpty()) {
+                            months = 1;
+                        } else {
+                            DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
                             oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
                             months = getMonthsBetweenOldestTransactionsAndNow();
-                            getAllTransactionsByCategory();
                         }
+                        getAllTransactionsByCategory();
                     }
                 });
     }

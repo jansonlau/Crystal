@@ -42,7 +42,6 @@ public class InitialConnectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
@@ -128,6 +127,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        user = auth.getCurrentUser();
                         openLink();
                         sendEmailVerification();
                         setUserToDatabase(email, firstName, lastName, mobileNumber);
@@ -141,7 +141,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     private void sendEmailVerification() {
-        Objects.requireNonNull(user).sendEmailVerification()
+        user.sendEmailVerification()
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(InitialConnectActivity.this
