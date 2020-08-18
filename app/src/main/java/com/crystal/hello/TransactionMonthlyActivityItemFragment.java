@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,18 +22,18 @@ public class TransactionMonthlyActivityItemFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        TransactionMonthlyActivityItemViewModel monthlyActivityItemViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityItemViewModel.class);
+//        TransactionMonthlyActivityItemViewModel monthlyActivityItemViewModel = new ViewModelProvider(this).get(TransactionMonthlyActivityItemViewModel.class);
         View root = inflater.inflate(R.layout.fragment_transaction_monthly_activity_item, container, false);
 
-        Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap =
-                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.TRANSACTIONS_MAP");
+        Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
+                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
 
         List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList =
                 (List<Map.Entry<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter =
                 new MonthlyActivityItemBudgetRecyclerAdapter(getActivity()
-                        , oneMonthTransactionsByCategoryMap
+                        , oneMonthPositiveAmountTransactionsByCategoryMap
                         , sortedPositiveAmountByCategoryList);
 
         RecyclerView recyclerView = root.findViewById(R.id.recyclerViewBudget);

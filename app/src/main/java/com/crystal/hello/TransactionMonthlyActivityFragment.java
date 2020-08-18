@@ -42,12 +42,10 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     private DocumentReference docRef;
     private String oldestTransactionDate;
     private int months;
-    private int monthIndex;
-    private final int numberOfCategories = 6;
-    private List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList;
+    private int onCompleteCount;
+    private List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList; // Each index represents a month. Each map contains category, documents pair.
     private List<String> monthAndYearList;
-    private Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap;
-    private HashMap<String, List<String>> categoriesMap; // Key: Crystal categories, Value: Plaid categories
+    private Map<String, List<String>> categoriesMap; // Key: Crystal categories, Value: Plaid categories
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +53,6 @@ public class TransactionMonthlyActivityFragment extends Fragment {
 //        viewModel                           = new ViewModelProvider(this).get(TransactionMonthlyActivityViewModel.class);
         allTransactionsByCategoryList       = new ArrayList<>();
         monthAndYearList                    = new ArrayList<>();
-        oneMonthTransactionsByCategoryMap   = new HashMap<>();
         categoriesMap                       = new HashMap<>();
         docRef                              = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -81,7 +78,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                         DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
                         if (document.exists()) {
                             oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
-                            months = getMonthsBetween(oldestTransactionDate);
+                            months = getMonthsBetweenOldestTransactionsAndNow();
                             getAllTransactionsByCategory();
                         }
                     }
@@ -89,7 +86,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     }
 
     // Count whole months between oldest transaction and current month
-    private int getMonthsBetween(String oldestTransactionDate) {
+    private int getMonthsBetweenOldestTransactionsAndNow() {
         LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
         LocalDate end = new LocalDate().withDayOfMonth(1).plusMonths(1);
         return Months.monthsBetween(start, end).getMonths();
@@ -105,7 +102,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-        Map<String, List<DocumentSnapshot>> positiveAmountTransactionsByCategoryMap = new HashMap<>();
+        Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap = new HashMap<>();
 
         public ScreenSlidePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
@@ -114,16 +111,15 @@ public class TransactionMonthlyActivityFragment extends Fragment {
         @NotNull
         @Override
         public Fragment createFragment(int position) {
-            Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap = allTransactionsByCategoryList.get(position);
-            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = getSortedListOfAmountsByCategories(positiveAndNegativeAmountTransactionsByCategoryMap);
+            Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = allTransactionsByCategoryList.get(position);
+            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap);
 
             Fragment transactionMonthlyActivityItemFragment = new TransactionMonthlyActivityItemFragment();
             Bundle bundle = new Bundle();
             bundle.putString("com.crystal.hello.MONTH_YEAR", monthAndYearList.get(position));
-            bundle.putSerializable("com.crystal.hello.TRANSACTIONS_MAP", (Serializable) positiveAmountTransactionsByCategoryMap);
+            bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP", (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
             bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST", (Serializable) sortedPositiveAmountByCategoryList);
             transactionMonthlyActivityItemFragment.setArguments(bundle);
-
             return transactionMonthlyActivityItemFragment;
         }
 
@@ -134,11 +130,11 @@ public class TransactionMonthlyActivityFragment extends Fragment {
 
         // Filter positive and negative amounts from allTransactionsByCategoryList
         // to positiveAmountTransactionsByCategoryMap with positive amounts
-        private List<Map.Entry<String, Double>> getSortedListOfAmountsByCategories(Map<String, List<DocumentSnapshot>> positiveAndNegativeAmountTransactionsByCategoryMap) {
+        private List<Map.Entry<String, Double>> getSortedListOfAmountsByCategories(Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap) {
             Map<String, Double> positiveAmountByCategoryMap = new HashMap<>();
 
             // Get only positive amount transactions
-            for (Map.Entry<String, List<DocumentSnapshot>> entry : positiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
+            for (Map.Entry<String, List<DocumentSnapshot>> entry : oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
                 String category = entry.getKey();
                 List<DocumentSnapshot> documents = entry.getValue();
                 positiveAmountByCategoryMap.put(category, getTotalTransactionAmount(category, documents));
@@ -168,7 +164,7 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                     positiveAmountTransactionsList.add(document);
                 }
             }
-            positiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
+            oneMonthPositiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
             return total;
         }
     }
@@ -183,23 +179,42 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                 , "Bank Fees", "Interest", "Tax", "Transfer"));
     }
 
-    // Start monthly activity with the oldest transaction up to current month
-    // Get all 6 categories for each month
+    // Start monthly activity with the oldest transaction up to current month for all months
     private void getAllTransactionsByCategory() {
-        LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(monthIndex);
-        LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
-        monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());
-        monthIndex++;
+        for (int i = 0; i < months; i++) {
+            // To show only positive amounts, remove categoryPlaceholderMap
+            Map<String, List<DocumentSnapshot>> categoryPlaceholderMap = new HashMap<>();
+            categoryPlaceholderMap.put("Shopping"       , new ArrayList<>());
+            categoryPlaceholderMap.put("Food & Drinks"  , new ArrayList<>());
+            categoryPlaceholderMap.put("Travel"         , new ArrayList<>());
+            categoryPlaceholderMap.put("Entertainment"  , new ArrayList<>());
+            categoryPlaceholderMap.put("Health"         , new ArrayList<>());
+            categoryPlaceholderMap.put("Services"       , new ArrayList<>());
 
-        for (Map.Entry<String, List<String>> entry : categoriesMap.entrySet()) {
-            getTransactionsByCategory(entry.getKey()
-                    , entry.getValue()
-                    , startDate.toString()
-                    , endDate.toString());
+            allTransactionsByCategoryList.add(categoryPlaceholderMap);
+            LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(i);
+            LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
+            monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());
+
+            // Get all 6 categories for each month
+            for (Map.Entry<String, List<String>> entry : categoriesMap.entrySet()) {
+                getTransactionsByCategory(entry.getKey()
+                        , entry.getValue()
+                        , startDate.toString()
+                        , endDate.toString());
+            }
         }
     }
 
+    private int getMonthsBetweenOldestTransactionAndEndDate(String endDate) {
+        LocalDate start = new LocalDate(oldestTransactionDate).withDayOfMonth(1);
+        LocalDate end = new LocalDate(endDate).withDayOfMonth(1);
+        return Months.monthsBetween(start, end).getMonths();
+    }
+
     private void getTransactionsByCategory(String category, List<String> categoryList, String startDate, String endDate) {
+        final int numberOfCategories = 6;
+
         docRef.collection("transactions")
                 .orderBy                    ("date"     , Query.Direction.DESCENDING)
                 .whereGreaterThanOrEqualTo  ("date"     , startDate)
@@ -210,16 +225,18 @@ public class TransactionMonthlyActivityFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            oneMonthTransactionsByCategoryMap.put(category, Objects.requireNonNull(task.getResult()).getDocuments());
+                            onCompleteCount++;
+                            List<DocumentSnapshot> documentsList = Objects.requireNonNull(task.getResult()).getDocuments();
 
-                            if (oneMonthTransactionsByCategoryMap.size() == numberOfCategories) {
-                                allTransactionsByCategoryList.add(oneMonthTransactionsByCategoryMap);
-                                if (monthIndex < months) { // More months of transactions to get
-                                    oneMonthTransactionsByCategoryMap = new HashMap<>();
-                                    getAllTransactionsByCategory();
-                                } else {
-                                    initializeScreenSlidePagerAdapter();
-                                }
+                            if (!documentsList.isEmpty()) {
+                                String documentDate = String.valueOf(documentsList.get(0).get("date"));
+                                int monthsFromOldestTransactionIndex = getMonthsBetweenOldestTransactionAndEndDate(documentDate);
+                                allTransactionsByCategoryList.get(monthsFromOldestTransactionIndex).put(category, documentsList);
+                            }
+
+                            // Show pager if all queries for 6 categories in each month are complete
+                            if (onCompleteCount == numberOfCategories * months) {
+                                initializeScreenSlidePagerAdapter();
                             }
                         }
                     }

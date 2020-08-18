@@ -67,7 +67,9 @@ public class HomeActivity extends AppCompatActivity {
         navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.navigation_home) {
+                if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
+                    getSupportFragmentManager().popBackStack();
+                } else if (item.getItemId() == R.id.navigation_home) {
                     NestedScrollView nestedScrollView = HomeActivity.this.findViewById(R.id.nestedScrollViewHome);
                     nestedScrollView.smoothScrollTo(0, 0);
                 }

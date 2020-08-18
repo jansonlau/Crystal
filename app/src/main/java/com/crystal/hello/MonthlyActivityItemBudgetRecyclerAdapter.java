@@ -20,15 +20,15 @@ import java.util.Map;
 
 public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapter<MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder> {
     private final LayoutInflater layoutInflater;
-    private final Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap; // Key: Category, Value: Documents
+    private final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
     private final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
 
     public MonthlyActivityItemBudgetRecyclerAdapter(FragmentActivity activity
-            , Map<String, List<DocumentSnapshot>> oneMonthTransactionsByCategoryMap
+            , Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap
             , List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList) {
 
         layoutInflater = LayoutInflater.from(activity);
-        this.oneMonthTransactionsByCategoryMap = oneMonthTransactionsByCategoryMap;
+        this.oneMonthPositiveAmountTransactionsByCategoryMap = oneMonthPositiveAmountTransactionsByCategoryMap;
         this.sortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
     }
 
