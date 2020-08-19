@@ -71,11 +71,11 @@
         android:textAlignment="viewEnd"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintBottom_toBottomOf="@+id/transactionNameTextView"
-        app:layout_constraintEnd_toStartOf="@+id/imageViewTransactionArrow"
+        app:layout_constraintEnd_toStartOf="@+id/transactionArrowImageView"
         app:layout_constraintTop_toTopOf="@+id/transactionNameTextView" />
 
     <ImageView
-        android:id="@+id/imageViewTransactionArrow"
+        android:id="@+id/transactionArrowImageView"
         android:layout_width="16dp"
         android:layout_height="0dp"
         android:layout_marginEnd="10dp"

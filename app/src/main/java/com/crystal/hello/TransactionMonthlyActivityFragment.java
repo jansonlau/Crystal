@@ -112,10 +112,15 @@ public class TransactionMonthlyActivityFragment extends Fragment {
             double total = 0;
             List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
             for (DocumentSnapshot document : documents) {
-                double amount = (double) Objects.requireNonNull(document.getData()).get("amount");
+                Map<String, Object> data = document.getData();
+                double amount = (double) Objects.requireNonNull(data).get("amount");
+                List<String> categoriesList = (List<String>) data.get("category");
+
                 if (amount >= 0.0) {
                     total += amount;
                     positiveAmountTransactionsList.add(document);
+                } else if (Objects.requireNonNull(categoriesList).get(0).equals("Transfer")) {
+
                 }
             }
             oneMonthPositiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
