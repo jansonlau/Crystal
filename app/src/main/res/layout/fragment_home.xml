@@ -218,6 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:nestedScrollingEnabled="false"
+                    tools:itemCount="4"
                     tools:listitem="@layout/item_transaction" />
             </androidx.cardview.widget.CardView>
 

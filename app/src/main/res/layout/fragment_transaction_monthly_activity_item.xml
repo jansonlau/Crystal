@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Categories"
+        android:text="Budgets &amp; Categories"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/monthAndYearTextView"
@@ -46,24 +46,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewBudgetTitle">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/categoriesConstraintLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBudget"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="false"
+            tools:itemCount="5"
+            tools:listitem="@layout/item_monthly_activity_categories" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewBudget"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="parent"
-                tools:itemCount="6"
-                tools:listitem="@layout/item_monthly_activity_categories" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
     <TextView
@@ -71,7 +61,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Merchants"
+        android:text="Payments &amp; Refunds"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/monthAndYearTextView"
@@ -79,11 +69,18 @@
         app:layout_constraintTop_toBottomOf="@id/cardViewBudget" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewMerchants"
+        android:id="@+id/cardViewPayments"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="@+id/cardViewBudget"
         app:layout_constraintStart_toStartOf="@+id/cardViewBudget"
-        app:layout_constraintTop_toBottomOf="@id/textViewMerchants" />
+        app:layout_constraintTop_toBottomOf="@id/textViewMerchants" >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPayment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="4" />
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
