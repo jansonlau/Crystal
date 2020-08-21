@@ -17,9 +17,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.crystal.hello.HomeLatestTransactionsRecyclerAdapter;
+import com.crystal.hello.TransactionRecyclerAdapter;
 import com.crystal.hello.R;
-import com.crystal.hello.TransactionMonthlyActivityFragment;
+import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
 
@@ -66,15 +66,15 @@ public class HomeFragment extends Fragment {
         monthlyActivityFrameLayout.setOnClickListener(v -> Objects.requireNonNull(getActivity())
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayoutFragmentContainer, new TransactionMonthlyActivityFragment())
+                .replace(R.id.frameLayoutFragmentContainer, new MonthlyActivityFragment())
                 .addToBackStack(null)
                 .commit());
     }
 
     private void observeTransactionList() {
         homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), list -> {
-            final HomeLatestTransactionsRecyclerAdapter recyclerAdapter = new HomeLatestTransactionsRecyclerAdapter(getActivity(), list);
-            RecyclerView recyclerView = root.findViewById(R.id.recyclerHome);
+            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
+            RecyclerView recyclerView = root.findViewById(R.id.homeRecyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(recyclerAdapter);
         });

@@ -16,6 +16,7 @@ import com.crystal.hello.ui.home.HomeViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TransactionItemDetailFragment extends Fragment {
     private HomeViewModel homeViewModel;
@@ -55,21 +56,20 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionItemAmount   = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         }
 
-        Map<String, Object> transaction = homeViewModel.getSubsetTransactionsList().get(transactionItemPosition);
+        Map<String, Object> transaction = homeViewModel.getSubsetTransactionsList().get(transactionItemPosition).getData();
         Map<String, Object> account = null;
 
         // Bank account
         for (Map<String, Object> bankAccount : homeViewModel.getBankAccountsList()) {
-            if (String.valueOf(transaction.get("accountId")).equals(String.valueOf(bankAccount.get("accountId")))) {
+            if (String.valueOf(Objects.requireNonNull(transaction).get("accountId")).equals(String.valueOf(bankAccount.get("accountId")))) {
                 account = bankAccount;
             }
         }
 
-        if (account != null) {
-            transactionItemAccountMask += String.valueOf(account.get("mask"));
-            transactionItemAccountName = String.valueOf(account.get("name"));
-            transactionItemAccountName = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
-        }
+        transactionItemAccountMask += String.valueOf(Objects.requireNonNull(account).get("mask"));
+
+        transactionItemAccountName = String.valueOf(account.get("name"));
+        transactionItemAccountName = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
 
         // Category
         switch (transactionItemLogo) {

@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,12 +23,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<HomeLatestTransactionsRecyclerAdapter.ViewHolder> {
-    private final List<Map<String, Object>> transactionsList;
+public class TransactionRecyclerAdapter extends RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder> {
+    private final List<DocumentSnapshot> transactionsList;
     private final LayoutInflater layoutInflater;
     private final FragmentActivity fragmentActivity;
 
-    public HomeLatestTransactionsRecyclerAdapter(FragmentActivity activity, List<Map<String, Object>> list) {
+    public TransactionRecyclerAdapter(FragmentActivity activity, List<DocumentSnapshot> list) {
         transactionsList = list;
         layoutInflater = LayoutInflater.from(activity);
         fragmentActivity = activity;
@@ -42,7 +44,7 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Get transaction fields
-        Map<String, Object> transaction = transactionsList.get(position);
+        Map<String, Object> transaction = transactionsList.get(position).getData();
         String transactionName      = String.valueOf(transaction.get("name"));
         String transactionDate      = String.valueOf(transaction.get("date"));
         double transactionAmount    = (double) transaction.get("amount");
@@ -53,7 +55,6 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
         transactionDate = parseTransactionDate(transactionDate);
         String parsedTransactionAmount = parseTransactionAmount(transactionAmount);
         int drawableId = parseTransactionLogo(holder, Objects.requireNonNull(categoriesList));
-        transactionName = parsePopularNames(transactionName);
         initializeTransactionItemDetailFragment(holder,
                 position,
                 drawableId,
@@ -166,15 +167,17 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
                                                          String transactionName,
                                                          String transactionDate,
                                                          String transactionAmount) {
-        final Bundle bundle = new Bundle();
-        bundle.putInt("TRANSACTION_ITEM_POSITION", position);
-        bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
-        bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
-        bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
-        bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final Bundle bundle = new Bundle();
+                bundle.putInt("TRANSACTION_ITEM_POSITION", position);
+                bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
+                bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
+                bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
+                bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);
+
                 Fragment transactionItemDetailFragment = new TransactionItemDetailFragment();
                 transactionItemDetailFragment.setArguments(bundle);
 
@@ -185,12 +188,5 @@ public class HomeLatestTransactionsRecyclerAdapter extends RecyclerView.Adapter<
                         .commit();
             }
         });
-    }
-
-    private String parsePopularNames(String transactionName) {
-        if (transactionName.toLowerCase().contains("amazon.com")) {
-            transactionName = "Amazon.com";
-        }
-        return transactionName;
     }
 }

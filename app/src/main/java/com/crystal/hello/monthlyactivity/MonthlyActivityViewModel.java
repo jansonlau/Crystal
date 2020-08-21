@@ -1,4 +1,4 @@
-package com.crystal.hello;
+package com.crystal.hello.monthlyactivity;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class TransactionMonthlyActivityViewModel extends ViewModel {
+public class MonthlyActivityViewModel extends ViewModel {
     private DocumentReference docRef;
     private String oldestTransactionDate;
     private int months;
@@ -34,7 +34,7 @@ public class TransactionMonthlyActivityViewModel extends ViewModel {
     private Map<String, List<String>> categoriesMap; // Key: Crystal categories, Value: Plaid categories
     private MutableLiveData<Boolean> mutableInitializePagerBoolean;
 
-    public TransactionMonthlyActivityViewModel() {
+    public MonthlyActivityViewModel() {
         allTransactionsByCategoryList       = new ArrayList<>();
         monthAndYearList                    = new ArrayList<>();
         categoriesMap                       = new HashMap<>();
@@ -88,6 +88,7 @@ public class TransactionMonthlyActivityViewModel extends ViewModel {
         return Months.monthsBetween(start, end).getMonths();
     }
 
+    // Crystal category keys, Plaid category values
     protected void initializeCategoriesMap() {
         categoriesMap.put("Shopping"       , Collections.singletonList("Shops"));
         categoriesMap.put("Food & Drinks"  , Collections.singletonList("Food and Drink"));
@@ -100,17 +101,19 @@ public class TransactionMonthlyActivityViewModel extends ViewModel {
 
     // Start monthly activity with the oldest transaction up to current month for all months
     private void getAllTransactionsByCategory() {
+        List<DocumentSnapshot> placeholderList = new ArrayList<>();
         for (int i = 0; i < months; i++) {
             // To show only positive amounts, remove categoryPlaceholderMap
-            Map<String, List<DocumentSnapshot>> categoryPlaceholderMap = new HashMap<>();
-            categoryPlaceholderMap.put("Shopping"       , new ArrayList<>());
-            categoryPlaceholderMap.put("Food & Drinks"  , new ArrayList<>());
-            categoryPlaceholderMap.put("Travel"         , new ArrayList<>());
-            categoryPlaceholderMap.put("Entertainment"  , new ArrayList<>());
-            categoryPlaceholderMap.put("Health"         , new ArrayList<>());
-            categoryPlaceholderMap.put("Services"       , new ArrayList<>());
+//            Map<String, List<DocumentSnapshot>> categoryPlaceholderMap = new HashMap<>();
+//            categoryPlaceholderMap.put("Shopping"       , placeholderList);
+//            categoryPlaceholderMap.put("Food & Drinks"  , placeholderList);
+//            categoryPlaceholderMap.put("Travel"         , placeholderList);
+//            categoryPlaceholderMap.put("Entertainment"  , placeholderList);
+//            categoryPlaceholderMap.put("Health"         , placeholderList);
+//            categoryPlaceholderMap.put("Services"       , placeholderList);
+//            allTransactionsByCategoryList.add(categoryPlaceholderMap);
 
-            allTransactionsByCategoryList.add(categoryPlaceholderMap);
+            allTransactionsByCategoryList.add(new HashMap<>());
             LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(i);
             LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
             monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());

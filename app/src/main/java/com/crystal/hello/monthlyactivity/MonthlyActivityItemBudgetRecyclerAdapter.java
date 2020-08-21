@@ -1,5 +1,6 @@
-package com.crystal.hello;
+package com.crystal.hello.monthlyactivity;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,16 +10,20 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.crystal.hello.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapter<MonthlyActivityItemBudgetRecyclerAdapter.ViewHolder> {
+    private final FragmentActivity fragmentActivity;
     private final LayoutInflater layoutInflater;
     private final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
     private final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
@@ -27,6 +32,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
             , Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap
             , List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList) {
 
+        fragmentActivity = activity;
         layoutInflater = LayoutInflater.from(activity);
         this.oneMonthPositiveAmountTransactionsByCategoryMap = oneMonthPositiveAmountTransactionsByCategoryMap;
         this.sortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
@@ -80,6 +86,8 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
             holder.budgetConstraintLayout.removeView(holder.budgetDividerView);
         }
+
+        initializeMonthlyActivityItemDetailFragment(holder, category);
     }
 
     @Override
@@ -104,5 +112,24 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
             budgetConstraintLayout  = itemView.findViewById(R.id.budgetConstraintLayout);
             budgetLogoImageView     = itemView.findViewById(R.id.budgetLogoImageView);
         }
+    }
+
+    private void initializeMonthlyActivityItemDetailFragment(ViewHolder holder, String category) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Bundle bundle = new Bundle();
+                bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_LIST", (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap.get(category));
+
+                final Fragment monthlyActivityItemDetailFragment = new MonthlyActivityItemDetailFragment();
+                monthlyActivityItemDetailFragment.setArguments(bundle);
+
+                fragmentActivity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frameLayoutFragmentContainer, monthlyActivityItemDetailFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 }

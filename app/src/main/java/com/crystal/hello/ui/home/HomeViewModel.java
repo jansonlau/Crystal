@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -71,8 +72,8 @@ public class HomeViewModel extends ViewModel {
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
     private MutableLiveData<Double> currentTotalBalance;
-    private MutableLiveData<List<Map<String, Object>>> mutableSubsetTransactionsList;
-    private static List<Map<String, Object>> subsetTransactionsList; // Use in TransactionItemDetailFragment requires static declaration
+    private MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
+    private static List<DocumentSnapshot> subsetTransactionsList; // Use in TransactionItemDetailFragment requires static declaration
     private static List<Map<String, Object>> bankAccountsList;
     private Map<String, Account> accountIdToAccountMap;
 
@@ -95,11 +96,11 @@ public class HomeViewModel extends ViewModel {
         return currentTotalBalance;
     }
 
-    public LiveData<List<Map<String, Object>>> getMutableSubsetTransactionsList() {
+    public LiveData<List<DocumentSnapshot>> getMutableSubsetTransactionsList() {
         return mutableSubsetTransactionsList;
     }
 
-    public List<Map<String, Object>> getSubsetTransactionsList() {
+    public List<DocumentSnapshot> getSubsetTransactionsList() {
         return subsetTransactionsList;
     }
 
@@ -392,10 +393,7 @@ public class HomeViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            subsetTransactionsList = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                subsetTransactionsList.add(document.getData());
-                            }
+                            subsetTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
                             mutableSubsetTransactionsList.setValue(subsetTransactionsList);
                         }
                     }

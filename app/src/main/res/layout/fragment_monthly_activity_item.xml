@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/monthlyActivityItemConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F1F1F1"
-    tools:context=".TransactionMonthlyActivityItemFragment">
+    tools:context=".monthlyactivity.MonthlyActivityItemFragment">
 
     <TextView
         android:id="@+id/monthAndYearTextView"
@@ -26,7 +27,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Categories"
+        android:text="Budget &amp; Categories"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/monthAndYearTextView"
@@ -47,7 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewBudgetTitle">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewBudget"
+            android:id="@+id/budgetRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:nestedScrollingEnabled="false"
