@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class MonthlyActivityFragment extends Fragment {
     private MonthlyActivityViewModel viewModel;
     private View root;
+    private boolean setToLastItem;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,8 +54,9 @@ public class MonthlyActivityFragment extends Fragment {
                 FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
                 viewPager.setAdapter(pagerAdapter);
 
-                if (viewPager.getCurrentItem() != viewModel.getMonths() - 1) {
+                if (!setToLastItem) {
                     viewPager.setCurrentItem(viewModel.getMonths() - 1, false);
+                    setToLastItem = true;
                 }
             }
         });
@@ -77,8 +79,8 @@ public class MonthlyActivityFragment extends Fragment {
             oneMonthNegativeAmountPaymentsList = new ArrayList<>();
             oneMonthNegativeAmountRefundsList = new ArrayList<>();
 
-            Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
-            List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap);
+            final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
+            final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap);
 
             // Sort refund transactions
             Collections.sort(oneMonthNegativeAmountRefundsList, new Comparator<DocumentSnapshot>() {
@@ -95,23 +97,8 @@ public class MonthlyActivityFragment extends Fragment {
             bundle.putSerializable("com.crystal.hello.NEGATIVE_REFUNDS_LIST", (Serializable) oneMonthNegativeAmountRefundsList);
             bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST", (Serializable) sortedPositiveAmountByCategoryList);
 
-            Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
+            final Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
             transactionMonthlyActivityItemFragment.setArguments(bundle);
-
-//            for (Map.Entry<String, List<DocumentSnapshot>> entry : oneMonthPositiveAmountTransactionsByCategoryMap.entrySet()) {
-//                for (DocumentSnapshot doc : entry.getValue()) {
-//                    System.out.println(entry.getKey() + " " + doc.get("date") + " " + doc.get("amount") + " " + doc.get("name"));
-//                }
-//            }
-
-//            for (DocumentSnapshot doc : oneMonthNegativeAmountPaymentsList) {
-//                System.out.println("NEGATIVE" + " " + doc.get("date") + " " + doc.get("amount") + " " + doc.get("name"));
-//            }
-
-//            for (DocumentSnapshot doc : oneMonthNegativeAmountRefundsList) {
-//                System.out.println("REFUND" + " " + doc.get("date") + " " + doc.get("amount") + " " + doc.get("category") + " " + doc.get("name"));
-//            }
-
             return transactionMonthlyActivityItemFragment;
         }
 
@@ -127,15 +114,11 @@ public class MonthlyActivityFragment extends Fragment {
 
             // Get only positive amount transactions for each category
             for (Map.Entry<String, List<DocumentSnapshot>> entry : oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
-                String category = entry.getKey();
-                List<DocumentSnapshot> positiveAndNegativeTransactionsList = entry.getValue();
+                final String category = entry.getKey();
+                final List<DocumentSnapshot> positiveAndNegativeTransactionsList = entry.getValue();
 
-//                for (DocumentSnapshot doc : positiveAndNegativeTransactionsList) {
-//                    System.out.println(category + " " + doc.get("date") + " " + doc.get("amount") + " " + doc.get("name"));
-//                }
-
-                final double totalTransactionAmount = getTotalTransactionAmount(category, positiveAndNegativeTransactionsList);
                 if (oneMonthPositiveAmountTransactionsByCategoryMap.get(category) != null) {
+                    final double totalTransactionAmount = getTotalTransactionAmount(category, positiveAndNegativeTransactionsList);
                     sortedPositiveAmountByCategoryList.put(category, totalTransactionAmount);
                 }
             }

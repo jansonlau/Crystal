@@ -56,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
                         fragment.setArguments(bundle);
                         break;
                 }
+
                 HomeActivity.this.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.frameLayoutFragmentContainer, fragment)
                         .commit();
@@ -69,7 +70,9 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
-                    getSupportFragmentManager().popBackStack();
+                    for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
+                        getSupportFragmentManager().popBackStack();
+                    }
                 } else if (item.getItemId() == R.id.navigation_home) {
                     NestedScrollView nestedScrollView = HomeActivity.this.findViewById(R.id.nestedScrollViewHome);
                     nestedScrollView.smoothScrollTo(0, 0);
