@@ -22,99 +22,90 @@ public class TransactionItemDetailFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root       = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-        homeViewModel   = new ViewModelProvider(this).get(HomeViewModel.class);
-
-        final ImageView logo        = root.findViewById(R.id.imageViewTransactionDetailLogo);
-        final TextView amount       = root.findViewById(R.id.textViewTransactionDetailAmount);
-        final TextView name         = root.findViewById(R.id.textViewTransactionDetailName);
-//        final TextView location     = root.findViewById(R.id.textViewTransactionDetailLocation);
-        final TextView date         = root.findViewById(R.id.textViewTransactionDetailDate);
-        final TextView status       = root.findViewById(R.id.textViewTransactionDetailStatus);
-        final TextView bankName     = root.findViewById(R.id.textViewTransactionDetailBankName);
-        final TextView accountMask  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
-        final TextView address      = root.findViewById(R.id.textViewTransactionDetailAddress);
-        final TextView category     = root.findViewById(R.id.textViewTransactionDetailCategory);
-
-        int transactionItemPosition         = 0;
-        int transactionItemLogo             = 0;
-        String transactionItemCategory;
-        String transactionItemName          = "";
-//        String transactionItemLocation      = "";
-        String transactionItemDate          = "";
-        String transactionItemAmount        = "";
-        String transactionItemAccountName   = "";
-        String transactionItemAccountMask   = "\u2022\u2022\u2022\u2022 ";
-
-        if (getArguments() != null) {
-            transactionItemPosition = getArguments().getInt("TRANSACTION_ITEM_POSITION");
-            transactionItemLogo     = getArguments().getInt("TRANSACTION_ITEM_LOGO");
-            transactionItemName     = getArguments().getString("TRANSACTION_ITEM_NAME");
-            transactionItemDate     = getArguments().getString("TRANSACTION_ITEM_DATE");
-            transactionItemAmount   = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
-        }
-
-        Map<String, Object> transaction = homeViewModel.getSubsetTransactionsList().get(transactionItemPosition).getData();
-        Map<String, Object> account = null;
+        final View root                     = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
+        final ImageView logoImageView       = root.findViewById(R.id.imageViewTransactionDetailLogo);
+        final TextView amountTextView       = root.findViewById(R.id.textViewTransactionDetailAmount);
+        final TextView nameTextView         = root.findViewById(R.id.textViewTransactionDetailName);
+        final TextView dateTextView         = root.findViewById(R.id.textViewTransactionDetailDate);
+        final TextView statusTextView       = root.findViewById(R.id.textViewTransactionDetailStatus);
+        final TextView bankNameTextView     = root.findViewById(R.id.textViewTransactionDetailBankName);
+        final TextView accountMaskTextView  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
+        final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
+        final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
+        final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Bank account
+        Map<String, Object> account = null;
         for (Map<String, Object> bankAccount : homeViewModel.getBankAccountsList()) {
             if (String.valueOf(Objects.requireNonNull(transaction).get("accountId")).equals(String.valueOf(bankAccount.get("accountId")))) {
                 account = bankAccount;
             }
         }
 
-        transactionItemAccountMask += String.valueOf(Objects.requireNonNull(account).get("mask"));
+        final String transactionItemCategory;
+        final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
+        final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
+        final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
+        final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
+        String transactionItemAccountMask       = "";
+        String locationString                   = "";
+        String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
+        transactionItemAccountName              = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
 
-        transactionItemAccountName = String.valueOf(account.get("name"));
-        transactionItemAccountName = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
+        if (account.get("mask") != null) {
+            transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");
+        }
 
         // Category
         switch (transactionItemLogo) {
             case R.drawable.shopping:
                 transactionItemCategory = "Shopping";
-                logo.setBackgroundResource(R.drawable.shopping_background);
+                logoImageView.setBackgroundResource(R.drawable.shopping_background);
                 break;
             case R.drawable.food:
                 transactionItemCategory = "Food & Drinks";
-                logo.setBackgroundResource(R.drawable.food_background);
+                logoImageView.setBackgroundResource(R.drawable.food_background);
                 break;
             case R.drawable.health:
                 transactionItemCategory = "Health";
-                logo.setBackgroundResource(R.drawable.health_background);
+                logoImageView.setBackgroundResource(R.drawable.health_background);
                 break;
             case R.drawable.entertainment:
                 transactionItemCategory = "Entertainment";
-                logo.setBackgroundResource(R.drawable.entertainment_background);
+                logoImageView.setBackgroundResource(R.drawable.entertainment_background);
                 break;
             case R.drawable.travel:
                 transactionItemCategory = "Travel";
-                logo.setBackgroundResource(R.drawable.travel_background);
+                logoImageView.setBackgroundResource(R.drawable.travel_background);
                 break;
             default:
                 transactionItemCategory = "Services";
-                logo.setBackgroundResource(R.drawable.services_background);
+                logoImageView.setBackgroundResource(R.drawable.services_background);
         }
 
         // Show location or map if available. Else, hide the views
-        Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
-        if (locationMap != null && locationMap.get("city") != null && locationMap.get("region") != null) {
-            String locationString = transactionItemName + ", "
-                    + locationMap.get("city") + ", "
-                    + locationMap.get("region");
+        final Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
+        final String address                  = (String) Objects.requireNonNull(locationMap).get("address");
+        final String city                     = (String) locationMap.get("city");
+        final String region                   = (String) locationMap.get("region");
+        final String postalCode               = (String) locationMap.get("postalCode");
 
-            if (locationMap.get("address") != null && locationMap.get("postalCode") != null) {
-                locationString = locationMap.get("address") + ", "
-                        + locationMap.get("city") + ", "
-                        + locationMap.get("region") + ", "
-                        + locationMap.get("postalCode");
-            }
-            address.setText(locationString);
+        if (address != null && city != null && region != null && postalCode != null) {
+            locationString = address + ", " + city + ", " + region + " " + postalCode;
+        } else if (city != null && region != null && postalCode != null) {
+            locationString = transactionItemName + ", " + city + ", " + region + " " + postalCode;
+        } else if (city != null && region != null) {
+            locationString = transactionItemName + ", " + city + ", " + region;
         } else {
             root.findViewById(R.id.cardViewMapAndLocation).setVisibility(View.GONE);
-            root.findViewById(R.id.textViewTransactionDetailLocation).setVisibility(View.GONE);
         }
 
         // Pending
@@ -125,20 +116,15 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionStatus += "Completed";
         }
 
-        logo        .setImageResource(transactionItemLogo);
-        amount      .setText(transactionItemAmount);
-        name        .setText(transactionItemName);
-//        location    .setText(transactionItemLocation);
-        date        .setText(transactionItemDate);
-        status      .setText(transactionStatus);
-        category    .setText(transactionItemCategory);
-        bankName    .setText(transactionItemAccountName);
-        accountMask .setText(transactionItemAccountMask);
+        logoImageView       .setImageResource(transactionItemLogo);
+        amountTextView      .setText(transactionItemAmount);
+        nameTextView        .setText(transactionItemName);
+        dateTextView        .setText(transactionItemDate);
+        statusTextView      .setText(transactionStatus);
+        categoryTextView    .setText(transactionItemCategory);
+        bankNameTextView    .setText(transactionItemAccountName);
+        accountMaskTextView .setText(transactionItemAccountMask);
+        addressTextView     .setText(locationString);
         return root;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
     }
 }

@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/imageViewTransactionDetailLogo"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/shopping_background"
         android:padding="8sp"
@@ -47,17 +47,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailAmount" />
 
     <TextView
-        android:id="@+id/textViewTransactionDetailLocation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="San Francisco, CA"
-        android:textAlignment="center"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailName"
-        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailName" />
-
-    <TextView
         android:id="@+id/textViewTransactionDetailDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -65,7 +54,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailName"
         app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailLocation" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailName" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
@@ -196,7 +185,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailAddress" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
             </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

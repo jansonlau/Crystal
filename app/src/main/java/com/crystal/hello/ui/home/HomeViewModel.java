@@ -410,7 +410,7 @@ public class HomeViewModel extends ViewModel {
                             double totalBalance = 0.0;
                             bankAccountsList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                bankAccountsList.add((HashMap<String, Object>) document.getData());
+                                bankAccountsList.add(document.getData());
 
                                 Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
                                 totalBalance += (double) Objects.requireNonNull(balances).get("current");

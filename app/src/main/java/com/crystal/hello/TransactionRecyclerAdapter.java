@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,34 +44,35 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Get transaction fields
-        Map<String, Object> transaction = transactionsList.get(position).getData();
-        String transactionName      = String.valueOf(transaction.get("name"));
-        String transactionDate      = String.valueOf(transaction.get("date"));
-        double transactionAmount    = (double) transaction.get("amount");
-        List<String> categoriesList = (List<String>) transaction.get("category");
-        boolean transactionPending  = (boolean) transaction.get("pending");
+        final Map<String, Object> transaction   = transactionsList.get(position).getData();
+        final String transactionName            = String.valueOf(Objects.requireNonNull(transaction).get("name"));
+        final double transactionAmount          = (double) transaction.get("amount");
+        final List<String> categoriesList       = (List<String>) transaction.get("category");
+        final boolean transactionPending        = (boolean) transaction.get("pending");
+        String transactionDate                  = String.valueOf(transaction.get("date"));
 
         // Parse transaction fields
-        transactionDate = parseTransactionDate(transactionDate);
-        String parsedTransactionAmount = parseTransactionAmount(transactionAmount);
-        int drawableId = parseTransactionLogo(holder, Objects.requireNonNull(categoriesList));
+        transactionDate                         = parseTransactionDate(transactionDate);
+        final String parsedTransactionAmount    = parseTransactionAmount(transactionAmount);
+        final int drawableId                    = parseTransactionLogo(holder, Objects.requireNonNull(categoriesList));
+
         initializeTransactionItemDetailFragment(holder,
-                position,
+                transaction,
                 drawableId,
                 transactionName,
                 transactionDate,
                 parsedTransactionAmount);
 
         // Set parsed transaction fields to view
-//        holder.transactionLocationTextView.setText(transactionLocation);
         if (transactionPending) {
             transactionDate += " - Pending";
         }
+
         // Remove divider in last item of recycler view
         if (position == getItemCount() - 1) {
             holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
         }
+
         holder.transactionLogoImageView.setImageResource(drawableId);
         holder.transactionNameTextView.setText(transactionName);
         holder.transactionDateTextView.setText(transactionDate);
@@ -86,7 +88,6 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
         final ConstraintLayout transactionConstraintLayout;
         final ImageView transactionLogoImageView;
         final TextView transactionNameTextView;
-//        final TextView transactionLocationTextView;
         final TextView transactionDateTextView;
         final TextView transactionAmountTextView;
         final View transactionDividerView;
@@ -96,7 +97,6 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             transactionConstraintLayout = itemView.findViewById(R.id.transactionConstraintLayout);
             transactionLogoImageView    = itemView.findViewById(R.id.transactionLogoImageView);
             transactionNameTextView     = itemView.findViewById(R.id.transactionNameTextView);
-//            transactionLocationTextView = itemView.findViewById(R.id.transactionLocationTextView);
             transactionDateTextView     = itemView.findViewById(R.id.transactionDateTextView);
             transactionAmountTextView   = itemView.findViewById(R.id.transactionAmountTextView);
             transactionDividerView      = itemView.findViewById(R.id.transactionDividerView);
@@ -116,7 +116,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     private String parseTransactionDate(String transactionDate) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         try {
-            Date date = dateFormat.parse(transactionDate);
+            final Date date = dateFormat.parse(transactionDate);
             dateFormat = new SimpleDateFormat("M/d/yy", Locale.US);
             if (date != null) {
                 transactionDate = dateFormat.format(date);
@@ -130,10 +130,9 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
     // Categories from Plaid are stored in a list
     private int parseTransactionLogo(ViewHolder holder, List<String> categoriesList) {
-        String category = "";
-        category = categoriesList.get(0);
-
+        final String category = categoriesList.get(0);
         int drawableInt = R.drawable.services;
+
         switch (category) {
             case "Food and Drink":
                 drawableInt = R.drawable.food;
@@ -162,7 +161,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     }
 
     private void initializeTransactionItemDetailFragment(ViewHolder holder,
-                                                         int position,
+                                                         Map<String, Object> transaction,
                                                          int drawableId,
                                                          String transactionName,
                                                          String transactionDate,
@@ -172,7 +171,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             @Override
             public void onClick(View v) {
                 final Bundle bundle = new Bundle();
-                bundle.putInt("TRANSACTION_ITEM_POSITION", position);
+                bundle.putSerializable("TRANSACTION_ITEM_MAP", (Serializable) transaction);
                 bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
                 bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
                 bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
