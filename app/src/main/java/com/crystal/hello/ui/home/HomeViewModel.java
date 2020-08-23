@@ -73,7 +73,6 @@ public class HomeViewModel extends ViewModel {
 
     private MutableLiveData<Double> currentTotalBalance;
     private MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
-    private static List<DocumentSnapshot> subsetTransactionsList; // Use in TransactionItemDetailFragment requires static declaration
     private static List<Map<String, Object>> bankAccountsList;
     private Map<String, Account> accountIdToAccountMap;
 
@@ -98,10 +97,6 @@ public class HomeViewModel extends ViewModel {
 
     public LiveData<List<DocumentSnapshot>> getMutableSubsetTransactionsList() {
         return mutableSubsetTransactionsList;
-    }
-
-    public List<DocumentSnapshot> getSubsetTransactionsList() {
-        return subsetTransactionsList;
     }
 
     public List<Map<String, Object>> getBankAccountsList() {
@@ -374,7 +369,7 @@ public class HomeViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        getBalancesFromDatabase();
+                        getBalancesAndBankAccountsFromDatabase();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -393,26 +388,29 @@ public class HomeViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            subsetTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
+                            final List<DocumentSnapshot> subsetTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
                             mutableSubsetTransactionsList.setValue(subsetTransactionsList);
                         }
                     }
                 });
     }
 
-    protected void getBalancesFromDatabase() {
+    protected void getBalancesAndBankAccountsFromDatabase() {
         docRef.collection("banks")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            double totalBalance = 0.0;
+                            double totalBalance = 0;
+                            Map<String, Object> bankAccountMap;
+                            Map<String, Object> balances;
                             bankAccountsList = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                bankAccountsList.add(document.getData());
 
-                                Map<String, Object> balances = (HashMap<String, Object>) document.getData().get("balances");
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                bankAccountMap = document.getData();
+                                bankAccountsList.add(bankAccountMap);
+                                balances = (HashMap<String, Object>) bankAccountMap.get("balances");
                                 totalBalance += (double) Objects.requireNonNull(balances).get("current");
                             }
                             currentTotalBalance.setValue(totalBalance);

@@ -47,7 +47,7 @@ public class HomeFragment extends Fragment {
             homeViewModel.exchangeAccessToken(publicToken);
         } else { // Log in
             homeViewModel.getSubsetTransactionsFromDatabase();
-            homeViewModel.getBalancesFromDatabase();
+            homeViewModel.getBalancesAndBankAccountsFromDatabase();
         }
     }
 
@@ -57,7 +57,6 @@ public class HomeFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_home, container, false);
         setMonthlyActivityOnClickListener();
         observeTransactionList();
-        observeCurrentBalance();
         return root;
     }
 
@@ -72,37 +71,36 @@ public class HomeFragment extends Fragment {
     }
 
     private void observeTransactionList() {
+        final RecyclerView homeRecyclerView = root.findViewById(R.id.homeRecyclerView);
+        homeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), list -> {
             final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
-            RecyclerView recyclerView = root.findViewById(R.id.homeRecyclerView);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(recyclerAdapter);
+            homeRecyclerView.setAdapter(recyclerAdapter);
+            observeCurrentBalance();
         });
     }
 
     private void observeCurrentBalance() {
-        homeViewModel.getCurrentTotalBalance().observe(getViewLifecycleOwner(), aDouble -> {
-            String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
-            TextView currentBalanceTextView = root.findViewById(R.id.textViewCurrentBalanceAmount);
+        final TextView currentBalanceTextView = root.findViewById(R.id.textViewCurrentBalanceAmount);
 
-            if (aDouble >= 0.0) {
+        homeViewModel.getCurrentTotalBalance().observe(getViewLifecycleOwner(), aDouble -> {
+            initializeSparkGraph();
+            String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
+
+            if (aDouble >= 0) {
                 currentBalanceString = "$" + currentBalanceString;
             } else { // Negative transactions
                 currentBalanceString = new StringBuilder(currentBalanceString).insert(1, "$").toString();
             }
             currentBalanceTextView.setText(currentBalanceString);
-
-            initializeSparkGraph();
-//                for (int i = 0, count = yData.length; i < count; i++) {
-//                    yData[i] = aDouble;
-//                }
-//                sparkAdapter.notifyDataSetChanged();
         });
     }
 
     private void initializeSparkGraph() {
         sparkView = root.findViewById(R.id.sparkView);
 //        sparkView.setSparkAnimator(new LineSparkAnimator());
+        sparkView.setSparkAnimator(null);
         sparkAdapter = new TransactionSparkAdapter();
         sparkView.setAdapter(sparkAdapter);
 
