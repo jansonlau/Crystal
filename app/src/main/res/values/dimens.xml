@@ -2,7 +2,7 @@
 <resources>
     <dimen name="button_corner_radius">24sp</dimen>
     <dimen name="text_field_corner_radius">6dp</dimen>
-    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="inset_bottom">0dp</dimen>
     <dimen name="inset_top">0dp</dimen>
     <dimen name="text_size">18sp</dimen>
