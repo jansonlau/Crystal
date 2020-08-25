@@ -59,9 +59,9 @@ public class MonthlyActivityFragment extends Fragment {
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-        Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap;
-        List<DocumentSnapshot> oneMonthNegativeAmountPaymentsList;
-        List<DocumentSnapshot> oneMonthNegativeAmountRefundsList;
+        Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key category. Value list of positive amount transactions
+        Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap;
+        List<Map<String, Double>> oneMonthNegativeAmountByCategoryList;
 
         public ScreenSlidePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
@@ -72,23 +72,22 @@ public class MonthlyActivityFragment extends Fragment {
         public Fragment createFragment(int position) {
             // Reinitialize containers for each month
             oneMonthPositiveAmountTransactionsByCategoryMap = new HashMap<>();
-            oneMonthNegativeAmountPaymentsList = new ArrayList<>();
-            oneMonthNegativeAmountRefundsList = new ArrayList<>();
+            oneMonthNegativeAmountTransactionsByCategoryMap = new HashMap<>();
+            oneMonthNegativeAmountByCategoryList            = new ArrayList<>();
 
             final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
-            final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
+            final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
                     , oneMonthPositiveAmountTransactionsByCategoryMap
-                    , oneMonthNegativeAmountPaymentsList
-                    , oneMonthNegativeAmountRefundsList);
-
-            final Bundle bundle = new Bundle();
-            bundle.putString("com.crystal.hello.MONTH_YEAR", viewModel.getMonthAndYearList().get(position));
-            bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP", (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
-            bundle.putSerializable("com.crystal.hello.NEGATIVE_PAYMENTS_LIST", (Serializable) oneMonthNegativeAmountPaymentsList);
-            bundle.putSerializable("com.crystal.hello.NEGATIVE_REFUNDS_LIST", (Serializable) oneMonthNegativeAmountRefundsList);
-            bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST", (Serializable) sortedPositiveAmountByCategoryList);
+                    , oneMonthNegativeAmountTransactionsByCategoryMap
+                    , oneMonthNegativeAmountByCategoryList);
 
             final Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
+            final Bundle bundle = new Bundle();
+            bundle.putString("com.crystal.hello.MONTH_YEAR"                         , viewModel.getMonthAndYearList().get(position));
+            bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST" , (Serializable) oneMonthSortedPositiveAmountByCategoryList);
+            bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
+            bundle.putSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthNegativeAmountTransactionsByCategoryMap);
+            bundle.putSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST"        , (Serializable) oneMonthNegativeAmountByCategoryList);
             transactionMonthlyActivityItemFragment.setArguments(bundle);
             return transactionMonthlyActivityItemFragment;
         }

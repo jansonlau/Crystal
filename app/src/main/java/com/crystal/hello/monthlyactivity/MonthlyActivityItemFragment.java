@@ -20,41 +20,51 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MonthlyActivityItemFragment extends Fragment {
-    private MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter;
     private String monthAndYearString;
+    private MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter;
+    private MonthlyActivityItemCreditRecyclerAdapter monthlyActivityItemCreditRecyclerAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
+        final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
+                (List<Map.Entry<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
+
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
 
-        final List<DocumentSnapshot> oneMonthNegativeAmountPaymentsList =
-                (List<DocumentSnapshot>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_PAYMENTS_LIST");
+        final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap =
+                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
 
-        final List<DocumentSnapshot> oneMonthNegativeAmountRefundsList =
-                (List<DocumentSnapshot>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_REFUNDS_LIST");
+        final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList =
+                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
 
-        final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList =
-                (List<Map.Entry<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
-
-        monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
         monthlyActivityItemBudgetRecyclerAdapter = new MonthlyActivityItemBudgetRecyclerAdapter(getActivity()
                 , oneMonthPositiveAmountTransactionsByCategoryMap
-                , sortedPositiveAmountByCategoryList);
+                , oneMonthSortedPositiveAmountByCategoryList);
+
+        monthlyActivityItemCreditRecyclerAdapter = new MonthlyActivityItemCreditRecyclerAdapter(getActivity()
+                , oneMonthNegativeAmountTransactionsByCategoryMap
+                , oneMonthNegativeAmountByCategoryList);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_monthly_activity_item, container, false);
-        final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
         final TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
+        final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
+        final RecyclerView creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
+
+        monthAndYearTextView.setText(monthAndYearString);
 
         budgetRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         budgetRecyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
-        monthAndYearTextView.setText(monthAndYearString);
+
+        creditRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        creditRecyclerView.setAdapter(monthlyActivityItemCreditRecyclerAdapter);
         return root;
     }
 }

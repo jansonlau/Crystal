@@ -23,7 +23,7 @@ public class MonthlyActivityItemDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         oneMonthPositiveAmountTransactionsByCategoryMap =
-                (List<DocumentSnapshot>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_LIST");
+                (List<DocumentSnapshot>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.TRANSACTIONS_LIST");
     }
 
     @Override

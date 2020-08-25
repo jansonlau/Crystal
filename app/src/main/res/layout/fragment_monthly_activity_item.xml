@@ -70,7 +70,7 @@
         app:layout_constraintTop_toBottomOf="@id/cardViewBudget" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewPayments"
+        android:id="@+id/creditsCardView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -81,11 +81,11 @@
         app:layout_constraintTop_toBottomOf="@id/textViewMerchants">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewPayment"
+            android:id="@+id/creditRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:itemCount="4"
-            tools:listitem="@layout/item_monthly_activity_refunds" />
+            tools:listitem="@layout/item_monthly_activity_credits" />
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

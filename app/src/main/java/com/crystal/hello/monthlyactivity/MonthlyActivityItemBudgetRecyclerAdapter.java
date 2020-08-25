@@ -26,7 +26,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     private final FragmentActivity fragmentActivity;
     private final LayoutInflater layoutInflater;
     private final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
-    private final List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
+    private final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
 
     public MonthlyActivityItemBudgetRecyclerAdapter(FragmentActivity activity
             , Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap
@@ -35,7 +35,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         fragmentActivity = activity;
         layoutInflater = LayoutInflater.from(activity);
         this.oneMonthPositiveAmountTransactionsByCategoryMap = oneMonthPositiveAmountTransactionsByCategoryMap;
-        this.sortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
+        this.oneMonthSortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
     }
 
     @NonNull
@@ -47,7 +47,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Map.Entry<String, Double> transaction = sortedPositiveAmountByCategoryList.get(position);
+        Map.Entry<String, Double> transaction = oneMonthSortedPositiveAmountByCategoryList.get(position);
         String category = transaction.getKey();
 
         String amountString = String.format(Locale.US,"%.2f", transaction.getValue());
@@ -92,25 +92,25 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
     @Override
     public int getItemCount() {
-        return sortedPositiveAmountByCategoryList.size();
+        return oneMonthSortedPositiveAmountByCategoryList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final View              budgetDividerView;
         final TextView          budgetNameTextView;
         final TextView          budgetAmountTextView;
+        final ImageView         budgetLogoImageView;
         final ProgressBar       budgetProgressBar;
         final ConstraintLayout  budgetConstraintLayout;
-        final ImageView         budgetLogoImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             budgetDividerView       = itemView.findViewById(R.id.budgetDividerView);
             budgetNameTextView      = itemView.findViewById(R.id.budgetNameTextView);
             budgetAmountTextView    = itemView.findViewById(R.id.budgetAmountTextView);
+            budgetLogoImageView     = itemView.findViewById(R.id.budgetLogoImageView);
             budgetProgressBar       = itemView.findViewById(R.id.budgetProgressBar);
             budgetConstraintLayout  = itemView.findViewById(R.id.budgetConstraintLayout);
-            budgetLogoImageView     = itemView.findViewById(R.id.budgetLogoImageView);
         }
     }
 
@@ -118,10 +118,9 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Bundle bundle = new Bundle();
-                bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_LIST", (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap.get(category));
-
                 final Fragment monthlyActivityItemDetailFragment = new MonthlyActivityItemDetailFragment();
+                final Bundle bundle = new Bundle();
+                bundle.putSerializable("com.crystal.hello.TRANSACTIONS_LIST", (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap.get(category));
                 monthlyActivityItemDetailFragment.setArguments(bundle);
 
                 fragmentActivity.getSupportFragmentManager()

@@ -34,8 +34,10 @@ public class MonthlyActivityViewModel extends ViewModel {
     private int onCompleteCount;
     private final List<Map<String, List<DocumentSnapshot>>> allTransactionsByCategoryList; // Each index represents a month. Each map contains category, documents pair.
     private final List<String> monthAndYearList;
-    private final Map<String, List<String>> categoriesMap; // Key: Crystal categories, Value: Plaid categories
+    private final Map<String, List<String>> categoriesMap; // Key: Crystal categories. Value: Plaid categories
     private final MutableLiveData<Boolean> mutableInitializePagerBoolean;
+    private double oneMonthPaymentsAmount;
+    private double oneMonthRefundsAmount;
 
     public MonthlyActivityViewModel() {
         allTransactionsByCategoryList       = new ArrayList<>();
@@ -99,7 +101,10 @@ public class MonthlyActivityViewModel extends ViewModel {
         categoriesMap.put("Entertainment"  , Collections.singletonList("Recreation"));
         categoriesMap.put("Health"         , Collections.singletonList("Healthcare"));
         categoriesMap.put("Services"       , Arrays.asList("Service", "Community", "Payment"
-                , "Bank Fees", "Interest", "Tax", "Transfer"));
+                , "Bank Fees"
+                , "Interest"
+                , "Tax"
+                , "Transfer"));
     }
 
     // Start monthly activity with the oldest transaction up to current month for all months
@@ -137,7 +142,10 @@ public class MonthlyActivityViewModel extends ViewModel {
         return Months.monthsBetween(start, end).getMonths();
     }
 
-    private void getTransactionsByCategory(final String category, final List<String> categoryList, final String startDate, final String endDate) {
+    private void getTransactionsByCategory(final String category,
+                                           final List<String> categoryList,
+                                           final String startDate,
+                                           final String endDate) {
         final int numberOfCategories = 6;
 
         docRef.collection("transactions")
@@ -172,47 +180,83 @@ public class MonthlyActivityViewModel extends ViewModel {
     // to oneMonthPositiveAmountTransactionsByCategoryMap with positive amounts
     protected List<Map.Entry<String, Double>> getSortedListOfAmountsByCategories(final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap,
                                                                                  final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
-                                                                                 final List<DocumentSnapshot> oneMonthNegativeAmountPaymentsList,
-                                                                                 final List<DocumentSnapshot> oneMonthNegativeAmountRefundsList) {
-        final Map<String, Double> sortedPositiveAmountByCategoryList = new HashMap<>();
+                                                                                 final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap,
+                                                                                 final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList) {
+
+        final Map<String, Double> oneMonthSortedPositiveAmountByCategoryList = new HashMap<>();
+        final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList = new ArrayList<>();
+        final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList = new ArrayList<>();
+        oneMonthPaymentsAmount = 0;
+        oneMonthRefundsAmount = 0;
 
         // Get only positive amount transactions for each category
         for (Map.Entry<String, List<DocumentSnapshot>> entry : oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap.entrySet()) {
             final String category = entry.getKey();
             final List<DocumentSnapshot> positiveAndNegativeTransactionsList = entry.getValue();
 
-            final double totalTransactionAmount = getTotalTransactionAmount(category
+            final double totalPositiveTransactionAmount = getTotalTransactionAmounts(category
                     , positiveAndNegativeTransactionsList
                     , oneMonthPositiveAmountTransactionsByCategoryMap
-                    , oneMonthNegativeAmountPaymentsList
-                    , oneMonthNegativeAmountRefundsList);
+                    , oneMonthNegativeAmountPaymentTransactionsList
+                    , oneMonthNegativeAmountRefundTransactionsList);
 
             if (oneMonthPositiveAmountTransactionsByCategoryMap.get(category) != null) {
-                sortedPositiveAmountByCategoryList.put(category, totalTransactionAmount);
+                oneMonthSortedPositiveAmountByCategoryList.put(category, totalPositiveTransactionAmount);
             }
         }
 
-        // Sort positive amount transactions in descending order then return as list to keep order
-        return sortedPositiveAmountByCategoryList.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
+        // Payments
+        if (!oneMonthNegativeAmountPaymentTransactionsList.isEmpty()) {
+            oneMonthNegativeAmountTransactionsByCategoryMap.put("Payments", oneMonthNegativeAmountPaymentTransactionsList);
+
+            final Map<String, Double> negativePaymentAmountByCategoryMap = new HashMap<>();
+            negativePaymentAmountByCategoryMap.put("Payments", oneMonthPaymentsAmount);
+            oneMonthNegativeAmountByCategoryList.add(negativePaymentAmountByCategoryMap);
+        }
+
+        // Refunds
+        if (!oneMonthNegativeAmountRefundTransactionsList.isEmpty()) {
+            oneMonthNegativeAmountTransactionsByCategoryMap.put("Refunds", oneMonthNegativeAmountRefundTransactionsList);
+
+            final Map<String, Double> negativeRefundAmountByCategoryMap = new HashMap<>();
+            negativeRefundAmountByCategoryMap.put("Refunds", oneMonthRefundsAmount);
+            oneMonthNegativeAmountByCategoryList.add(negativeRefundAmountByCategoryMap);
+
+            // Sort refund transactions by date in descending order
+            if (oneMonthNegativeAmountRefundTransactionsList.size() > 1) {
+                Collections.sort(oneMonthNegativeAmountRefundTransactionsList, new Comparator<DocumentSnapshot>() {
                     @Override
-                    public int compare(Double x, Double y) {
-                        return y.compareTo(x);
+                    public int compare(DocumentSnapshot x, DocumentSnapshot y) {
+                        return String.valueOf(y.get("date")).compareTo(String.valueOf(x.get("date")));
                     }
-                }))
-                .collect(Collectors.toList());
+                });
+            }
+        }
+
+        // Sort positive total transaction by amount in descending order then return as list to keep order
+        if (oneMonthSortedPositiveAmountByCategoryList.size() > 1) {
+            return oneMonthSortedPositiveAmountByCategoryList.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(new Comparator<Double>() {
+                        @Override
+                        public int compare(Double x, Double y) {
+                            return y.compareTo(x);
+                        }
+                    }))
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     // Calculate total amount for a category
     // Add positive amount into oneMonthPositiveAmountTransactionsByCategoryMap
     // Add negative amount payments into oneMonthNegativeAmountPaymentsList
     // Add negative amount refunds into oneMonthNegativeAmountRefundsList
-    protected double getTotalTransactionAmount(final String category,
-                                             @NotNull final List<DocumentSnapshot> positiveAndNegativeTransactionsList,
-                                             final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
-                                             final List<DocumentSnapshot> oneMonthNegativeAmountPaymentsList,
-                                             final List<DocumentSnapshot> oneMonthNegativeAmountRefundsList) {
+    protected double getTotalTransactionAmounts(final String category,
+                                                @NotNull final List<DocumentSnapshot> positiveAndNegativeTransactionsList,
+                                                final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
+                                                final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList,
+                                                final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList) {
         double totalTransactionAmount = 0;
         List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
 
@@ -225,24 +269,16 @@ public class MonthlyActivityViewModel extends ViewModel {
                 totalTransactionAmount += amount;
                 positiveAmountTransactionsList.add(document);
             } else if (Objects.requireNonNull(categoriesList).get(0).equals("Transfer")) { // Payments to credit card with negative amounts (Already sorted because it's in Services category)
-                oneMonthNegativeAmountPaymentsList.add(document);
+                oneMonthPaymentsAmount += amount;
+                oneMonthNegativeAmountPaymentTransactionsList.add(document);
             } else { // Refunds with negative amounts from any category
-                oneMonthNegativeAmountRefundsList.add(document);
+                oneMonthRefundsAmount += amount;
+                oneMonthNegativeAmountRefundTransactionsList.add(document);
             }
         }
 
         if (!positiveAmountTransactionsList.isEmpty()) {
             oneMonthPositiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
-        }
-
-        // Sort refund transactions
-        if (!oneMonthNegativeAmountRefundsList.isEmpty()) {
-            Collections.sort(oneMonthNegativeAmountRefundsList, new Comparator<DocumentSnapshot>() {
-                @Override
-                public int compare(DocumentSnapshot x, DocumentSnapshot y) {
-                    return String.valueOf(y.get("date")).compareTo(String.valueOf(x.get("date")));
-                }
-            });
         }
 
         return totalTransactionAmount;
