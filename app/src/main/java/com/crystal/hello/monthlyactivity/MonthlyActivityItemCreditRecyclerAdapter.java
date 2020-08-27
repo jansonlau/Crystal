@@ -59,35 +59,35 @@ public class MonthlyActivityItemCreditRecyclerAdapter extends RecyclerView.Adapt
         String amountString = String.format(Locale.US,"%.2f", amount);
         amountString = new StringBuilder(amountString).insert(1, "$").toString();
 
-        holder.creditNameTextView.setText(category);
-        holder.creditAmountTextView.setText(amountString);
-
         // Number of transactions string
         int transactionCountInt = Objects.requireNonNull(oneMonthNegativeAmountTransactionsByCategoryMap.get(category)).size();
         String transactionCountString = String.valueOf(transactionCountInt);
         if (category.equals("Payments")) {
-//            holder.creditLogoImageView.setImageResource();
+            holder.creditLogoImageView.setImageResource(R.drawable.payments);
+            holder.creditLogoImageView.setBackgroundResource(R.drawable.payments_background);
             if (transactionCountInt == 1) {
                 transactionCountString += " Payment";
             } else {
                 transactionCountString += " Payments";
             }
-            holder.creditCountTextView.setText(transactionCountString);
         } else if (category.equals("Refunds")) {
-//            holder.creditLogoImageView.setImageResource();
+            holder.creditLogoImageView.setImageResource(R.drawable.refunds);
+            holder.creditLogoImageView.setBackgroundResource(R.drawable.refunds_background);
             if (transactionCountInt == 1) {
                 transactionCountString += " Refund";
             } else {
                 transactionCountString += " Refunds";
             }
         }
+
+        holder.creditNameTextView.setText(category);
+        holder.creditAmountTextView.setText(amountString);
         holder.creditCountTextView.setText(transactionCountString);
+        initializeMonthlyActivityItemDetailFragment(holder, category);
 
         if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
             holder.creditConstraintLayout.removeView(holder.creditDividerView);
         }
-
-        initializeMonthlyActivityItemDetailFragment(holder, category);
     }
 
     @Override

@@ -27,7 +27,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
                 app:cardCornerRadius="@dimen/card_corner_radius"
                 app:cardElevation="0dp">
 
@@ -91,12 +93,14 @@
                         android:layout_marginStart="32dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="10dp"
                         android:gravity="center"
                         android:padding="4dp"
                         android:text="1M"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textSize="12sp"
+                        app:layout_constraintBottom_toTopOf="@+id/divider"
                         app:layout_constraintEnd_toStartOf="@+id/textViewThreeMonths"
                         app:layout_constraintStart_toStartOf="@+id/sparkView"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
@@ -106,32 +110,38 @@
                         android:layout_width="30dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="10dp"
                         android:gravity="center"
                         android:padding="4dp"
                         android:text="3M"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textSize="12sp"
+                        app:layout_constraintBottom_toTopOf="@+id/divider"
                         app:layout_constraintEnd_toStartOf="@+id/textViewOneYear"
                         app:layout_constraintStart_toEndOf="@+id/textViewOneMonth"
-                        app:layout_constraintTop_toTopOf="@+id/textViewOneMonth" />
+                        app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
                     <TextView
                         android:id="@+id/textViewOneYear"
                         android:layout_width="30dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginEnd="32dp"
+                        android:layout_marginBottom="10dp"
                         android:gravity="center"
                         android:padding="4dp"
                         android:text="1Y"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textSize="12sp"
+                        app:layout_constraintBottom_toTopOf="@+id/divider"
                         app:layout_constraintEnd_toEndOf="@+id/sparkView"
                         app:layout_constraintStart_toEndOf="@+id/textViewThreeMonths"
-                        app:layout_constraintTop_toTopOf="@+id/textViewThreeMonths" />
+                        app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
                     <View
                         android:id="@+id/divider"
@@ -169,6 +179,7 @@
                                 android:layout_marginBottom="12dp"
                                 android:text="Monthly Activity"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textSize="16dp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@+id/imageView2"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -196,7 +207,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="4dp"
                 android:text="Latest Transactions"

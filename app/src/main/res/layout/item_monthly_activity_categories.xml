@@ -20,7 +20,7 @@
         android:text="Shopping"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/budgetArrowImageView"
+        app:layout_constraintEnd_toStartOf="@+id/budgetAmountTextView"
         app:layout_constraintStart_toEndOf="@+id/budgetLogoImageView"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,37 +29,38 @@
         android:layout_width="16dp"
         android:layout_height="0dp"
         android:layout_marginEnd="10dp"
+        android:contentDescription="Arrow"
         app:layout_constraintBottom_toBottomOf="@+id/budgetAmountTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/budgetNameTextView"
-        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24"
-        android:contentDescription="Arrow" />
+        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
 
     <ProgressBar
         android:id="@+id/budgetProgressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="140dp"
         android:layout_marginBottom="10dp"
         android:max="100"
         android:progress="40"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/budgetAmountTextView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/budgetNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/budgetNameTextView" />
 
     <TextView
         android:id="@+id/budgetAmountTextView"
-        android:layout_width="100dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
         android:maxLines="1"
         android:text="$1000000.00"
+        android:textAlignment="viewEnd"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/budgetProgressBar"
-        app:layout_constraintEnd_toEndOf="@+id/budgetNameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/budgetNameTextView" />
+        app:layout_constraintBottom_toBottomOf="@+id/budgetNameTextView"
+        app:layout_constraintEnd_toStartOf="@+id/budgetArrowImageView"
+        app:layout_constraintTop_toTopOf="@+id/budgetNameTextView" />
 
     <View
         android:id="@+id/budgetDividerView"
