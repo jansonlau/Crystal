@@ -50,7 +50,7 @@ dependencies {
     implementation 'com.plaid:plaid-java:5.7.0'
     implementation 'com.plaid.link:sdk-core:1.4.0'
     implementation 'com.robinhood.spark:spark:1.2.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.8.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.8.1'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.google.firebase:firebase-auth:19.3.2'
     implementation 'com.google.android.material:material:1.2.0'

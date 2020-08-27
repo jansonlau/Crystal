@@ -51,13 +51,14 @@ public class InitialConnectActivity extends AppCompatActivity {
         ArrayList<PlaidProduct> products = new ArrayList<>();
         products.add(PlaidProduct.TRANSACTIONS);
         Plaid.openLink(this, new LinkConfiguration.Builder("Crystal", products)
-                        .environment(PlaidEnvironment.SANDBOX)
+                        .environment(PlaidEnvironment.DEVELOPMENT)
                         .build(), LINK_REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        myPlaidResultHandler.onActivityResult(requestCode, resultCode, data);
     }
 
     private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(LINK_REQUEST_CODE,
@@ -98,7 +99,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             },
 
-            // Handle onCancelled (close button / Android back button)
+            // Handle onCancelled (close button)
             linkCancellation -> {
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
                 InitialConnectActivity.this.startActivity(intent);
@@ -106,7 +107,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             },
 
-            // Handle onExit (close button???)
+            // Handle onExit (Android back button)
             plaidApiError -> {
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
                 InitialConnectActivity.this.startActivity(intent);

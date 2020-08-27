@@ -105,9 +105,9 @@ public class HomeViewModel extends ViewModel {
 
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
+                .clientIdAndSecret(clientIdKey, developmentSecretKey)
                 .publicKey(String.valueOf(R.string.plaid_public_key))
-                .sandboxBaseUrl()
+                .developmentBaseUrl()
                 .build();
     }
 
@@ -296,14 +296,16 @@ public class HomeViewModel extends ViewModel {
             batch.set(transactionsRef, transaction, SetOptions.merge());
         }
 
+        // If there are more than 500 transactions, get more because they're paginated
+        if (transactionOffset < totalTransactions) {
+            getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
+        }
+
         batch.commit()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        // If there are more than 500 transactions, get more because they're paginated
-                        if (transactionOffset < totalTransactions) {
-                            getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
-                        } else {
+                        if (transactionOffset >= totalTransactions) {
                             getSubsetTransactionsFromDatabase();
                         }
                     }
