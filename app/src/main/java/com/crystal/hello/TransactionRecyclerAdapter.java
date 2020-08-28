@@ -58,7 +58,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
         // Parse transaction fields
         transactionDate                         = parseTransactionDate(transactionDate);
         final String parsedTransactionAmount    = parseTransactionAmount(transactionAmount);
-        final int drawableInt                    = parseTransactionLogo(Objects.requireNonNull(categoriesList));
+        final int drawableInt                   = parseTransactionLogo(Objects.requireNonNull(categoriesList));
 
         if (transactionName.equals("null")) {
             transactionName = String.valueOf(Objects.requireNonNull(transaction).get("name"));

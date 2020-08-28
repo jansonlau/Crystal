@@ -2,6 +2,8 @@ package com.crystal.hello.signup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,6 +18,7 @@ public class NameActivity extends AppCompatActivity {
     private TextInputLayout firstNameInputLayout;
     private TextInputEditText lastNameEditText;
     private TextInputLayout lastNameInputLayout;
+    private Button nameContinueButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +29,38 @@ public class NameActivity extends AppCompatActivity {
         firstNameInputLayout = findViewById(R.id.firstNameInputLayout);
         lastNameEditText = findViewById(R.id.lastNameEditText);
         lastNameInputLayout = findViewById(R.id.lastNameInputLayout);
+        nameContinueButton = findViewById(R.id.buttonNameContinue);
+        setListeners();
+    }
 
-        Button nameContinueButton = findViewById(R.id.buttonNameContinue);
+    private void setListeners() {
+        firstNameEditText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (isFirstNameValid(firstNameEditText.getText())) {
+                    firstNameInputLayout.setError(null);
+                }
+                return false;
+            }
+        });
+
+        lastNameEditText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (isLastNameValid(lastNameEditText.getText())) {
+                    lastNameInputLayout.setError(null);
+                }
+                return false;
+            }
+        });
+
         nameContinueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!validateForm()) {
+                    return;
+                }
+
                 TextInputEditText firstNameEditText = NameActivity.this.findViewById(R.id.firstNameEditText);
                 TextInputEditText lastNameEditText = NameActivity.this.findViewById(R.id.lastNameEditText);
 
@@ -40,5 +70,33 @@ public class NameActivity extends AppCompatActivity {
                 NameActivity.this.startActivity(intent);
             }
         });
+    }
+
+    private boolean isFirstNameValid(Editable text) {
+        return text != null && text.length() >= 1;
+    }
+
+    private boolean isLastNameValid(Editable text) {
+        return text != null && text.length() >= 1;
+    }
+
+    private boolean validateForm() {
+        boolean valid = true;
+
+        if (!isFirstNameValid(firstNameEditText.getText())) {
+            firstNameInputLayout.setError("Must have at least 1 character.");
+            valid = false;
+        } else {
+            firstNameInputLayout.setError(null);
+        }
+
+        if (!isLastNameValid(lastNameEditText.getText())) {
+            lastNameInputLayout.setError("Must have at least 1 character.");
+            valid = false;
+        } else {
+            lastNameInputLayout.setError(null);
+        }
+
+        return valid;
     }
 }
