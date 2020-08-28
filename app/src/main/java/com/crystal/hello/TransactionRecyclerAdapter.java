@@ -28,11 +28,15 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     private final List<DocumentSnapshot> transactionsList;
     private final LayoutInflater layoutInflater;
     private final FragmentActivity fragmentActivity;
+    private String category;
+    private int logoBackgroundDrawableInt;
+    private boolean usedMerchantName;
 
     public TransactionRecyclerAdapter(FragmentActivity activity, List<DocumentSnapshot> list) {
         transactionsList = list;
         layoutInflater = LayoutInflater.from(activity);
         fragmentActivity = activity;
+        usedMerchantName = true;
     }
 
     @NonNull
@@ -45,20 +49,27 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Map<String, Object> transaction   = transactionsList.get(position).getData();
-        final String transactionName            = String.valueOf(Objects.requireNonNull(transaction).get("name"));
         final double transactionAmount          = (double) transaction.get("amount");
         final List<String> categoriesList       = (List<String>) transaction.get("category");
         final boolean transactionPending        = (boolean) transaction.get("pending");
+        String transactionName                  = String.valueOf(Objects.requireNonNull(transaction).get("merchantName"));
         String transactionDate                  = String.valueOf(transaction.get("date"));
 
         // Parse transaction fields
         transactionDate                         = parseTransactionDate(transactionDate);
         final String parsedTransactionAmount    = parseTransactionAmount(transactionAmount);
-        final int drawableId                    = parseTransactionLogo(holder, Objects.requireNonNull(categoriesList));
+        final int drawableInt                    = parseTransactionLogo(Objects.requireNonNull(categoriesList));
+
+        if (transactionName.equals("null")) {
+            transactionName = String.valueOf(Objects.requireNonNull(transaction).get("name"));
+            usedMerchantName = false; // TODO: Use when implementing transaction history
+        }
 
         initializeTransactionItemDetailFragment(holder,
                 transaction,
-                drawableId,
+                category,
+                drawableInt,
+                logoBackgroundDrawableInt,
                 transactionName,
                 transactionDate,
                 parsedTransactionAmount);
@@ -73,7 +84,8 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
         }
 
-        holder.transactionLogoImageView.setImageResource(drawableId);
+        holder.transactionLogoImageView.setImageResource(drawableInt);
+        holder.transactionLogoImageView.setBackgroundResource(logoBackgroundDrawableInt);
         holder.transactionNameTextView.setText(transactionName);
         holder.transactionDateTextView.setText(transactionDate);
         holder.transactionAmountTextView.setText(parsedTransactionAmount);
@@ -129,40 +141,48 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     }
 
     // Categories from Plaid are stored in a list
-    private int parseTransactionLogo(ViewHolder holder, List<String> categoriesList) {
-        final String category = categoriesList.get(0);
-        int drawableInt = R.drawable.services;
+    private int parseTransactionLogo(List<String> categoriesList) {
+        category = categoriesList.get(0);
+        int logoDrawableInt = R.drawable.services;
 
         switch (category) {
             case "Food and Drink":
-                drawableInt = R.drawable.food;
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.food_background);
+                category = "Food & Drinks";
+                logoDrawableInt = R.drawable.food;
+                logoBackgroundDrawableInt = R.drawable.food_background;
                 break;
             case "Shops":
-                drawableInt = R.drawable.shopping;
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.shopping_background);
+                category = "Shopping";
+                logoDrawableInt = R.drawable.shopping;
+                logoBackgroundDrawableInt = R.drawable.shopping_background;
                 break;
             case "Travel":
-                drawableInt = R.drawable.travel;
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.travel_background);
+                category = "Travel";
+                logoDrawableInt = R.drawable.travel;
+                logoBackgroundDrawableInt = R.drawable.travel_background;
                 break;
             case "Recreation":
-                drawableInt = R.drawable.entertainment;
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.entertainment_background);
+                category = "Entertainment";
+                logoDrawableInt = R.drawable.entertainment;
+                logoBackgroundDrawableInt = R.drawable.entertainment_background;
                 break;
             case "Healthcare":
-                drawableInt = R.drawable.health;
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.health_background);
+                category = "Health";
+                logoDrawableInt = R.drawable.health;
+                logoBackgroundDrawableInt = R.drawable.health_background;
                 break;
             default:
-                holder.transactionLogoImageView.setBackgroundResource(R.drawable.services_background);
+                category = "Services";
+                logoBackgroundDrawableInt = R.drawable.services_background;
         }
-        return drawableInt;
+        return logoDrawableInt;
     }
 
     private void initializeTransactionItemDetailFragment(ViewHolder holder,
                                                          Map<String, Object> transaction,
-                                                         int drawableId,
+                                                         String category,
+                                                         int logoDrawableInt,
+                                                         int logoBackgroundDrawableInt,
                                                          String transactionName,
                                                          String transactionDate,
                                                          String transactionAmount) {
@@ -172,7 +192,9 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             public void onClick(View v) {
                 final Bundle bundle = new Bundle();
                 bundle.putSerializable("TRANSACTION_ITEM_MAP", (Serializable) transaction);
-                bundle.putInt(("TRANSACTION_ITEM_LOGO"), drawableId);
+                bundle.putInt(("TRANSACTION_ITEM_LOGO"), logoDrawableInt);
+                bundle.putInt(("TRANSACTION_ITEM_LOGO_BACKGROUND"), logoBackgroundDrawableInt);
+                bundle.putString("TRANSACTION_ITEM_CATEGORY", category);
                 bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
                 bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
                 bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);

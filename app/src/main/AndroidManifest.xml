@@ -24,6 +24,14 @@
         <activity
             android:name=".signup.InitialConnectActivity"/>
 
+<!--        <activity-->
+<!--            android:name=".signup.InitialConnectActivity">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"/>
@@ -47,9 +55,5 @@
         <activity
             android:name=".signup.EmailActivity"
             android:windowSoftInputMode="adjustResize" />
-
-        <meta-data
-            android:name="com.plaid.link.public_key"
-            android:value="@string/plaid_public_key" />
     </application>
 </manifest>

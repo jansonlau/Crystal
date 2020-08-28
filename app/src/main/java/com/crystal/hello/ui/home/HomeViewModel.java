@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.crystal.hello.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -65,9 +64,9 @@ public class HomeViewModel extends ViewModel {
     private Map<byte[], byte[]> encryptedAccessTokenMap;
     private Map<byte[], byte[]> encryptedItemIdMap;
 
-    private String clientIdKey          = "5e9e830fd1ed690012c3be3c";
-    private String developmentSecretKey = "60accf9202c1cb270909846affe85a";
-    private String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
+    private final String clientIdKey          = "5e9e830fd1ed690012c3be3c";
+    private final String developmentSecretKey = "60accf9202c1cb270909846affe85a";
+    private final String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
     private static final String PROVIDER = "AndroidKeyStore";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
@@ -106,7 +105,6 @@ public class HomeViewModel extends ViewModel {
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(clientIdKey, developmentSecretKey)
-                .publicKey(String.valueOf(R.string.plaid_public_key))
                 .developmentBaseUrl()
                 .build();
     }

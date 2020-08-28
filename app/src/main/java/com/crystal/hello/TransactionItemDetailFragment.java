@@ -50,11 +50,12 @@ public class TransactionItemDetailFragment extends Fragment {
             }
         }
 
-        final String transactionItemCategory;
         final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
+        final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
         final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
         final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
+        final String transactionItemCategory    = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
         String transactionItemAccountMask       = "";
         String locationString                   = "";
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
@@ -62,33 +63,6 @@ public class TransactionItemDetailFragment extends Fragment {
 
         if (account.get("mask") != null) {
             transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");
-        }
-
-        // Category
-        switch (transactionItemLogo) {
-            case R.drawable.shopping:
-                transactionItemCategory = "Shopping";
-                logoImageView.setBackgroundResource(R.drawable.shopping_background);
-                break;
-            case R.drawable.food:
-                transactionItemCategory = "Food & Drinks";
-                logoImageView.setBackgroundResource(R.drawable.food_background);
-                break;
-            case R.drawable.health:
-                transactionItemCategory = "Health";
-                logoImageView.setBackgroundResource(R.drawable.health_background);
-                break;
-            case R.drawable.entertainment:
-                transactionItemCategory = "Entertainment";
-                logoImageView.setBackgroundResource(R.drawable.entertainment_background);
-                break;
-            case R.drawable.travel:
-                transactionItemCategory = "Travel";
-                logoImageView.setBackgroundResource(R.drawable.travel_background);
-                break;
-            default:
-                transactionItemCategory = "Services";
-                logoImageView.setBackgroundResource(R.drawable.services_background);
         }
 
         // Show location or map if available. Else, hide the views
@@ -117,6 +91,7 @@ public class TransactionItemDetailFragment extends Fragment {
         }
 
         logoImageView       .setImageResource(transactionItemLogo);
+        logoImageView       .setBackgroundResource(transactionItemLogoBackground);
         amountTextView      .setText(transactionItemAmount);
         nameTextView        .setText(transactionItemName);
         dateTextView        .setText(transactionItemDate);

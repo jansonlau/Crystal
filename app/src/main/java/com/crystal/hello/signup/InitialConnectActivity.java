@@ -16,14 +16,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.plaid.link.Plaid;
-import com.plaid.linkbase.models.configuration.LinkConfiguration;
-import com.plaid.linkbase.models.configuration.PlaidEnvironment;
-import com.plaid.linkbase.models.configuration.PlaidProduct;
-import com.plaid.linkbase.models.connection.LinkAccount;
-import com.plaid.linkbase.models.connection.LinkConnection;
-import com.plaid.linkbase.models.connection.PlaidLinkResultHandler;
+import com.plaid.link.configuration.LinkConfiguration;
+import com.plaid.link.configuration.PlaidEnvironment;
+import com.plaid.link.configuration.PlaidProduct;
+import com.plaid.link.result.LinkAccount;
+import com.plaid.link.result.PlaidLinkResultHandler;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import java.util.Objects;
 import kotlin.Unit;
 
 public class InitialConnectActivity extends AppCompatActivity {
-    private final int LINK_REQUEST_CODE = 1;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
@@ -42,18 +40,39 @@ public class InitialConnectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        Plaid.initialize(getApplication());
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> InitialConnectActivity.this.createUserWithEmailAndPassword());
     }
 
     private void openLink() {
-        ArrayList<PlaidProduct> products = new ArrayList<>();
-        products.add(PlaidProduct.TRANSACTIONS);
-        Plaid.openLink(this, new LinkConfiguration.Builder("Crystal", products)
-                        .environment(PlaidEnvironment.DEVELOPMENT)
-                        .build(), LINK_REQUEST_CODE);
+        Plaid.openLink(this, new LinkConfiguration.Builder()
+                .clientName("Crystal")
+                .environment(PlaidEnvironment.DEVELOPMENT)
+//                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
+                .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
+                .publicKey("bbf9cf93da45517aa5283841dfc534")
+//                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD))
+                .build());
+
+        // TODO: Get linkToken with server
+//        LinkTokenRequester.INSTANCE.getToken().subscribe(this::onLinkTokenSuccess, this::onLinkTokenError);
     }
+
+//    private void onLinkTokenSuccess(String token) {
+//        Plaid.openLink(this, new LinkConfiguration.Builder()
+//                .token(token)
+//                .clientName("Crystal")
+//                .environment(PlaidEnvironment.DEVELOPMENT)
+//                .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
+////                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD))
+//                .build());
+//    }
+
+//    private void onLinkTokenError(Throwable error) {
+//        Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -61,16 +80,13 @@ public class InitialConnectActivity extends AppCompatActivity {
         myPlaidResultHandler.onActivityResult(requestCode, resultCode, data);
     }
 
-    private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(LINK_REQUEST_CODE,
-            // Handle onSuccess
-            // Metadata gives accountNumber if it's useful in the future
-            linkConnection -> {
-                LinkConnection.LinkConnectionMetadata metadata = linkConnection.getLinkConnectionMetadata();
-                String publicToken = linkConnection.getPublicToken();
+    private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
+            linkSuccess -> {
+                String publicToken = linkSuccess.getPublicToken();
 
                 // Look for credit card accounts
                 // Might want to give option to select account to add in future
-                List<LinkAccount> linkAccountList = metadata.getAccounts();
+                List<LinkAccount> linkAccountList = linkSuccess.getMetadata().getAccounts();
                 boolean hasCreditCardAccount = false;
                 for (LinkAccount linkAccount : linkAccountList) {
                     if (linkAccount.getAccountSubType() != null && linkAccount.getAccountSubType().equals("credit card")) {
@@ -99,16 +115,12 @@ public class InitialConnectActivity extends AppCompatActivity {
                 return Unit.INSTANCE;
             },
 
-            // Handle onCancelled (close button)
-            linkCancellation -> {
-                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
-                InitialConnectActivity.this.startActivity(intent);
-                InitialConnectActivity.this.finishAffinity();
-                return Unit.INSTANCE;
-            },
-
-            // Handle onExit (Android back button)
-            plaidApiError -> {
+            linkExit -> {
+                if (linkExit.error != null) {
+                    // Something went wrong
+                } else {
+                    // Left Link without completing the flow
+                }
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
                 InitialConnectActivity.this.startActivity(intent);
                 InitialConnectActivity.this.finishAffinity();

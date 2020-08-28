@@ -13,8 +13,8 @@ public class ProfileViewModel extends ViewModel {
         mText.setValue("Hi there! " +
                 "\n\n" +
                 "Profile page is currently in progress. This is where you'll be able to add more credit card accounts and sign out. " +
-                "\n\nA lot more features will be coming soon like saved transactions, transaction history, graph of your balance for all accounts, and upcoming bills. " +
-                "\n\nIn the meantime, if you'd like to log out or have any questions or feedback, please send us an email!" +
+                "\n\nA lot more features will be coming soon like saved transactions, history of transactions from the same merchant, real-time transactions and balance of all accounts, and upcoming bills. " +
+                "\n\nIn the meantime, if you'd like to log out, have any questions or feedback, or would like to chat, please send me an email!" +
                 "\n\n" +
                 "Best,\n" +
                 "Crystal team\n" +

@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.crystal.hello.TransactionRecyclerAdapter;
 import com.crystal.hello.R;
+import com.crystal.hello.TransactionRecyclerAdapter;
 import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
