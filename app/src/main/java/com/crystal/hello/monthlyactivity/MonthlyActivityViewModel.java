@@ -182,16 +182,12 @@ public class MonthlyActivityViewModel extends ViewModel {
             final String category = entry.getKey();
             final List<DocumentSnapshot> positiveAndNegativeTransactionsList = entry.getValue();
 
-            final double totalPositiveTransactionAmount = getTotalTransactionAmounts(category
+            getTotalTransactionAmountForCategory(category
                     , positiveAndNegativeTransactionsList
                     , oneMonthPositiveAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountPaymentTransactionsList
-                    , oneMonthNegativeAmountRefundTransactionsList);
-
-            // Add amount to list if there are positive amount transactions
-            if (oneMonthPositiveAmountTransactionsByCategoryMap.containsKey(category)) {
-                oneMonthSortedPositiveAmountByCategoryList.add(Collections.singletonMap(category, totalPositiveTransactionAmount));
-            }
+                    , oneMonthNegativeAmountRefundTransactionsList
+                    , oneMonthSortedPositiveAmountByCategoryList);
         }
 
         // Add payments to map
@@ -238,11 +234,12 @@ public class MonthlyActivityViewModel extends ViewModel {
     // Add positive amount into oneMonthPositiveAmountTransactionsByCategoryMap
     // Add negative amount payments into oneMonthNegativeAmountPaymentsList
     // Add negative amount refunds into oneMonthNegativeAmountRefundsList
-    private double getTotalTransactionAmounts(final String category,
-                                                @NotNull final List<DocumentSnapshot> positiveAndNegativeTransactionsList,
-                                                final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
-                                                final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList,
-                                                final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList) {
+    private void getTotalTransactionAmountForCategory(final String category,
+                                                      @NotNull final List<DocumentSnapshot> positiveAndNegativeTransactionsList,
+                                                      final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
+                                                      final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList,
+                                                      final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList,
+                                                      final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList) {
         double totalTransactionAmount = 0;
         List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
 
@@ -265,10 +262,10 @@ public class MonthlyActivityViewModel extends ViewModel {
             // TODO: Group merchants
         }
 
+        // Add amount to list if there are positive amount transactions
         if (!positiveAmountTransactionsList.isEmpty()) {
             oneMonthPositiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
+            oneMonthSortedPositiveAmountByCategoryList.add(Collections.singletonMap(category, totalTransactionAmount));
         }
-
-        return totalTransactionAmount;
     }
 }
