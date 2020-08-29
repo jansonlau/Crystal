@@ -93,7 +93,7 @@ public class MonthlyActivityViewModel extends ViewModel {
     }
 
     // Crystal category keys, Plaid category values
-    protected void initializeCategoriesMap() {
+    private void initializeCategoriesMap() {
         categoriesMap.put("Shopping"       , Collections.singletonList("Shops"));
         categoriesMap.put("Food & Drinks"  , Collections.singletonList("Food and Drink"));
         categoriesMap.put("Travel"         , Collections.singletonList("Travel"));
@@ -147,11 +147,11 @@ public class MonthlyActivityViewModel extends ViewModel {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             onCompleteCount++;
-                            List<DocumentSnapshot> documentsList = Objects.requireNonNull(task.getResult()).getDocuments();
+                            final List<DocumentSnapshot> documentsList = Objects.requireNonNull(task.getResult()).getDocuments();
 
                             if (!documentsList.isEmpty()) {
-                                String documentDate = String.valueOf(documentsList.get(0).get("date"));
-                                int monthsFromOldestTransactionIndex = getMonthsBetweenOldestTransactionAndDocumentDate(documentDate);
+                                final String documentDate = String.valueOf(documentsList.get(0).get("date"));
+                                final int monthsFromOldestTransactionIndex = getMonthsBetweenOldestTransactionAndDocumentDate(documentDate);
                                 allTransactionsByCategoryList.get(monthsFromOldestTransactionIndex).put(category, documentsList);
                             }
 
@@ -238,7 +238,7 @@ public class MonthlyActivityViewModel extends ViewModel {
     // Add positive amount into oneMonthPositiveAmountTransactionsByCategoryMap
     // Add negative amount payments into oneMonthNegativeAmountPaymentsList
     // Add negative amount refunds into oneMonthNegativeAmountRefundsList
-    protected double getTotalTransactionAmounts(final String category,
+    private double getTotalTransactionAmounts(final String category,
                                                 @NotNull final List<DocumentSnapshot> positiveAndNegativeTransactionsList,
                                                 final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
                                                 final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList,
