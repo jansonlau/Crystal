@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.crystal.hello.ui.home.HomeViewModel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,7 +62,7 @@ public class TransactionItemDetailFragment extends Fragment {
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
         transactionItemAccountName              = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
 
-        if (account.get("mask") != null) {
+        if (!String.valueOf(account.get("mask")).equals("null")) {
             transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");
         }
 
@@ -82,10 +83,13 @@ public class TransactionItemDetailFragment extends Fragment {
             root.findViewById(R.id.cardViewMapAndLocation).setVisibility(View.GONE);
         }
 
-        // Pending
+        // Transaction status
+        final List<String> categoriesList = (List<String>) transaction.get("category");
         String transactionStatus = "Status: ";
         if ((boolean) transaction.get("pending")) {
             transactionStatus += "Pending";
+        } else if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer") && (double) transaction.get("amount") < 0) {
+            transactionStatus += "Refunded";
         } else {
             transactionStatus += "Completed";
         }

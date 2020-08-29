@@ -26,11 +26,11 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     private final FragmentActivity fragmentActivity;
     private final LayoutInflater layoutInflater;
     private final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
-    private final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
+    private final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
 
-    public MonthlyActivityItemBudgetRecyclerAdapter(FragmentActivity activity
-            , Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap
-            , List<Map.Entry<String, Double>> sortedPositiveAmountByCategoryList) {
+    public MonthlyActivityItemBudgetRecyclerAdapter(final FragmentActivity activity,
+                                                    final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
+                                                    final List<Map<String, Double>> sortedPositiveAmountByCategoryList) {
 
         fragmentActivity = activity;
         layoutInflater = LayoutInflater.from(activity);
@@ -41,20 +41,23 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_categories, parent, false);
+        final View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_categories, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Map.Entry<String, Double> transaction = oneMonthSortedPositiveAmountByCategoryList.get(position);
-        String category = transaction.getKey();
+        final Map.Entry<String, Double> categoryAndAmountMap = oneMonthSortedPositiveAmountByCategoryList.get(position)
+                .entrySet()
+                .iterator()
+                .next();
 
-        String amountString = String.format(Locale.US,"%.2f", transaction.getValue());
-        amountString = "$" + amountString;
+        final String category = categoryAndAmountMap.getKey();
+        final Double amount = categoryAndAmountMap.getValue();
+        final String amountString = "$" + String.format(Locale.US,"%.2f", amount);
 
         holder.budgetNameTextView.setText(category);
-        holder.budgetProgressBar.setProgress(transaction.getValue().intValue());
+        holder.budgetProgressBar.setProgress(amount.intValue());
         holder.budgetAmountTextView.setText(amountString);
 
         switch (category) {
@@ -114,7 +117,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         }
     }
 
-    private void initializeMonthlyActivityItemDetailFragment(ViewHolder holder, String category) {
+    private void initializeMonthlyActivityItemDetailFragment(final ViewHolder holder, final String category) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

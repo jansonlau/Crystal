@@ -29,8 +29,8 @@ public class MonthlyActivityItemFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
-        final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
-                (List<Map.Entry<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
+        final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
+                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");

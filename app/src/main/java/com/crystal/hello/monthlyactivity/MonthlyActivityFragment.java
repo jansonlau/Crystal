@@ -76,7 +76,7 @@ public class MonthlyActivityFragment extends Fragment {
             oneMonthNegativeAmountByCategoryList            = new ArrayList<>();
 
             final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
-            final List<Map.Entry<String, Double>> oneMonthSortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
+            final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
                     , oneMonthPositiveAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountByCategoryList);

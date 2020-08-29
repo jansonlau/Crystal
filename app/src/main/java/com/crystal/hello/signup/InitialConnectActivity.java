@@ -90,11 +90,6 @@ public class InitialConnectActivity extends AppCompatActivity {
             },
 
             linkExit -> {
-                if (linkExit.error != null) {
-                    // Something went wrong
-                } else {
-                    // Left Link without completing the flow
-                }
                 Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
                 InitialConnectActivity.this.startActivity(intent);
                 InitialConnectActivity.this.finishAffinity();
