@@ -1,6 +1,5 @@
 package com.crystal.hello.signup;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -11,20 +10,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.crystal.hello.HomeActivity;
 import com.crystal.hello.R;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.plaid.link.Plaid;
+import com.plaid.link.configuration.AccountSubtype;
 import com.plaid.link.configuration.LinkConfiguration;
 import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
-import com.plaid.link.result.LinkAccount;
 import com.plaid.link.result.PlaidLinkResultHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -53,7 +50,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
-//                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD))
+                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
                 .build());
 
         // TODO: Get linkToken with server
@@ -84,34 +81,11 @@ public class InitialConnectActivity extends AppCompatActivity {
             linkSuccess -> {
                 String publicToken = linkSuccess.getPublicToken();
 
-                // Look for credit card accounts
-                // Might want to give option to select account to add in future
-                List<LinkAccount> linkAccountList = linkSuccess.getMetadata().getAccounts();
-                boolean hasCreditCardAccount = false;
-                for (LinkAccount linkAccount : linkAccountList) {
-                    if (linkAccount.getAccountSubType() != null && linkAccount.getAccountSubType().equals("credit card")) {
-                        hasCreditCardAccount = true;
-                        break;
-                    }
-                }
-
-                // Show alert dialog if credit card account is missing
-                if (hasCreditCardAccount) {
-                    Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
-                            .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
-                            .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
-                    InitialConnectActivity.this.startActivity(intent);
-                    InitialConnectActivity.this.finishAffinity();
-                } else {
-                    new MaterialAlertDialogBuilder(InitialConnectActivity.this)
-                            .setTitle("Missing Credit Card")
-                            .setMessage("Crystal requires a bank account with a credit card")
-                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                }
-                            }).create().show();
-                }
+                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
+                        .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
+                        .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
+                InitialConnectActivity.this.startActivity(intent);
+                InitialConnectActivity.this.finishAffinity();
                 return Unit.INSTANCE;
             },
 
