@@ -59,9 +59,11 @@ public class MonthlyActivityFragment extends Fragment {
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
+        Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap;
         Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key category. Value list of positive amount transactions
-        Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap;
+        Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap; // Key category. Value list of credit transactions
         List<Map<String, Double>> oneMonthNegativeAmountByCategoryList;
+        List<Map<String, Double>> oneMonthAmountByMerchantNameList;
 
         public ScreenSlidePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
@@ -73,13 +75,17 @@ public class MonthlyActivityFragment extends Fragment {
             // Reinitialize containers for each month
             oneMonthPositiveAmountTransactionsByCategoryMap = new HashMap<>();
             oneMonthNegativeAmountTransactionsByCategoryMap = new HashMap<>();
+            oneMonthMerchantTransactionsMap                 = new HashMap<>();
             oneMonthNegativeAmountByCategoryList            = new ArrayList<>();
+            oneMonthAmountByMerchantNameList                = new ArrayList<>();
 
             final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
             final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
                     , oneMonthPositiveAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountTransactionsByCategoryMap
-                    , oneMonthNegativeAmountByCategoryList);
+                    , oneMonthNegativeAmountByCategoryList
+                    , oneMonthMerchantTransactionsMap
+                    , oneMonthAmountByMerchantNameList);
 
             final Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
             final Bundle bundle = new Bundle();

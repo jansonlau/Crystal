@@ -77,7 +77,7 @@ public class MonthlyActivityViewModel extends ViewModel {
                             months = 1;
                         } else {
                             DocumentSnapshot document = Objects.requireNonNull(task.getResult()).getDocuments().get(0);
-                            oldestTransactionDate = String.valueOf(Objects.requireNonNull(document.getData()).get("date"));
+                            oldestTransactionDate = String.valueOf(document.get("date"));
                             months = getMonthsBetweenOldestTransactionsAndNow();
                         }
                         getAllTransactionsByCategory();
@@ -169,8 +169,9 @@ public class MonthlyActivityViewModel extends ViewModel {
     protected List<Map<String, Double>> getSortedListOfAmountsByCategories(@NotNull final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap,
                                                                            final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
                                                                            final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap,
-                                                                           final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList) {
-
+                                                                           final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList,
+                                                                           final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap,
+                                                                           final List<Map<String, Double>> oneMonthAmountByMerchantNameList) {
         final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList = new ArrayList<>();
         final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList = new ArrayList<>();
         final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList = new ArrayList<>();
@@ -187,7 +188,9 @@ public class MonthlyActivityViewModel extends ViewModel {
                     , oneMonthPositiveAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountPaymentTransactionsList
                     , oneMonthNegativeAmountRefundTransactionsList
-                    , oneMonthSortedPositiveAmountByCategoryList);
+                    , oneMonthSortedPositiveAmountByCategoryList
+                    , oneMonthMerchantTransactionsMap
+                    , oneMonthAmountByMerchantNameList);
         }
 
         // Add payments to map
@@ -220,13 +223,13 @@ public class MonthlyActivityViewModel extends ViewModel {
 
         // Sort positive total transaction amounts in descending order
         if (oneMonthSortedPositiveAmountByCategoryList.size() > 1) {
-            Collections.sort(oneMonthSortedPositiveAmountByCategoryList, new Comparator<Map<String, Double>>() {
-                @Override
-                public int compare(Map<String, Double> x, Map<String, Double> y) {
-                    return y.entrySet().iterator().next().getValue().compareTo(x.entrySet().iterator().next().getValue());
-                }
-            });
+            Collections.sort(oneMonthSortedPositiveAmountByCategoryList, new CompareDouble());
         }
+
+        if (oneMonthAmountByMerchantNameList.size() > 1) {
+            Collections.sort(oneMonthAmountByMerchantNameList, new CompareDouble());
+        }
+
         return oneMonthSortedPositiveAmountByCategoryList;
     }
 
@@ -239,14 +242,20 @@ public class MonthlyActivityViewModel extends ViewModel {
                                                       final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
                                                       final List<DocumentSnapshot> oneMonthNegativeAmountPaymentTransactionsList,
                                                       final List<DocumentSnapshot> oneMonthNegativeAmountRefundTransactionsList,
-                                                      final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList) {
+                                                      final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList,
+                                                      final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap,
+                                                      final List<Map<String, Double>> oneMonthAmountByMerchantNameList) {
         double totalTransactionAmount = 0;
         List<DocumentSnapshot> positiveAmountTransactionsList = new ArrayList<>();
 
         for (DocumentSnapshot document : positiveAndNegativeTransactionsList) {
-            final Map<String, Object> data = document.getData();
-            final double amount = (double) Objects.requireNonNull(data).get("amount");
-            final List<String> categoriesList = (List<String>) data.get("category");
+            final double amount = (double) document.get("amount");
+            final List<String> categoriesList = (List<String>) document.get("category");
+
+            String name = String.valueOf(document.get("merchantName"));
+            if (name.equals("null")) {
+                name = String.valueOf(document.get("name"));
+            }
 
             if (amount >= 0) { // Positive transactions include $0 amounts
                 totalTransactionAmount += amount;
@@ -259,13 +268,38 @@ public class MonthlyActivityViewModel extends ViewModel {
                 oneMonthNegativeAmountRefundTransactionsList.add(document);
             }
 
-            // TODO: Group merchants
+            // Merchants
+            if (oneMonthMerchantTransactionsMap.containsKey(name)) {
+                List<DocumentSnapshot> oldDocumentList = Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(name));
+                List<DocumentSnapshot> newDocumentList = new ArrayList<>(oldDocumentList);
+                newDocumentList.add(document);
+                oneMonthMerchantTransactionsMap.replace(name, newDocumentList);
+
+                for (Map<String, Double> merchantAmountMap : oneMonthAmountByMerchantNameList) {
+                    if (merchantAmountMap.containsKey(name)) {
+                        double newAmount = Objects.requireNonNull(merchantAmountMap.get(name)) + amount;
+                        merchantAmountMap.replace(name, newAmount);
+                    }
+                }
+            } else {
+                oneMonthMerchantTransactionsMap.put(name, Collections.singletonList(document));
+                Map<String, Double> merchantAmountMap = new HashMap<>();
+                merchantAmountMap.put(name, amount);
+                oneMonthAmountByMerchantNameList.add(merchantAmountMap);
+            }
         }
 
         // Add amount to list if there are positive amount transactions
         if (!positiveAmountTransactionsList.isEmpty()) {
             oneMonthPositiveAmountTransactionsByCategoryMap.put(category, positiveAmountTransactionsList);
             oneMonthSortedPositiveAmountByCategoryList.add(Collections.singletonMap(category, totalTransactionAmount));
+        }
+    }
+
+    private static class CompareDouble implements Comparator<Map<String, Double>> {
+        @Override
+        public int compare(Map<String, Double> x, Map<String, Double> y) {
+            return y.entrySet().iterator().next().getValue().compareTo(x.entrySet().iterator().next().getValue());
         }
     }
 }
