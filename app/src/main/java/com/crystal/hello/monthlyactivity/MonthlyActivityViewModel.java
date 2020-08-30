@@ -257,7 +257,8 @@ public class MonthlyActivityViewModel extends ViewModel {
                 name = String.valueOf(document.get("name"));
             }
 
-            if (amount >= 0) { // Positive transactions include $0 amounts
+            // Filter positive and negative transactions
+            if (amount >= 0) { // Positive amounts include $0
                 totalTransactionAmount += amount;
                 positiveAmountTransactionsList.add(document);
             } else if (Objects.requireNonNull(categoriesList).get(0).equals("Transfer")) { // Payments to credit card with negative amounts (Already sorted because it's in Services category)
@@ -268,7 +269,7 @@ public class MonthlyActivityViewModel extends ViewModel {
                 oneMonthNegativeAmountRefundTransactionsList.add(document);
             }
 
-            // Merchants
+            // Group top merchants
             if (oneMonthMerchantTransactionsMap.containsKey(name)) {
                 List<DocumentSnapshot> oldDocumentList = Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(name));
                 List<DocumentSnapshot> newDocumentList = new ArrayList<>(oldDocumentList);
