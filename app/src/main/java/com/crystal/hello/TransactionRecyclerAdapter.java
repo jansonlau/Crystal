@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -76,7 +78,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
         // Set parsed transaction fields to view
         if (transactionPending) {
-            transactionDate += " - Pending";
+            transactionDate = transactionDate.concat(" - Pending");
         }
 
         // Remove divider in last item of recycler view
@@ -115,7 +117,8 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
         }
     }
 
-    private String parseTransactionAmount(double transactionAmount) {
+    @NotNull
+    private String parseTransactionAmount(final double transactionAmount) {
         String amountString = String.format(Locale.US,"%.2f", transactionAmount);
         if (transactionAmount >= 0.0) {
             amountString = "$" + amountString;
@@ -141,7 +144,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     }
 
     // Categories from Plaid are stored in a list
-    private int parseTransactionLogo(List<String> categoriesList) {
+    private int parseTransactionLogo(@NotNull final List<String> categoriesList) {
         category = categoriesList.get(0);
         int logoDrawableInt = R.drawable.services;
 
@@ -178,15 +181,14 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
         return logoDrawableInt;
     }
 
-    private void initializeTransactionItemDetailFragment(ViewHolder holder,
-                                                         Map<String, Object> transaction,
-                                                         String category,
-                                                         int logoDrawableInt,
-                                                         int logoBackgroundDrawableInt,
-                                                         String transactionName,
-                                                         String transactionDate,
-                                                         String transactionAmount) {
-
+    private void initializeTransactionItemDetailFragment(@NotNull final ViewHolder holder,
+                                                         final Map<String, Object> transaction,
+                                                         final String category,
+                                                         final int logoDrawableInt,
+                                                         final int logoBackgroundDrawableInt,
+                                                         final String transactionName,
+                                                         final String transactionDate,
+                                                         final String transactionAmount) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,7 +201,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
                 bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);
                 bundle.putString("TRANSACTION_ITEM_AMOUNT", transactionAmount);
 
-                Fragment transactionItemDetailFragment = new TransactionItemDetailFragment();
+                final Fragment transactionItemDetailFragment = new TransactionItemDetailFragment();
                 transactionItemDetailFragment.setArguments(bundle);
 
                 fragmentActivity.getSupportFragmentManager()

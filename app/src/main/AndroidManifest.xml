@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.crystal.hello">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.crystal.hello" >
 
     <application
         android:allowBackup="false"
@@ -11,49 +10,39 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:versionCode="1"
-        android:versionName="1.0">
-
-        <activity
-            android:name=".MainActivity">
+        android:versionName="1.0" >
+        <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".signup.InitialConnectActivity"/>
-
-<!--        <activity-->
-<!--            android:name=".signup.InitialConnectActivity">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
+        <activity android:name=".signup.InitialConnectActivity" /> <!-- <activity -->
+        <!-- android:name=".signup.InitialConnectActivity"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
         <activity
             android:name=".HomeActivity"
-            android:label="@string/title_activity_home"/>
-
+            android:label="@string/title_activity_home" />
         <activity
             android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".signup.MobileNumberActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".signup.PasswordActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".signup.NameActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".signup.EmailActivity"
             android:windowSoftInputMode="adjustResize" />
     </application>
+
 </manifest>

@@ -46,8 +46,8 @@ public class MonthlyActivityFragment extends Fragment {
     private void observeInitializePagerBoolean() {
         viewModel.getMutableInitializePagerBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean && getActivity() != null) {
-                ViewPager2 viewPager = root.findViewById(R.id.pager);
-                FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
+                final ViewPager2 viewPager = root.findViewById(R.id.pager);
+                final FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
                 viewPager.setAdapter(pagerAdapter);
 
                 if (!isSetToLastItem) {
@@ -93,7 +93,9 @@ public class MonthlyActivityFragment extends Fragment {
             bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST" , (Serializable) oneMonthSortedPositiveAmountByCategoryList);
             bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
             bundle.putSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthNegativeAmountTransactionsByCategoryMap);
+            bundle.putSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP"    , (Serializable) oneMonthMerchantTransactionsMap);
             bundle.putSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST"        , (Serializable) oneMonthNegativeAmountByCategoryList);
+            bundle.putSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST"        , (Serializable) oneMonthAmountByMerchantNameList);
             transactionMonthlyActivityItemFragment.setArguments(bundle);
             return transactionMonthlyActivityItemFragment;
         }

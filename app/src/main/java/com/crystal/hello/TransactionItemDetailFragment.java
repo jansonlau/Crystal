@@ -73,12 +73,14 @@ public class TransactionItemDetailFragment extends Fragment {
         final String region                   = (String) locationMap.get("region");
         final String postalCode               = (String) locationMap.get("postalCode");
 
+        String cityRegionPostalCodeString = "";
         if (address != null && city != null && region != null && postalCode != null) {
-            locationString = address + ", " + city + ", " + region + " " + postalCode;
+            cityRegionPostalCodeString = city.concat(", ").concat(region).concat(" ").concat(postalCode);
+            locationString = address.concat(", ").concat(cityRegionPostalCodeString);
         } else if (city != null && region != null && postalCode != null) {
-            locationString = transactionItemName + ", " + city + ", " + region + " " + postalCode;
+            locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(cityRegionPostalCodeString);
         } else if (city != null && region != null) {
-            locationString = transactionItemName + ", " + city + ", " + region;
+            locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(city).concat(", ").concat(region);
         } else {
             root.findViewById(R.id.cardViewMapAndLocation).setVisibility(View.GONE);
         }
@@ -87,11 +89,11 @@ public class TransactionItemDetailFragment extends Fragment {
         final List<String> categoriesList = (List<String>) transaction.get("category");
         String transactionStatus = "Status: ";
         if ((boolean) transaction.get("pending")) {
-            transactionStatus += "Pending";
+            transactionStatus = transactionStatus.concat("Pending");
         } else if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer") && (double) transaction.get("amount") < 0) {
-            transactionStatus += "Refunded";
+            transactionStatus = transactionStatus.concat("Refunded");
         } else {
-            transactionStatus += "Completed";
+            transactionStatus = transactionStatus.concat("Completed");
         }
 
         logoImageView       .setImageResource(transactionItemLogo);

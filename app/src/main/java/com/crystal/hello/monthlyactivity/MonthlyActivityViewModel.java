@@ -195,19 +195,19 @@ public class MonthlyActivityViewModel extends ViewModel {
 
         // Add payments to map
         if (!oneMonthNegativeAmountPaymentTransactionsList.isEmpty()) {
-            oneMonthNegativeAmountTransactionsByCategoryMap.put("Payments", oneMonthNegativeAmountPaymentTransactionsList);
+            oneMonthNegativeAmountTransactionsByCategoryMap.put("Payment", oneMonthNegativeAmountPaymentTransactionsList);
 
             final Map<String, Double> negativePaymentAmountByCategoryMap = new HashMap<>();
-            negativePaymentAmountByCategoryMap.put("Payments", oneMonthPaymentsAmount);
+            negativePaymentAmountByCategoryMap.put("Payment", oneMonthPaymentsAmount);
             oneMonthNegativeAmountByCategoryList.add(negativePaymentAmountByCategoryMap);
         }
 
         // Add refunds to map
         if (!oneMonthNegativeAmountRefundTransactionsList.isEmpty()) {
-            oneMonthNegativeAmountTransactionsByCategoryMap.put("Refunds", oneMonthNegativeAmountRefundTransactionsList);
+            oneMonthNegativeAmountTransactionsByCategoryMap.put("Refund", oneMonthNegativeAmountRefundTransactionsList);
 
             final Map<String, Double> negativeRefundAmountByCategoryMap = new HashMap<>();
-            negativeRefundAmountByCategoryMap.put("Refunds", oneMonthRefundsAmount);
+            negativeRefundAmountByCategoryMap.put("Refund", oneMonthRefundsAmount);
             oneMonthNegativeAmountByCategoryList.add(negativeRefundAmountByCategoryMap);
 
             // Sort refund transactions by date in descending order
@@ -270,23 +270,29 @@ public class MonthlyActivityViewModel extends ViewModel {
             }
 
             // Group top merchants
-            if (oneMonthMerchantTransactionsMap.containsKey(name)) {
-                List<DocumentSnapshot> oldDocumentList = Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(name));
-                List<DocumentSnapshot> newDocumentList = new ArrayList<>(oldDocumentList);
-                newDocumentList.add(document);
-                oneMonthMerchantTransactionsMap.replace(name, newDocumentList);
+            if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer")) {
+                if (oneMonthMerchantTransactionsMap.containsKey(name)) {
+                    // Add transaction
+                    final List<DocumentSnapshot> newDocumentList = Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(name));
+                    newDocumentList.add(document);
+                    oneMonthMerchantTransactionsMap.replace(name, newDocumentList);
 
-                for (Map<String, Double> merchantAmountMap : oneMonthAmountByMerchantNameList) {
-                    if (merchantAmountMap.containsKey(name)) {
-                        double newAmount = Objects.requireNonNull(merchantAmountMap.get(name)) + amount;
-                        merchantAmountMap.replace(name, newAmount);
+                    // Update total transaction amount from merchant
+                    for (Map<String, Double> merchantAmountMap : oneMonthAmountByMerchantNameList) {
+                        if (merchantAmountMap.containsKey(name)) {
+                            final double newAmount = Objects.requireNonNull(merchantAmountMap.get(name)) + amount;
+                            merchantAmountMap.replace(name, newAmount);
+                        }
                     }
+                } else {
+                    final List<DocumentSnapshot> documentList = new ArrayList<>();
+                    documentList.add(document);
+                    oneMonthMerchantTransactionsMap.put(name, documentList);
+
+                    final Map<String, Double> merchantAmountMap = new HashMap<>();
+                    merchantAmountMap.put(name, amount);
+                    oneMonthAmountByMerchantNameList.add(merchantAmountMap);
                 }
-            } else {
-                oneMonthMerchantTransactionsMap.put(name, Collections.singletonList(document));
-                Map<String, Double> merchantAmountMap = new HashMap<>();
-                merchantAmountMap.put(name, amount);
-                oneMonthAmountByMerchantNameList.add(merchantAmountMap);
             }
         }
 

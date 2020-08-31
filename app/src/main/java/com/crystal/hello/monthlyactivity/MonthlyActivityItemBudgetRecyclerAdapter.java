@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.crystal.hello.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +48,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Map.Entry<String, Double> categoryAndAmountMap = oneMonthSortedPositiveAmountByCategoryList.get(position)
                 .entrySet()
                 .iterator()
@@ -117,7 +119,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         }
     }
 
-    private void initializeMonthlyActivityItemDetailFragment(final ViewHolder holder, final String category) {
+    private void initializeMonthlyActivityItemDetailFragment(@NotNull final ViewHolder holder, final String category) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

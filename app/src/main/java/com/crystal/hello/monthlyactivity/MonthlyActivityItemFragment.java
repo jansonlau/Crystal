@@ -23,20 +23,28 @@ public class MonthlyActivityItemFragment extends Fragment {
     private String monthAndYearString;
     private MonthlyActivityItemBudgetRecyclerAdapter monthlyActivityItemBudgetRecyclerAdapter;
     private MonthlyActivityItemCreditRecyclerAdapter monthlyActivityItemCreditRecyclerAdapter;
+    private MonthlyActivityItemMerchantRecyclerAdapter monthlyActivityItemMerchantRecyclerAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
-        final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
-                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
 
         final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
+
+        final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap =
+                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
+
+        final List<Map<String, Double>> oneMonthAmountByMerchantNameList =
+                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST");
+
+        final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
+                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList =
                 (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
@@ -48,6 +56,10 @@ public class MonthlyActivityItemFragment extends Fragment {
         monthlyActivityItemCreditRecyclerAdapter = new MonthlyActivityItemCreditRecyclerAdapter(getActivity()
                 , oneMonthNegativeAmountTransactionsByCategoryMap
                 , oneMonthNegativeAmountByCategoryList);
+
+        monthlyActivityItemMerchantRecyclerAdapter = new MonthlyActivityItemMerchantRecyclerAdapter(getActivity()
+                , oneMonthMerchantTransactionsMap
+                , oneMonthAmountByMerchantNameList);
     }
 
     @Override
@@ -57,6 +69,7 @@ public class MonthlyActivityItemFragment extends Fragment {
         final TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
         final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
         final RecyclerView creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
+        final RecyclerView merchantRecyclerView = root.findViewById(R.id.merchantRecyclerView);
 
         monthAndYearTextView.setText(monthAndYearString);
 
@@ -65,6 +78,9 @@ public class MonthlyActivityItemFragment extends Fragment {
 
         creditRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         creditRecyclerView.setAdapter(monthlyActivityItemCreditRecyclerAdapter);
+
+        merchantRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        merchantRecyclerView.setAdapter(monthlyActivityItemMerchantRecyclerAdapter);
         return root;
     }
 }

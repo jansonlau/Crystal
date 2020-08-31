@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.crystal.hello.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
@@ -28,10 +30,9 @@ public class MonthlyActivityItemCreditRecyclerAdapter extends RecyclerView.Adapt
     private final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
     private final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList; // Key: Category, Value: Total transaction amount
 
-    public MonthlyActivityItemCreditRecyclerAdapter(FragmentActivity activity
-            , Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap
-            , List<Map<String, Double>> oneMonthNegativeAmountByCategoryList) {
-
+    public MonthlyActivityItemCreditRecyclerAdapter(final FragmentActivity activity,
+                                                    final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap,
+                                                    final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList) {
         fragmentActivity = activity;
         layoutInflater = LayoutInflater.from(activity);
         this.oneMonthNegativeAmountTransactionsByCategoryMap = oneMonthNegativeAmountTransactionsByCategoryMap;
@@ -40,20 +41,16 @@ public class MonthlyActivityItemCreditRecyclerAdapter extends RecyclerView.Adapt
 
     @NonNull
     @Override
-    public MonthlyActivityItemCreditRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_credits, parent, false);
+    public MonthlyActivityItemCreditRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_credits, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MonthlyActivityItemCreditRecyclerAdapter.ViewHolder holder, int position) {
-        Map<String, Double> transaction = oneMonthNegativeAmountByCategoryList.get(position);
-        String category = "";
-        double amount = 0;
-        for (Map.Entry<String, Double> entry : transaction.entrySet()) {
-            category = entry.getKey();
-            amount = entry.getValue();
-        }
+    public void onBindViewHolder(@NonNull final MonthlyActivityItemCreditRecyclerAdapter.ViewHolder holder, final int position) {
+        final Map.Entry<String, Double> transaction = oneMonthNegativeAmountByCategoryList.get(position).entrySet().iterator().next();
+        final String category = transaction.getKey();
+        final double amount = transaction.getValue();
 
         // Total amount string
         String amountString = String.format(Locale.US,"%.2f", amount);
@@ -61,26 +58,20 @@ public class MonthlyActivityItemCreditRecyclerAdapter extends RecyclerView.Adapt
 
         // Number of transactions string
         int transactionCountInt = Objects.requireNonNull(oneMonthNegativeAmountTransactionsByCategoryMap.get(category)).size();
-        String transactionCountString = String.valueOf(transactionCountInt);
-        if (category.equals("Payments")) {
-            holder.creditLogoImageView.setImageResource(R.drawable.payments);
-            holder.creditLogoImageView.setBackgroundResource(R.drawable.payments_background);
-            if (transactionCountInt == 1) {
-                transactionCountString += " Payment";
-            } else {
-                transactionCountString += " Payments";
-            }
-        } else if (category.equals("Refunds")) {
-            holder.creditLogoImageView.setImageResource(R.drawable.refunds);
-            holder.creditLogoImageView.setBackgroundResource(R.drawable.refunds_background);
-            if (transactionCountInt == 1) {
-                transactionCountString += " Refund";
-            } else {
-                transactionCountString += " Refunds";
-            }
+        String transactionCountString = String.valueOf(transactionCountInt).concat(" ").concat(category);
+        if (transactionCountInt > 1) {
+            transactionCountString = transactionCountString.concat("s");
         }
 
-        holder.creditNameTextView.setText(category);
+        if (category.equals("Payment")) {
+            holder.creditLogoImageView.setImageResource(R.drawable.payments);
+            holder.creditLogoImageView.setBackgroundResource(R.drawable.payments_background);
+        } else if (category.equals("Refund")) {
+            holder.creditLogoImageView.setImageResource(R.drawable.refunds);
+            holder.creditLogoImageView.setBackgroundResource(R.drawable.refunds_background);
+        }
+
+        holder.creditNameTextView.setText(category.concat("s"));
         holder.creditAmountTextView.setText(amountString);
         holder.creditCountTextView.setText(transactionCountString);
         initializeMonthlyActivityItemDetailFragment(holder, category);
@@ -114,7 +105,7 @@ public class MonthlyActivityItemCreditRecyclerAdapter extends RecyclerView.Adapt
         }
     }
 
-    private void initializeMonthlyActivityItemDetailFragment(ViewHolder holder, String category) {
+    private void initializeMonthlyActivityItemDetailFragment(@NotNull final ViewHolder holder, final String category) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
