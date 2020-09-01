@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.crystal.hello" >
-
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -11,20 +11,16 @@
         android:theme="@style/AppTheme"
         android:versionCode="1"
         android:versionName="1.0" >
+
         <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".signup.InitialConnectActivity" /> <!-- <activity -->
-        <!-- android:name=".signup.InitialConnectActivity"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
+
+        <activity
+            android:name=".signup.InitialConnectActivity" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home" />
@@ -44,5 +40,4 @@
             android:name=".signup.EmailActivity"
             android:windowSoftInputMode="adjustResize" />
     </application>
-
 </manifest>
