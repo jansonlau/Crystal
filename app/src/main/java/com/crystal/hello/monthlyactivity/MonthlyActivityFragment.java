@@ -9,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.crystal.hello.R;
+import com.crystal.hello.ui.home.HomeViewModel;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,14 +25,14 @@ import java.util.List;
 import java.util.Map;
 
 public class MonthlyActivityFragment extends Fragment {
-    private MonthlyActivityViewModel viewModel;
+//    private MonthlyActivityViewModel viewModel;
     private View root;
     private boolean isSetToLastItem;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(MonthlyActivityViewModel.class);
+//        viewModel = new ViewModelProvider(this).get(MonthlyActivityViewModel.class);
     }
 
     @Override
@@ -44,27 +44,21 @@ public class MonthlyActivityFragment extends Fragment {
     }
 
     private void observeInitializePagerBoolean() {
-        viewModel.getMutableInitializePagerBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
+        HomeViewModel.getMonthlyActivityViewModel().getMutableInitializePagerBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean && getActivity() != null) {
                 final ViewPager2 viewPager = root.findViewById(R.id.pager);
                 final FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
                 viewPager.setAdapter(pagerAdapter);
 
                 if (!isSetToLastItem) {
-                    viewPager.setCurrentItem(viewModel.getMonths() - 1, false);
+                    viewPager.setCurrentItem(HomeViewModel.getMonthlyActivityViewModel().getMonths() - 1, false);
                     isSetToLastItem = true;
                 }
             }
         });
     }
 
-    private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-        Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap;
-        Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key category. Value list of positive amount transactions
-        Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap; // Key category. Value list of credit transactions
-        List<Map<String, Double>> oneMonthNegativeAmountByCategoryList;
-        List<Map<String, Double>> oneMonthAmountByMerchantNameList;
-
+    private static class ScreenSlidePagerAdapter extends FragmentStateAdapter {
         public ScreenSlidePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
         }
@@ -73,14 +67,14 @@ public class MonthlyActivityFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
             // Reinitialize containers for each month
-            oneMonthPositiveAmountTransactionsByCategoryMap = new HashMap<>();
-            oneMonthNegativeAmountTransactionsByCategoryMap = new HashMap<>();
-            oneMonthMerchantTransactionsMap                 = new HashMap<>();
-            oneMonthNegativeAmountByCategoryList            = new ArrayList<>();
-            oneMonthAmountByMerchantNameList                = new ArrayList<>();
+            final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap = new HashMap<>(); // Key category. Value list of positive amount transactions
+            final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap = new HashMap<>(); // Key category. Value list of credit transactions
+            final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap                 = new HashMap<>();
+            final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList                      = new ArrayList<>();
+            final List<Map<String, Double>> oneMonthAmountByMerchantNameList                          = new ArrayList<>();
 
-            final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = viewModel.getAllTransactionsByCategoryList().get(position);
-            final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList = viewModel.getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
+            final Map<String, List<DocumentSnapshot>> oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap = HomeViewModel.getMonthlyActivityViewModel().getAllTransactionsByCategoryList().get(position);
+            final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList = HomeViewModel.getMonthlyActivityViewModel().getSortedListOfAmountsByCategories(oneMonthPositiveAndNegativeAmountTransactionsByCategoryMap
                     , oneMonthPositiveAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountByCategoryList
@@ -89,7 +83,7 @@ public class MonthlyActivityFragment extends Fragment {
 
             final Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
             final Bundle bundle = new Bundle();
-            bundle.putString("com.crystal.hello.MONTH_YEAR"                         , viewModel.getMonthAndYearList().get(position));
+            bundle.putString("com.crystal.hello.MONTH_YEAR"                         , HomeViewModel.getMonthlyActivityViewModel().getMonthAndYearList().get(position));
             bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST" , (Serializable) oneMonthSortedPositiveAmountByCategoryList);
             bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
             bundle.putSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthNegativeAmountTransactionsByCategoryMap);
@@ -102,7 +96,7 @@ public class MonthlyActivityFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return viewModel.getMonths();
+            return HomeViewModel.getMonthlyActivityViewModel().getMonths();
         }
     }
 }

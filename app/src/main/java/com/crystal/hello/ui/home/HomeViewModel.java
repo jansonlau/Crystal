@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -74,11 +75,13 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
     private static List<Map<String, Object>> bankAccountsList;
     private Map<String, Account> accountIdToAccountMap;
+    private static MonthlyActivityViewModel monthlyActivityViewModel;
 
     private PlaidClient plaidClient;
     private int transactionOffset;
     private final FirebaseFirestore db;
     private final DocumentReference docRef;
+
 
     public HomeViewModel() {
         currentTotalBalance             = new MutableLiveData<>();
@@ -88,6 +91,7 @@ public class HomeViewModel extends ViewModel {
         db                              = FirebaseFirestore.getInstance();
         docRef                          = db.collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        monthlyActivityViewModel        = new MonthlyActivityViewModel();
     }
 
     public LiveData<Double> getCurrentTotalBalance() {
@@ -100,6 +104,10 @@ public class HomeViewModel extends ViewModel {
 
     public List<Map<String, Object>> getBankAccountsList() {
         return bankAccountsList;
+    }
+
+    public static MonthlyActivityViewModel getMonthlyActivityViewModel() {
+        return monthlyActivityViewModel;
     }
 
     protected void buildPlaidClient() {

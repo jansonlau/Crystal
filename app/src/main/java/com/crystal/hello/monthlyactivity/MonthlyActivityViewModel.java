@@ -275,13 +275,13 @@ public class MonthlyActivityViewModel extends ViewModel {
                     // Add transaction
                     final List<DocumentSnapshot> newDocumentList = Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(name));
                     newDocumentList.add(document);
-                    oneMonthMerchantTransactionsMap.replace(name, newDocumentList);
+                    oneMonthMerchantTransactionsMap.put(name, newDocumentList);
 
                     // Update total transaction amount from merchant
                     for (Map<String, Double> merchantAmountMap : oneMonthAmountByMerchantNameList) {
                         if (merchantAmountMap.containsKey(name)) {
                             final double newAmount = Objects.requireNonNull(merchantAmountMap.get(name)) + amount;
-                            merchantAmountMap.replace(name, newAmount);
+                            merchantAmountMap.put(name, newAmount);
                         }
                     }
                 } else {
