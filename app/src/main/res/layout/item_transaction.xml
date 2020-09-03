@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:clickable="true">
+    android:clickable="true"
+    android:focusable="true">
 
     <ImageView
         android:id="@+id/transactionLogoImageView"
@@ -18,7 +19,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/transactionDateTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/transactionNameTextView"
-        app:srcCompat="@drawable/shopping" />
+        app:srcCompat="@drawable/shopping"
+        android:contentDescription="TODO" />
 
     <TextView
         android:id="@+id/transactionNameTextView"
@@ -82,7 +84,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/transactionAmountTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/transactionAmountTextView"
-        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
+        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24"
+        android:contentDescription="TODO" />
 
     <View
         android:id="@+id/transactionDividerView"

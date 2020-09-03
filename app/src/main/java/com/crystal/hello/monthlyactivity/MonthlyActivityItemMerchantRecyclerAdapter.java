@@ -61,7 +61,7 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
         }
 
         // Logo
-        final List<String> categoriesList = (List<String>) oneMonthMerchantTransactionsMap.get(merchantName).get(0).get("category");
+        final List<String> categoriesList = (List<String>) Objects.requireNonNull(Objects.requireNonNull(oneMonthMerchantTransactionsMap.get(merchantName))).get(0).get("category");
         final String parsedTransactionAmountString = parseTransactionAmount(amount);
         final int drawableInt = parseTransactionLogo(Objects.requireNonNull(categoriesList));
 

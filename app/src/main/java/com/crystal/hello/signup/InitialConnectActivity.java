@@ -77,7 +77,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         myPlaidResultHandler.onActivityResult(requestCode, resultCode, data);
     }
 
-    private PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
+    private final PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
             linkSuccess -> {
                 String publicToken = linkSuccess.getPublicToken();
 

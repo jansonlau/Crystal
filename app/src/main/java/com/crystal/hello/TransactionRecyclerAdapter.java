@@ -51,7 +51,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Map<String, Object> transaction   = transactionsList.get(position).getData();
-        final double transactionAmount          = (double) transaction.get("amount");
+        final double transactionAmount          = (double) Objects.requireNonNull(transaction).get("amount");
         final List<String> categoriesList       = (List<String>) transaction.get("category");
         final boolean transactionPending        = (boolean) transaction.get("pending");
         String transactionName                  = String.valueOf(Objects.requireNonNull(transaction).get("merchantName"));

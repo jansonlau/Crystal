@@ -81,5 +81,6 @@
         app:layout_constraintBottom_toBottomOf="@+id/budgetProgressBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/budgetNameTextView"
-        app:srcCompat="@drawable/shopping" />
+        app:srcCompat="@drawable/shopping"
+        android:contentDescription="TODO" />
 </androidx.constraintlayout.widget.ConstraintLayout>

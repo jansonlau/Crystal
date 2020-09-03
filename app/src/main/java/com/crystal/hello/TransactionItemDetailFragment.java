@@ -41,6 +41,8 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView accountMaskTextView  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
+
+
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Bank account
@@ -82,7 +84,7 @@ public class TransactionItemDetailFragment extends Fragment {
         } else if (city != null && region != null) {
             locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(city).concat(", ").concat(region);
         } else {
-            root.findViewById(R.id.cardViewMapAndLocation).setVisibility(View.GONE);
+            root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.GONE);
         }
 
         // Transaction status

@@ -1,9 +1,11 @@
 package com.crystal.hello.ui.home;
 
+import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -71,10 +73,10 @@ public class HomeViewModel extends ViewModel {
     private static final String PROVIDER = "AndroidKeyStore";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
-    private MutableLiveData<Double> currentTotalBalance;
-    private MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
+    private final MutableLiveData<Double> currentTotalBalance;
+    private final MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
     private static List<Map<String, Object>> bankAccountsList;
-    private Map<String, Account> accountIdToAccountMap;
+    private final Map<String, Account> accountIdToAccountMap;
     private static MonthlyActivityViewModel monthlyActivityViewModel;
 
     private PlaidClient plaidClient;
@@ -122,6 +124,8 @@ public class HomeViewModel extends ViewModel {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
+
+                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
@@ -151,6 +155,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private Map<byte[], byte[]> encrypt(String alias, String data) throws NoSuchProviderException,
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
