@@ -11,8 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.ui.home.HomeViewModel;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +45,6 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
 
-
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Bank account
@@ -55,6 +57,7 @@ public class TransactionItemDetailFragment extends Fragment {
 
         final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
+        final boolean usedMerchantName          = getArguments().getBoolean("TRANSACTION_ITEM_USED_MERCHANT_NAME");
         final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
         final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
@@ -95,8 +98,29 @@ public class TransactionItemDetailFragment extends Fragment {
         } else if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer") && (double) transaction.get("amount") < 0) {
             transactionStatus = transactionStatus.concat("Refunded");
         } else {
-            transactionStatus = transactionStatus.concat("Completed");
+            transactionStatus = transactionStatus.concat("Posted");
         }
+
+        // Similar Transactions
+        homeViewModel.getTransactionHistory(transaction);
+        homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
+            DocumentSnapshot removeDuplicateTransactionDoc = null;
+            for (DocumentSnapshot doc : transactionHistoryList) {
+                if (String.valueOf(doc.get("transactionId")).equals(transaction.get("transactionId"))) {
+                    removeDuplicateTransactionDoc = doc;
+                }
+            }
+            transactionHistoryList.remove(removeDuplicateTransactionDoc);
+
+            if (!transactionHistoryList.isEmpty()) {
+                root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.VISIBLE);
+            }
+
+            final RecyclerView transactionHistoryRecyclerView = root.findViewById(R.id.transactionDetailTransactionHistoryRecyclerView);
+            transactionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), transactionHistoryList);
+            transactionHistoryRecyclerView.setAdapter(recyclerAdapter);
+        });
 
         logoImageView       .setImageResource(transactionItemLogo);
         logoImageView       .setBackgroundResource(transactionItemLogoBackground);

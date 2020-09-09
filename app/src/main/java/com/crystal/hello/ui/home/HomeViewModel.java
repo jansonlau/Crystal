@@ -6,7 +6,6 @@ import android.security.keystore.KeyProperties;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -75,6 +74,7 @@ public class HomeViewModel extends ViewModel {
 
     private final MutableLiveData<Double> currentTotalBalance;
     private final MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
+    private final MutableLiveData<List<DocumentSnapshot>> mutableTransactionHistoryList;
     private static List<Map<String, Object>> bankAccountsList;
     private final Map<String, Account> accountIdToAccountMap;
     private static MonthlyActivityViewModel monthlyActivityViewModel;
@@ -88,6 +88,7 @@ public class HomeViewModel extends ViewModel {
     public HomeViewModel() {
         currentTotalBalance             = new MutableLiveData<>();
         mutableSubsetTransactionsList   = new MutableLiveData<>();
+        mutableTransactionHistoryList   = new MutableLiveData<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
@@ -96,12 +97,16 @@ public class HomeViewModel extends ViewModel {
         monthlyActivityViewModel        = new MonthlyActivityViewModel();
     }
 
-    public LiveData<Double> getCurrentTotalBalance() {
+    public MutableLiveData<Double> getCurrentTotalBalance() {
         return currentTotalBalance;
     }
 
-    public LiveData<List<DocumentSnapshot>> getMutableSubsetTransactionsList() {
+    public MutableLiveData<List<DocumentSnapshot>> getMutableSubsetTransactionsList() {
         return mutableSubsetTransactionsList;
+    }
+
+    public MutableLiveData<List<DocumentSnapshot>> getMutableTransactionHistoryList() {
+        return mutableTransactionHistoryList;
     }
 
     public List<Map<String, Object>> getBankAccountsList() {
@@ -225,7 +230,7 @@ public class HomeViewModel extends ViewModel {
 //    }
 
     // Plaid Transactions for Accounts and Transactions
-    private void getPlaidAccountsAndTransactions(Integer offset) {
+    private void getPlaidAccountsAndTransactions(final Integer offset) {
         final int count = 500;
 //        Date startDate = new Date(1511049600L); // 1970
         Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
@@ -297,8 +302,8 @@ public class HomeViewModel extends ViewModel {
     // Write to Firestore with paginated list because of Plaid's 500 transaction limit and
     // Firestore's WriteBatch has limit of 500 documents
     // Set Plaid Transaction to Firestore's "transactions" collection with Plaid transactionId as document ID
-    private void setPaginatedPlaidTransactionsToDatabase(List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
-                                                         int totalTransactions) {
+    private void setPaginatedPlaidTransactionsToDatabase(@NotNull final List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
+                                                         final int totalTransactions) {
         final WriteBatch batch = db.batch();
         for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
             DocumentReference transactionsRef = docRef.collection("transactions")
@@ -427,6 +432,32 @@ public class HomeViewModel extends ViewModel {
                                 totalBalance += (double) Objects.requireNonNull(balances).get("current");
                             }
                             currentTotalBalance.setValue(totalBalance);
+                        }
+                    }
+                });
+    }
+
+    public void getTransactionHistory(@NotNull final Map<String, Object> transaction) {
+        final String transactionDate = String.valueOf(transaction.get("date"));
+        String queryNameField = "merchantName";
+        String transactionName = String.valueOf(Objects.requireNonNull(transaction).get("merchantName"));
+
+        if (transactionName.equals("null")) {
+            transactionName = String.valueOf(Objects.requireNonNull(transaction).get("name"));
+            queryNameField = "name";
+        }
+
+        docRef.collection("transactions")
+                .orderBy("date", Query.Direction.DESCENDING)
+                .whereLessThanOrEqualTo("date", transactionDate)
+                .whereEqualTo(queryNameField, transactionName)
+                .limit(5)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            mutableTransactionHistoryList.setValue(Objects.requireNonNull(task.getResult()).getDocuments());
                         }
                     }
                 });

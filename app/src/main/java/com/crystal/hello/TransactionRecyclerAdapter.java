@@ -32,13 +32,11 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     private final FragmentActivity fragmentActivity;
     private String category;
     private int logoBackgroundDrawableInt;
-    private boolean usedMerchantName;
 
-    public TransactionRecyclerAdapter(FragmentActivity activity, List<DocumentSnapshot> list) {
+    public TransactionRecyclerAdapter(final FragmentActivity activity, final List<DocumentSnapshot> list) {
         transactionsList = list;
         layoutInflater = LayoutInflater.from(activity);
         fragmentActivity = activity;
-        usedMerchantName = true;
     }
 
     @NonNull
@@ -64,17 +62,16 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
         if (transactionName.equals("null")) {
             transactionName = String.valueOf(Objects.requireNonNull(transaction).get("name"));
-            usedMerchantName = false; // TODO: Use when implementing transaction history
         }
 
-        initializeTransactionItemDetailFragment(holder,
-                transaction,
-                category,
-                drawableInt,
-                logoBackgroundDrawableInt,
-                transactionName,
-                transactionDate,
-                parsedTransactionAmount);
+        initializeTransactionItemDetailFragment(holder
+                , transaction
+                , category
+                , drawableInt
+                , logoBackgroundDrawableInt
+                , transactionName
+                , transactionDate
+                , parsedTransactionAmount);
 
         // Set parsed transaction fields to view
         if (transactionPending) {

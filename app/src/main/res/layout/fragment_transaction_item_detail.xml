@@ -75,7 +75,7 @@
                         android:layout_marginStart="12dp"
                         android:layout_marginTop="12dp"
                         android:layout_marginEnd="12dp"
-                        android:text="Status: Completed"
+                        android:text="Status: Posted"
                         android:textColor="@color/colorPrimaryDark"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -193,15 +193,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Transaction History"
+                android:text="Similar Transactions"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="invisible" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/transactionDetailHistoryCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="@dimen/card_corner_radius"
                 app:cardElevation="0dp">
 
