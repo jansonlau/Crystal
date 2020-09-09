@@ -437,7 +437,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    public void getTransactionHistory(@NotNull final Map<String, Object> transaction) {
+    public void getTransactionHistoryFromDatabase(@NotNull final Map<String, Object> transaction) {
         final String transactionDate = String.valueOf(transaction.get("date"));
         String queryNameField = "merchantName";
         String transactionName = String.valueOf(Objects.requireNonNull(transaction).get("merchantName"));

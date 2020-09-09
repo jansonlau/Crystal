@@ -101,8 +101,8 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionStatus = transactionStatus.concat("Posted");
         }
 
-        // Similar Transactions
-        homeViewModel.getTransactionHistory(transaction);
+        // Similar transactions
+        homeViewModel.getTransactionHistoryFromDatabase(transaction);
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (DocumentSnapshot doc : transactionHistoryList) {
