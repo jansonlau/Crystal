@@ -44,7 +44,6 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView accountMaskTextView  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
-
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Bank account
@@ -57,7 +56,6 @@ public class TransactionItemDetailFragment extends Fragment {
 
         final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
-        final boolean usedMerchantName          = getArguments().getBoolean("TRANSACTION_ITEM_USED_MERCHANT_NAME");
         final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
         final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
@@ -79,11 +77,13 @@ public class TransactionItemDetailFragment extends Fragment {
         final String postalCode               = (String) locationMap.get("postalCode");
 
         String cityRegionPostalCodeString = "";
-        if (address != null && city != null && region != null && postalCode != null) {
+        if (city != null && region != null && postalCode != null) {
             cityRegionPostalCodeString = city.concat(", ").concat(region).concat(" ").concat(postalCode);
-            locationString = address.concat(", ").concat(cityRegionPostalCodeString);
-        } else if (city != null && region != null && postalCode != null) {
             locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(cityRegionPostalCodeString);
+        }
+
+        if (address != null) {
+            locationString = address.concat(", ").concat(cityRegionPostalCodeString);
         } else if (city != null && region != null) {
             locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(city).concat(", ").concat(region);
         } else {
@@ -104,6 +104,8 @@ public class TransactionItemDetailFragment extends Fragment {
         // Similar transactions
         homeViewModel.getTransactionHistoryFromDatabase(transaction);
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
+            root.findViewById(R.id.transactionDetailConstraintLayout).setVisibility(View.VISIBLE);
+
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (DocumentSnapshot doc : transactionHistoryList) {
                 if (String.valueOf(doc.get("transactionId")).equals(transaction.get("transactionId"))) {

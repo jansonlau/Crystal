@@ -451,7 +451,7 @@ public class HomeViewModel extends ViewModel {
                 .orderBy("date", Query.Direction.DESCENDING)
                 .whereLessThanOrEqualTo("date", transactionDate)
                 .whereEqualTo(queryNameField, transactionName)
-                .limit(5)
+                .limit(6)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -191,8 +191,8 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             public void onClick(View v) {
                 final Bundle bundle = new Bundle();
                 bundle.putSerializable("TRANSACTION_ITEM_MAP", (Serializable) transaction);
-                bundle.putInt(("TRANSACTION_ITEM_LOGO"), logoDrawableInt);
-                bundle.putInt(("TRANSACTION_ITEM_LOGO_BACKGROUND"), logoBackgroundDrawableInt);
+                bundle.putInt("TRANSACTION_ITEM_LOGO", logoDrawableInt);
+                bundle.putInt("TRANSACTION_ITEM_LOGO_BACKGROUND", logoBackgroundDrawableInt);
                 bundle.putString("TRANSACTION_ITEM_CATEGORY", category);
                 bundle.putString("TRANSACTION_ITEM_NAME", transactionName);
                 bundle.putString("TRANSACTION_ITEM_DATE", transactionDate);

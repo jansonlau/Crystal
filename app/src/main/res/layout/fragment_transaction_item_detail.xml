@@ -5,8 +5,9 @@
     android:id="@+id/transactionDetailConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TransactionItemDetailFragment"
-    android:background="#F1F1F1">
+    android:background="#F1F1F1"
+    android:visibility="invisible"
+    tools:context=".TransactionItemDetailFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
