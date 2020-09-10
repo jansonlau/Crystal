@@ -40,7 +40,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         Plaid.initialize(getApplication());
 
         Button button = findViewById(R.id.buttonLinkBankContinue);
-        button.setOnClickListener(view -> InitialConnectActivity.this.createUserWithEmailAndPassword());
+        button.setOnClickListener(view -> InitialConnectActivity.this.openLink());
     }
 
     private void openLink() {
@@ -79,9 +79,10 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     private final PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
             linkSuccess -> {
-                String publicToken = linkSuccess.getPublicToken();
+                createUserWithEmailAndPassword();
 
-                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
+                final String publicToken = linkSuccess.getPublicToken();
+                final Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
                         .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
                         .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
                 InitialConnectActivity.this.startActivity(intent);
@@ -90,9 +91,9 @@ public class InitialConnectActivity extends AppCompatActivity {
             },
 
             linkExit -> {
-                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
-                InitialConnectActivity.this.startActivity(intent);
-                InitialConnectActivity.this.finishAffinity();
+//                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
+//                InitialConnectActivity.this.startActivity(intent);
+//                InitialConnectActivity.this.finishAffinity();
                 return Unit.INSTANCE;
             }
     );
@@ -111,7 +112,6 @@ public class InitialConnectActivity extends AppCompatActivity {
                         final FirebaseUser user = auth.getCurrentUser();
                         sendEmailVerification(Objects.requireNonNull(user));
                         setUserToDatabase(user, email, firstName, lastName, mobileNumber);
-                        openLink();
                     } else { // Invalid email or password
                         Toast.makeText(InitialConnectActivity.this
                                 , Objects.requireNonNull(task.getException()).getMessage()
