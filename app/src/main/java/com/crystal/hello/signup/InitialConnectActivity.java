@@ -2,6 +2,7 @@ package com.crystal.hello.signup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -46,7 +47,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     private void openLink() {
         Plaid.openLink(this, new LinkConfiguration.Builder()
                 .clientName("Crystal")
-                .environment(PlaidEnvironment.DEVELOPMENT)
+                .environment(PlaidEnvironment.SANDBOX)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
@@ -79,14 +80,13 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     private final PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
             linkSuccess -> {
-                createUserWithEmailAndPassword();
+                findViewById(R.id.text_finish_sign_up).setVisibility(View.GONE);
+                findViewById(R.id.text_link_bank_caption).setVisibility(View.GONE);
+                findViewById(R.id.buttonLinkBankContinue).setVisibility(View.GONE);
+                findViewById(R.id.initialConnectProgressBar).setVisibility(View.VISIBLE);
 
                 final String publicToken = linkSuccess.getPublicToken();
-                final Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
-                        .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken)
-                        .putExtra("com.crystal.hello.CREATE_USER_BOOLEAN", true);
-                InitialConnectActivity.this.startActivity(intent);
-                InitialConnectActivity.this.finishAffinity();
+                createUserWithEmailAndPassword(publicToken);
                 return Unit.INSTANCE;
             },
 
@@ -99,7 +99,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     );
 
     // Add account to database only if account was successfully created in Firebase Auth
-    private void createUserWithEmailAndPassword() {
+    private void createUserWithEmailAndPassword(final String publicToken) {
         final String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
         final String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
         final String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
@@ -109,6 +109,12 @@ public class InitialConnectActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        // Move to HomeActivity
+                        final Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
+                                .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
+                        InitialConnectActivity.this.startActivity(intent);
+                        InitialConnectActivity.this.finishAffinity();
+
                         final FirebaseUser user = auth.getCurrentUser();
                         sendEmailVerification(Objects.requireNonNull(user));
                         setUserToDatabase(user, email, firstName, lastName, mobileNumber);
@@ -138,9 +144,12 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("first", firstName);
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
+        userData.put("isNewUser", true);
 
         db.collection("users")
                 .document(user.getUid())
+                .collection("profile")
+                .document("user")
                 .set(userData);
     }
 }

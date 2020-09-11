@@ -19,11 +19,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        final boolean newUserBooleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER_BOOLEAN", false);
         final String publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN_STRING");
-
         final Bundle bundle = new Bundle();
-        bundle.putBoolean("com.crystal.hello.CREATE_USER_BOOLEAN", newUserBooleanExtra);
         bundle.putString("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
 
         final Fragment homeFragment = new HomeFragment();
@@ -48,12 +45,7 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                     default:
-                        final Bundle bundle = new Bundle();
-                        boolean booleanExtra = getIntent().getBooleanExtra("com.crystal.hello.CREATE_USER_BOOLEAN", false);
-                        bundle.putBoolean("com.crystal.hello.CREATE_USER_BOOLEAN", booleanExtra);
-
                         fragment = new HomeFragment();
-                        fragment.setArguments(bundle);
                         break;
                 }
 

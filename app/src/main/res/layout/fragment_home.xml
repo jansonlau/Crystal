@@ -227,6 +227,15 @@
                 app:cardCornerRadius="@dimen/card_corner_radius"
                 app:cardElevation="0dp">
 
+                <ProgressBar
+                    android:id="@+id/homeFragmentProgressBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="12dp"
+                    android:indeterminate="true" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/homeRecyclerView"
                     android:layout_width="match_parent"
