@@ -56,12 +56,12 @@ public class TransactionItemDetailFragment extends Fragment {
 
         final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
-        final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
+        final String transactionItemName        = Objects.requireNonNull(getArguments().getString("TRANSACTION_ITEM_NAME"));
         final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         final String transactionItemCategory    = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
         String transactionItemAccountMask       = "";
-        String locationString                   = "";
+        String locationString;
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
         transactionItemAccountName              = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
 
@@ -70,23 +70,32 @@ public class TransactionItemDetailFragment extends Fragment {
         }
 
         // Show location or map if available. Else, hide the views
-        final Map<String, Object> locationMap = (HashMap<String, Object>) transaction.get("location");
-        final String address                  = (String) Objects.requireNonNull(locationMap).get("address");
+        final Map<String, Object> locationMap = (HashMap<String, Object>) Objects.requireNonNull(transaction.get("location"));
+        final String address                  = (String) locationMap.get("address");
         final String city                     = (String) locationMap.get("city");
         final String region                   = (String) locationMap.get("region");
         final String postalCode               = (String) locationMap.get("postalCode");
 
-        String cityRegionPostalCodeString = "";
-        if (city != null && region != null && postalCode != null) {
-            cityRegionPostalCodeString = city.concat(", ").concat(region).concat(" ").concat(postalCode);
-            locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(cityRegionPostalCodeString);
+        if (address != null) {
+            locationString = address;
+        } else {
+            locationString = transactionItemName;
         }
 
-        if (address != null) {
-            locationString = address.concat(", ").concat(cityRegionPostalCodeString);
-        } else if (city != null && region != null) {
-            locationString = Objects.requireNonNull(transactionItemName).concat(", ").concat(city).concat(", ").concat(region);
-        } else {
+        if (city != null) {
+            locationString = locationString.concat(", ").concat(city);
+        }
+
+        if (region != null) {
+            locationString = locationString.concat(", ").concat(region);
+        }
+
+        if (postalCode != null) {
+            locationString = locationString.concat(", ").concat(postalCode);
+        }
+
+        if ((address == null && city == null && region == null && postalCode == null)
+                || String.valueOf(transaction.get("paymentChannel")).equals("online")) {
             root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.GONE);
         }
 
