@@ -20,20 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.crystal.hello.R;
 import com.crystal.hello.TransactionRecyclerAdapter;
 import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -43,40 +34,21 @@ public class HomeFragment extends Fragment {
     private SparkView sparkView;
     private TransactionSparkAdapter sparkAdapter;
     private static double[] yData;
-    private DocumentReference docRef;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        docRef = FirebaseFirestore.getInstance().collection("users")
-                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-        docRef.collection("profile")
-                .document("user")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            final Map<String, Object> userMap = Objects.requireNonNull(task.getResult()).getData();
-
-                            // New user from create account
-                            if ((boolean) Objects.requireNonNull(userMap).get("isNewUser")) {
-                                final String publicToken = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
-                                homeViewModel.buildPlaidClient();
-                                homeViewModel.exchangeAccessToken(publicToken);
-
-                                docRef.collection("profile")
-                                        .document("user")
-                                        .set(Collections.singletonMap("isNewUser", false), SetOptions.merge());
-                            } else {
-                                homeViewModel.getSubsetTransactionsFromDatabase();
-                                homeViewModel.getBalancesAndBankAccountsFromDatabase();
-                            }
-                        }
-                    }
-                });
+        // New user from create account
+        if (getArguments() != null && getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING") != null) {
+            final String publicToken = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
+            homeViewModel.buildPlaidClient();
+            homeViewModel.exchangeAccessToken(publicToken);
+        } else {
+            homeViewModel.getSubsetTransactionsFromDatabase();
+            homeViewModel.getBalancesAndBankAccountsFromDatabase();
+        }
     }
 
     @Override

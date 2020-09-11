@@ -21,6 +21,8 @@ import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
 import com.plaid.link.result.PlaidLinkResultHandler;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,7 +128,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 });
     }
 
-    private void sendEmailVerification(FirebaseUser user) {
+    private void sendEmailVerification(@NotNull FirebaseUser user) {
         user.sendEmailVerification()
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -138,13 +140,12 @@ public class InitialConnectActivity extends AppCompatActivity {
     }
 
     // Set user profile information to "users" collection with Firebase Auth Uid as document ID
-    private void setUserToDatabase(FirebaseUser user, String email, String firstName, String lastName, String mobileNumber) {
+    private void setUserToDatabase(@NotNull FirebaseUser user, String email, String firstName, String lastName, String mobileNumber) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
         userData.put("first", firstName);
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
-        userData.put("isNewUser", true);
 
         db.collection("users")
                 .document(user.getUid())
