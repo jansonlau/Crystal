@@ -61,7 +61,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         final String transactionItemCategory    = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
         String transactionItemAccountMask       = "";
-        String locationString;
+        String locationString                   = "";
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
         transactionItemAccountName              = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
 
@@ -76,27 +76,27 @@ public class TransactionItemDetailFragment extends Fragment {
         final String region                   = (String) locationMap.get("region");
         final String postalCode               = (String) locationMap.get("postalCode");
 
-        if (address != null) {
-            locationString = address;
-        } else {
-            locationString = transactionItemName;
-        }
-
-        if (city != null) {
-            locationString = locationString.concat(", ").concat(city);
-        }
-
-        if (region != null) {
-            locationString = locationString.concat(", ").concat(region);
-        }
-
-        if (postalCode != null) {
-            locationString = locationString.concat(", ").concat(postalCode);
-        }
-
         if ((address == null && city == null && region == null && postalCode == null)
                 || String.valueOf(transaction.get("paymentChannel")).equals("online")) {
             root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.GONE);
+        } else {
+            if (address != null) {
+                locationString = address;
+            } else {
+                locationString = transactionItemName;
+            }
+
+            if (city != null) {
+                locationString = locationString.concat(", ").concat(city);
+            }
+
+            if (region != null) {
+                locationString = locationString.concat(", ").concat(region);
+            }
+
+            if (postalCode != null) {
+                locationString = locationString.concat(", ").concat(postalCode);
+            }
         }
 
         // Transaction status
