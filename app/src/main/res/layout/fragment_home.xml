@@ -5,7 +5,6 @@
     android:id="@+id/constraintLayoutHomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1F1F1"
     tools:context=".ui.home.HomeFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -24,14 +23,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="12dp"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="0dp">
+                android:layout_height="wrap_content">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -44,9 +38,10 @@
                         android:layout_marginStart="12dp"
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="12dp"
+                        android:fontFamily="sans-serif-medium"
                         android:text="Current Balance"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        android:textStyle="bold"
+                        android:textSize="28sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -56,9 +51,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif-medium"
                         android:text="$0.00"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        android:textStyle="bold"
+                        android:textSize="28sp"
                         app:layout_constraintEnd_toEndOf="@+id/textViewBalance"
                         app:layout_constraintStart_toStartOf="@+id/textViewBalance"
                         app:layout_constraintTop_toBottomOf="@+id/textViewBalance" />
@@ -71,7 +67,6 @@
                         android:fontFamily="sans-serif-medium"
                         android:text="$0.00 (0.00%)"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                        android:textColor="@color/colorPrimaryDark"
                         app:layout_constraintEnd_toEndOf="@+id/textViewCurrentBalanceAmount"
                         app:layout_constraintStart_toStartOf="@+id/textViewCurrentBalanceAmount"
                         app:layout_constraintTop_toBottomOf="@+id/textViewCurrentBalanceAmount" />
@@ -87,73 +82,76 @@
                         app:spark_lineColor="@color/colorPrimary"
                         app:spark_scrubEnabled="true" />
 
-                    <TextView
-                        android:id="@+id/textViewOneMonth"
-                        android:layout_width="30dp"
-                        android:layout_height="wrap_content"
+                    <Button
+                        android:id="@+id/oneMonthButton"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="32dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/round_corner"
                         android:gravity="center"
                         android:padding="4dp"
+                        android:stateListAnimator="@null"
                         android:text="1M"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                        android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        app:layout_constraintBottom_toTopOf="@+id/divider"
-                        app:layout_constraintEnd_toStartOf="@+id/textViewThreeMonths"
+                        app:layout_constraintEnd_toStartOf="@+id/threeMonthButton"
                         app:layout_constraintStart_toStartOf="@+id/sparkView"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
-                    <TextView
-                        android:id="@+id/textViewThreeMonths"
-                        android:layout_width="30dp"
-                        android:layout_height="wrap_content"
+                    <Button
+                        android:id="@+id/threeMonthButton"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="10dp"
+                        android:background="@android:color/transparent"
                         android:gravity="center"
                         android:padding="4dp"
+                        android:stateListAnimator="@null"
                         android:text="3M"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="12sp"
-                        app:layout_constraintBottom_toTopOf="@+id/divider"
-                        app:layout_constraintEnd_toStartOf="@+id/textViewOneYear"
-                        app:layout_constraintStart_toEndOf="@+id/textViewOneMonth"
+                        app:layout_constraintEnd_toStartOf="@+id/oneYearButton"
+                        app:layout_constraintStart_toEndOf="@+id/oneMonthButton"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
-                    <TextView
-                        android:id="@+id/textViewOneYear"
-                        android:layout_width="30dp"
-                        android:layout_height="wrap_content"
+                    <Button
+                        android:id="@+id/oneYearButton"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="32dp"
-                        android:layout_marginBottom="10dp"
+                        android:background="@android:color/transparent"
                         android:gravity="center"
                         android:padding="4dp"
+                        android:stateListAnimator="@null"
                         android:text="1Y"
                         android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="12sp"
-                        app:layout_constraintBottom_toTopOf="@+id/divider"
                         app:layout_constraintEnd_toEndOf="@+id/sparkView"
-                        app:layout_constraintStart_toEndOf="@+id/textViewThreeMonths"
+                        app:layout_constraintStart_toEndOf="@+id/threeMonthButton"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
                     <View
                         android:id="@+id/divider"
                         android:layout_width="match_parent"
-                        android:layout_height="0.75dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_height="0.7dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="16dp"
                         android:background="?android:attr/listDivider"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textViewThreeMonths" />
+                        app:layout_constraintTop_toBottomOf="@+id/threeMonthButton" />
 
                     <FrameLayout
                         android:id="@+id/frameLayoutMonthlyActivity"
@@ -161,11 +159,11 @@
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
+                        android:focusable="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/divider"
-                        android:focusable="true">
+                        app:layout_constraintTop_toTopOf="@id/divider">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -178,11 +176,10 @@
                                 android:layout_marginStart="12dp"
                                 android:layout_marginTop="12dp"
                                 android:layout_marginEnd="8dp"
-                                android:layout_marginBottom="12dp"
                                 android:text="Monthly Activity"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                                 android:textSize="16sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
+                                android:textStyle="bold"
                                 app:layout_constraintEnd_toStartOf="@+id/imageView2"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -192,44 +189,47 @@
                                 android:layout_width="16dp"
                                 android:layout_height="0dp"
                                 android:layout_marginEnd="12dp"
+                                android:contentDescription="TODO"
                                 android:src="@drawable/ic_baseline_arrow_forward_ios_24"
-                                app:layout_constraintBottom_toBottomOf="@+id/textViewMonthlyActivity"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="@+id/textViewMonthlyActivity"
-                                android:contentDescription="TODO" />
+                                app:layout_constraintTop_toTopOf="@+id/textViewMonthlyActivity" />
+
+                            <View
+                                android:id="@+id/divider3"
+                                android:layout_width="0dp"
+                                android:layout_height="0.7dp"
+                                android:layout_marginTop="12dp"
+                                android:background="?android:attr/listDivider"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="@id/textViewMonthlyActivity"
+                                app:layout_constraintTop_toBottomOf="@+id/textViewMonthlyActivity" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </FrameLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.cardview.widget.CardView>
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/textViewLatestTransactions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:layout_marginEnd="12dp"
-                android:layout_marginBottom="4dp"
+                android:fontFamily="sans-serif-medium"
                 android:text="Latest Transactions"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textStyle="bold" />
+                android:textSize="28sp" />
 
-            <androidx.cardview.widget.CardView
+            <FrameLayout
                 android:id="@+id/latestTransactionsCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="0dp">
+                android:layout_height="wrap_content">
 
                 <ProgressBar
                     android:id="@+id/homeFragmentProgressBar"
-                    style="?android:attr/progressBarStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -243,7 +243,7 @@
                     android:nestedScrollingEnabled="false"
                     tools:itemCount="4"
                     tools:listitem="@layout/item_transaction" />
-            </androidx.cardview.widget.CardView>
+            </FrameLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

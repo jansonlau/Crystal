@@ -11,16 +11,16 @@
 
     <ImageView
         android:id="@+id/transactionLogoImageView"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
         android:layout_marginStart="12dp"
         android:background="@drawable/shopping_background"
+        android:contentDescription="TODO"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/transactionDateTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/transactionNameTextView"
-        app:srcCompat="@drawable/shopping"
-        android:contentDescription="TODO" />
+        app:srcCompat="@drawable/shopping" />
 
     <TextView
         android:id="@+id/transactionNameTextView"

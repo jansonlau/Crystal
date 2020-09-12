@@ -1,5 +1,6 @@
 package com.crystal.hello.ui.home;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -22,6 +24,8 @@ import com.crystal.hello.TransactionRecyclerAdapter;
 import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -135,73 +139,45 @@ public class HomeFragment extends Fragment {
         final int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
 
-        final TextView oneMonthTextView = root.findViewById(R.id.textViewOneMonth);
-        final TextView threeMonthTextView = root.findViewById(R.id.textViewThreeMonths);
-        final TextView oneYearTextView = root.findViewById(R.id.textViewOneYear);
+        final Button oneMonthButton = root.findViewById(R.id.oneMonthButton);
+        final Button threeMonthButton = root.findViewById(R.id.threeMonthButton);
+        final Button oneYearButton = root.findViewById(R.id.oneYearButton);
 
-        oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-        oneMonthTextView.setSelected(true);
-        oneMonthTextView.setBackgroundResource(R.drawable.round_corner);
+        oneMonthButton.setSelected(true);
+        oneMonthButton.setOnClickListener(v -> setButtonColors(oneMonthButton, threeMonthButton, oneYearButton));
+        threeMonthButton.setOnClickListener(v -> setButtonColors(threeMonthButton, oneMonthButton, oneYearButton));
+        oneYearButton.setOnClickListener(v -> setButtonColors(oneYearButton, oneMonthButton, threeMonthButton));
+    }
 
-        oneMonthTextView.setOnClickListener(v -> {
-            if (v.isSelected()) {
-                return;
-            }
-            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
-            sparkAdapter.randomize();
+    private void setButtonColors(@NotNull final Button selectedButton,
+                                 @NotNull final Button firstUnselectedButton,
+                                 @NotNull final Button secondUnselectedButton) {
+        if (selectedButton.isSelected()) {
+            return;
+        }
+        sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
+        sparkAdapter.randomize();
 
-            oneMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-            v.setSelected(true);
-            v.setBackgroundResource(R.drawable.round_corner);
+        selectedButton.setTextColor(Color.parseColor("#FFFFFF"));
+        selectedButton.setSelected(true);
+        selectedButton.setBackgroundResource(R.drawable.round_corner);
 
-            threeMonthTextView.setSelected(false);
-            threeMonthTextView.setTextColor(Color.parseColor("#000000"));
-            threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
+        firstUnselectedButton.setSelected(false);
+        firstUnselectedButton.setBackgroundResource(0);
+        secondUnselectedButton.setSelected(false);
+        secondUnselectedButton.setBackgroundResource(0);
 
-            oneYearTextView.setSelected(false);
-            oneYearTextView.setTextColor(Color.parseColor("#000000"));
-            oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
-        });
-
-        threeMonthTextView.setOnClickListener(v -> {
-            if (v.isSelected()) {
-                return;
-            }
-            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
-            sparkAdapter.randomize();
-
-            oneMonthTextView.setSelected(false);
-            oneMonthTextView.setTextColor(Color.parseColor("#000000"));
-            oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-            threeMonthTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-            v.setSelected(true);
-            v.setBackgroundResource(R.drawable.round_corner);
-
-            oneYearTextView.setSelected(false);
-            oneYearTextView.setTextColor(Color.parseColor("#000000"));
-            oneYearTextView.setBackgroundResource(R.color.colorOnBackground);
-        });
-
-        oneYearTextView.setOnClickListener(v -> {
-            if (v.isSelected()) {
-                return;
-            }
-            sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
-            sparkAdapter.randomize();
-
-            oneMonthTextView.setSelected(false);
-            oneMonthTextView.setTextColor(Color.parseColor("#000000"));
-            oneMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-            threeMonthTextView.setSelected(false);
-            threeMonthTextView.setTextColor(Color.parseColor("#000000"));
-            threeMonthTextView.setBackgroundResource(R.color.colorOnBackground);
-
-            oneYearTextView.setTextColor(Color.parseColor("#FFFFFFFF"));
-            v.setSelected(true);
-            v.setBackgroundResource(R.drawable.round_corner);
-        });
+        final int currentNightMode = Objects.requireNonNull(getContext()).getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                firstUnselectedButton.setTextColor(Color.BLACK);
+                secondUnselectedButton.setTextColor(Color.BLACK);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                firstUnselectedButton.setTextColor(Color.WHITE);
+                secondUnselectedButton.setTextColor(Color.WHITE);
+                break;
+        }
     }
 
     public static class TransactionSparkAdapter extends SparkAdapter {
