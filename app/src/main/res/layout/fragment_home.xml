@@ -50,10 +50,9 @@
                         android:layout_marginStart="12dp"
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="12dp"
-                        android:fontFamily="sans-serif-medium"
                         android:text="Current Balance"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        android:textSize="28sp"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -63,10 +62,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="sans-serif-medium"
                         android:text="$0.00"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        android:textSize="28sp"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="@+id/textViewBalance"
                         app:layout_constraintStart_toStartOf="@+id/textViewBalance"
                         app:layout_constraintTop_toBottomOf="@+id/textViewBalance" />
@@ -230,10 +228,9 @@
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="12dp"
-                android:fontFamily="sans-serif-medium"
                 android:text="Latest Transactions"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textSize="28sp" />
+                android:textStyle="bold" />
 
             <FrameLayout
                 android:id="@+id/latestTransactionsCardView"

@@ -125,8 +125,8 @@ public class TransactionItemDetailFragment extends Fragment {
             }
             transactionHistoryList.remove(removeDuplicateTransactionDoc);
 
-            if (!transactionHistoryList.isEmpty()) {
-                root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.VISIBLE);
+            if (transactionHistoryList.isEmpty()) {
+                root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
             }
 
             final RecyclerView transactionHistoryRecyclerView = root.findViewById(R.id.transactionDetailTransactionHistoryRecyclerView);
