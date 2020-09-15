@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
+    <ProgressBar
+        android:id="@+id/homeFragmentProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="12dp"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollViewHome"
         android:layout_width="match_parent"
@@ -227,14 +239,6 @@
                 android:id="@+id/latestTransactionsCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <ProgressBar
-                    android:id="@+id/homeFragmentProgressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="12dp"
-                    android:indeterminate="true" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/homeRecyclerView"

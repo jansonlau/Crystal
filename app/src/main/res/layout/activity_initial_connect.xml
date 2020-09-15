@@ -29,7 +29,6 @@
         android:lineSpacingExtra="4sp"
         android:text="In order to understand your spend, you'll need to link your credit card account to your Crystal account."
         android:textAlignment="center"
-        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="@+id/text_finish_sign_up"
         app:layout_constraintStart_toStartOf="@+id/text_finish_sign_up"
         app:layout_constraintTop_toBottomOf="@+id/text_finish_sign_up" />

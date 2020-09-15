@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/text_welcome" />
 
     <Button
-        android:id="@+id/button_sign_up"
+        android:id="@+id/mainSignUpButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -59,22 +59,21 @@
         android:textAllCaps="false"
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/button_corner_radius"
-        app:layout_constraintBottom_toTopOf="@+id/text_log_in"
+        app:layout_constraintBottom_toTopOf="@+id/mainLogInTextView"
         app:layout_constraintEnd_toEndOf="@+id/text_welcome_caption"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/text_welcome_caption" />
 
     <TextView
-        android:id="@+id/text_log_in"
+        android:id="@+id/mainLogInTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:text="Log In"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/button_sign_up"
-        app:layout_constraintStart_toStartOf="@+id/button_sign_up" />
+        app:layout_constraintEnd_toEndOf="@+id/mainSignUpButton"
+        app:layout_constraintStart_toStartOf="@+id/mainSignUpButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

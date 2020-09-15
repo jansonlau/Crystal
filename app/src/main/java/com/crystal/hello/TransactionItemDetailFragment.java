@@ -45,6 +45,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
+        root.findViewById(R.id.transactionDetailNestedScrollView).setVisibility(View.INVISIBLE);
 
         // Bank account
         Map<String, Object> account = null;
@@ -113,7 +114,8 @@ public class TransactionItemDetailFragment extends Fragment {
         // Similar transactions
         homeViewModel.getTransactionHistoryFromDatabase(transaction);
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
-            root.findViewById(R.id.transactionDetailConstraintLayout).setVisibility(View.VISIBLE);
+            root.findViewById(R.id.transactionItemDetailProgressBar).setVisibility(View.GONE);
+            root.findViewById(R.id.transactionDetailNestedScrollView).setVisibility(View.VISIBLE);
 
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (DocumentSnapshot doc : transactionHistoryList) {
