@@ -25,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
 
         final Fragment homeFragment = new HomeFragment();
         homeFragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().add(R.id.frameLayoutFragmentContainer, homeFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragmentFrameLayout, homeFragment).commit();
 
         final BottomNavigationView navView = findViewById(R.id.nav_view);
         setBottomNavigationItemSelectedListener(navView);
@@ -50,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
 
                 HomeActivity.this.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, fragment)
+                        .replace(R.id.fragmentFrameLayout, fragment)
                         .commit();
                 return true;
             }

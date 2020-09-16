@@ -49,7 +49,7 @@ public class InitialConnectActivity extends AppCompatActivity {
     private void openLink() {
         Plaid.openLink(this, new LinkConfiguration.Builder()
                 .clientName("Crystal")
-                .environment(PlaidEnvironment.DEVELOPMENT)
+                .environment(PlaidEnvironment.SANDBOX)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")

@@ -119,8 +119,8 @@ public class HomeViewModel extends ViewModel {
 
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, developmentSecretKey)
-                .developmentBaseUrl()
+                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
+                .sandboxBaseUrl()
                 .build();
     }
 

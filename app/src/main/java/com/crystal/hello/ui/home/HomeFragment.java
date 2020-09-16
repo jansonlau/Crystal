@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment {
         monthlyActivityFrameLayout.setOnClickListener(v -> Objects.requireNonNull(getActivity())
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayoutFragmentContainer, new MonthlyActivityFragment())
+                .replace(R.id.fragmentFrameLayout, new MonthlyActivityFragment())
                 .addToBackStack(null)
                 .commit());
     }

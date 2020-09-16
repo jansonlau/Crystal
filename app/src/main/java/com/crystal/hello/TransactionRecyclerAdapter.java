@@ -203,7 +203,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
                 fragmentActivity.getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, transactionItemDetailFragment)
+                        .replace(R.id.fragmentFrameLayout, transactionItemDetailFragment)
                         .addToBackStack(null)
                         .commit();
             }

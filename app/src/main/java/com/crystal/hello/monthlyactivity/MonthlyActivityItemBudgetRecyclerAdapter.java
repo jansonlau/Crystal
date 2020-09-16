@@ -130,7 +130,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
                 fragmentActivity.getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.frameLayoutFragmentContainer, monthlyActivityItemDetailFragment)
+                        .replace(R.id.fragmentFrameLayout, monthlyActivityItemDetailFragment)
                         .addToBackStack(null)
                         .commit();
             }
