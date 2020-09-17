@@ -140,43 +140,44 @@ public class HomeFragment extends Fragment {
         final int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
 
-        final TextView oneMonthButton = root.findViewById(R.id.oneMonthTextView);
-        final TextView threeMonthButton = root.findViewById(R.id.threeMonthTextView);
-        final TextView oneYearButton = root.findViewById(R.id.oneYearTextView);
+        final TextView oneMonthTextView = root.findViewById(R.id.oneMonthTextView);
+        final TextView threeMonthTextView = root.findViewById(R.id.threeMonthTextView);
+        final TextView oneYearTextView = root.findViewById(R.id.oneYearTextView);
 
-        oneMonthButton.setSelected(true);
-        oneMonthButton.setOnClickListener(v -> setButtonColors(oneMonthButton, threeMonthButton, oneYearButton));
-        threeMonthButton.setOnClickListener(v -> setButtonColors(threeMonthButton, oneMonthButton, oneYearButton));
-        oneYearButton.setOnClickListener(v -> setButtonColors(oneYearButton, oneMonthButton, threeMonthButton));
+        oneMonthTextView.setSelected(true);
+        oneMonthTextView.setOnClickListener(v -> setButtonColors(oneMonthTextView, threeMonthTextView, oneYearTextView));
+        threeMonthTextView.setOnClickListener(v -> setButtonColors(threeMonthTextView, oneMonthTextView, oneYearTextView));
+        oneYearTextView.setOnClickListener(v -> setButtonColors(oneYearTextView, oneMonthTextView, threeMonthTextView));
     }
 
-    private void setButtonColors(@NotNull final TextView selectedButton,
-                                 @NotNull final TextView firstUnselectedButton,
-                                 @NotNull final TextView secondUnselectedButton) {
-        if (selectedButton.isSelected()) {
+    private void setButtonColors(@NotNull final TextView selectedTextView,
+                                 @NotNull final TextView firstUnselectedTextView,
+                                 @NotNull final TextView secondUnselectedTextView) {
+        if (selectedTextView.isSelected()) {
             return;
         }
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), 0, sparkView.getPaddingBottom());
         sparkAdapter.randomize();
 
-        selectedButton.setTextColor(Color.parseColor("#FFFFFF"));
-        selectedButton.setSelected(true);
-        selectedButton.setBackgroundResource(R.drawable.round_corner);
+        selectedTextView.setTextColor(Color.parseColor("#FFFFFF"));
+        selectedTextView.setSelected(true);
+        selectedTextView.setBackgroundResource(R.drawable.round_corner);
 
-        firstUnselectedButton.setSelected(false);
-        firstUnselectedButton.setBackgroundResource(0);
-        secondUnselectedButton.setSelected(false);
-        secondUnselectedButton.setBackgroundResource(0);
+        firstUnselectedTextView.setSelected(false);
+        firstUnselectedTextView.setBackgroundResource(0);
+        
+        secondUnselectedTextView.setSelected(false);
+        secondUnselectedTextView.setBackgroundResource(0);
 
         final int currentNightMode = Objects.requireNonNull(getContext()).getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
-                firstUnselectedButton.setTextColor(Color.BLACK);
-                secondUnselectedButton.setTextColor(Color.BLACK);
+                firstUnselectedTextView.setTextColor(Color.BLACK);
+                secondUnselectedTextView.setTextColor(Color.BLACK);
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                firstUnselectedButton.setTextColor(Color.WHITE);
-                secondUnselectedButton.setTextColor(Color.WHITE);
+                firstUnselectedTextView.setTextColor(Color.WHITE);
+                secondUnselectedTextView.setTextColor(Color.WHITE);
                 break;
         }
     }
