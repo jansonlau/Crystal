@@ -1,5 +1,7 @@
 package com.crystal.hello;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,21 +11,31 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.ui.home.HomeViewModel;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 public class TransactionItemDetailFragment extends Fragment {
     private HomeViewModel homeViewModel;
+    private View root;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,7 +46,7 @@ public class TransactionItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View root                     = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
+        root                                = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
         final ImageView logoImageView       = root.findViewById(R.id.imageViewTransactionDetailLogo);
         final TextView amountTextView       = root.findViewById(R.id.textViewTransactionDetailAmount);
         final TextView nameTextView         = root.findViewById(R.id.textViewTransactionDetailName);
@@ -44,6 +56,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView accountMaskTextView  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
+
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
         root.findViewById(R.id.transactionDetailNestedScrollView).setVisibility(View.INVISIBLE);
 
@@ -76,10 +89,11 @@ public class TransactionItemDetailFragment extends Fragment {
         final String city                     = (String) locationMap.get("city");
         final String region                   = (String) locationMap.get("region");
         final String postalCode               = (String) locationMap.get("postalCode");
+        final CardView locationCardView       = root.findViewById(R.id.transactionDetailMapAndLocationCardView);
 
         if ((address == null && city == null && region == null && postalCode == null)
                 || String.valueOf(transaction.get("paymentChannel")).equals("online")) {
-            root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.GONE);
+            locationCardView.setVisibility(View.GONE);
         } else {
             if (address != null) {
                 locationString = address;
@@ -98,6 +112,23 @@ public class TransactionItemDetailFragment extends Fragment {
             if (postalCode != null) {
                 locationString = locationString.concat(", ").concat(postalCode);
             }
+        }
+
+        // Map
+        final SupportMapFragment mapFragment = (SupportMapFragment) Objects.requireNonNull(getChildFragmentManager()).findFragmentById(R.id.transactionDetailMapFragment);
+
+        if (!locationString.isEmpty() && mapFragment != null) {
+            final String finalLocationString = locationString;
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    try {
+                        loadMap(googleMap, transactionItemName, finalLocationString, locationCardView);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         // Transaction status
@@ -146,5 +177,25 @@ public class TransactionItemDetailFragment extends Fragment {
         accountMaskTextView .setText(transactionItemAccountMask);
         addressTextView     .setText(locationString);
         return root;
+    }
+
+    private void loadMap(final GoogleMap googleMap, String name, final String addressString, CardView locationCardView) throws IOException {
+        final Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        final List<Address> addressList = geocoder.getFromLocationName(addressString, 1);
+
+        if (!addressList.isEmpty()) {
+            final Address address = addressList.get(0);
+            final LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+            if (googleMap != null) {
+                googleMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(name));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                googleMap.setMinZoomPreference(15);
+            }
+        } else {
+            locationCardView.setVisibility(View.GONE);
+        }
     }
 }

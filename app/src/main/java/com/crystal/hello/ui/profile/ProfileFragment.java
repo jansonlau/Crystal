@@ -1,6 +1,8 @@
 package com.crystal.hello.ui.profile;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,20 +54,17 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-//        final Button signUpButton = findViewById(R.id.mainSignUpButton);
-//        final TextView logInTextView = findViewById(R.id.mainLogInTextView);
-//
-//        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-//        switch (currentNightMode) {
-//            case Configuration.UI_MODE_NIGHT_NO:
-//                signUpButton.setTextColor(Color.WHITE);
-//                logInTextView.setTextColor(Color.BLACK);
-//                break;
-//            case Configuration.UI_MODE_NIGHT_YES:
-//                signUpButton.setTextColor(Color.BLACK);
-//                logInTextView.setTextColor(Color.WHITE);
-//                break;
-//        }
+        final Button addAccountButton = root.findViewById(R.id.addAccountButton);
+
+        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                addAccountButton.setTextColor(Color.BLACK);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                addAccountButton.setTextColor(Color.WHITE);
+                break;
+        }
 
         return root;
     }
