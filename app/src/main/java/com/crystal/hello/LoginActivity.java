@@ -1,12 +1,15 @@
 package com.crystal.hello;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout passwordLayout;
     private TextInputEditText usernameEditText;
     private TextInputEditText passwordEditText;
+    private TextView forgotPasswordTextView;
     private Button loginButton;
     private FirebaseAuth auth;
 
@@ -40,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordLayout = findViewById(R.id.layoutLoginPassword);
         usernameEditText = findViewById(R.id.editTextLoginUsername);
         passwordEditText = findViewById(R.id.editTextLoginPassword);
+        forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
         loginButton = findViewById(R.id.buttonLogin);
         auth = FirebaseAuth.getInstance();
         setListeners();
@@ -72,6 +77,16 @@ public class LoginActivity extends AppCompatActivity {
                 fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
             }
         });
+
+        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                forgotPasswordTextView.setTextColor(Color.BLACK);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                forgotPasswordTextView.setTextColor(Color.WHITE);
+                break;
+        }
     }
 
     private boolean isPasswordValid(Editable text) {

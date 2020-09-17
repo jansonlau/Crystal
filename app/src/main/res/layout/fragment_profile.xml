@@ -43,6 +43,7 @@
         android:insetTop="@dimen/inset_top"
         android:insetBottom="@dimen/inset_bottom"
         android:text="Add Account"
+        android:textColor="@color/textColor"
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/button_corner_radius"
         app:layout_constraintBottom_toTopOf="@+id/supportEmailTextView"

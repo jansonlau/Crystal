@@ -57,6 +57,7 @@
         android:insetBottom="@dimen/inset_bottom"
         android:text="Sign Up"
         android:textAllCaps="false"
+        android:textColor="@color/textColor"
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/button_corner_radius"
         app:layout_constraintBottom_toTopOf="@+id/mainLogInTextView"

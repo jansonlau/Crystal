@@ -71,14 +71,15 @@
         android:insetBottom="@dimen/inset_bottom"
         android:text="Log In"
         android:textAllCaps="false"
+        android:textColor="@color/textColor"
         android:textSize="@dimen/text_size"
         app:cornerRadius="@dimen/button_corner_radius"
-        app:layout_constraintBottom_toTopOf="@+id/textForgotPassword"
+        app:layout_constraintBottom_toTopOf="@+id/forgotPasswordTextView"
         app:layout_constraintEnd_toEndOf="@+id/layoutLoginPassword"
         app:layout_constraintStart_toStartOf="@+id/layoutLoginPassword" />
 
     <TextView
-        android:id="@+id/textForgotPassword"
+        android:id="@+id/forgotPasswordTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"

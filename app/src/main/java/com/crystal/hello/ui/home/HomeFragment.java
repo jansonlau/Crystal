@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -141,9 +140,9 @@ public class HomeFragment extends Fragment {
         final int paddingRight = sparkView.getWidth() - Math.round(sparkView.getWidth() * monthSoFarRatio);
         sparkView.setPadding(sparkView.getPaddingLeft(), sparkView.getPaddingTop(), paddingRight, sparkView.getPaddingBottom());
 
-        final Button oneMonthButton = root.findViewById(R.id.oneMonthButton);
-        final Button threeMonthButton = root.findViewById(R.id.threeMonthButton);
-        final Button oneYearButton = root.findViewById(R.id.oneYearButton);
+        final TextView oneMonthButton = root.findViewById(R.id.oneMonthTextView);
+        final TextView threeMonthButton = root.findViewById(R.id.threeMonthTextView);
+        final TextView oneYearButton = root.findViewById(R.id.oneYearTextView);
 
         oneMonthButton.setSelected(true);
         oneMonthButton.setOnClickListener(v -> setButtonColors(oneMonthButton, threeMonthButton, oneYearButton));
@@ -151,9 +150,9 @@ public class HomeFragment extends Fragment {
         oneYearButton.setOnClickListener(v -> setButtonColors(oneYearButton, oneMonthButton, threeMonthButton));
     }
 
-    private void setButtonColors(@NotNull final Button selectedButton,
-                                 @NotNull final Button firstUnselectedButton,
-                                 @NotNull final Button secondUnselectedButton) {
+    private void setButtonColors(@NotNull final TextView selectedButton,
+                                 @NotNull final TextView firstUnselectedButton,
+                                 @NotNull final TextView secondUnselectedButton) {
         if (selectedButton.isSelected()) {
             return;
         }

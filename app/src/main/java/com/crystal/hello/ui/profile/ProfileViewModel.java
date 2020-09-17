@@ -34,7 +34,7 @@ import retrofit2.Response;
 public class ProfileViewModel extends ViewModel {
     private final String clientIdKey = "5e9e830fd1ed690012c3be3c";
     private final String developmentSecretKey = "60accf9202c1cb270909846affe85a";
-    private final String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
+    private final String sandboxSecretKey = "74cf176067e0712cc2eabdf800829e";
 
     private PlaidClient plaidClient;
     private String accessToken;

@@ -90,8 +90,8 @@
                         app:spark_lineColor="@color/colorPrimary"
                         app:spark_scrubEnabled="true" />
 
-                    <Button
-                        android:id="@+id/oneMonthButton"
+                    <TextView
+                        android:id="@+id/oneMonthTextView"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginStart="32dp"
@@ -99,19 +99,16 @@
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/round_corner"
                         android:gravity="center"
-                        android:padding="4dp"
-                        android:stateListAnimator="@null"
                         android:text="1M"
-                        android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        app:layout_constraintEnd_toStartOf="@+id/threeMonthButton"
+                        app:layout_constraintEnd_toStartOf="@+id/threeMonthTextView"
                         app:layout_constraintStart_toStartOf="@+id/sparkView"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
-                    <Button
-                        android:id="@+id/threeMonthButton"
+                    <TextView
+                        android:id="@+id/threeMonthTextView"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginStart="8dp"
@@ -119,19 +116,16 @@
                         android:layout_marginEnd="8dp"
                         android:background="@android:color/transparent"
                         android:gravity="center"
-                        android:padding="4dp"
-                        android:stateListAnimator="@null"
                         android:text="3M"
-                        android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textSize="12sp"
-                        app:layout_constraintEnd_toStartOf="@+id/oneYearButton"
-                        app:layout_constraintStart_toEndOf="@+id/oneMonthButton"
+                        app:layout_constraintEnd_toStartOf="@+id/oneYearTextView"
+                        app:layout_constraintStart_toEndOf="@+id/oneMonthTextView"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
-                    <Button
-                        android:id="@+id/oneYearButton"
+                    <TextView
+                        android:id="@+id/oneYearTextView"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginStart="8dp"
@@ -139,15 +133,12 @@
                         android:layout_marginEnd="32dp"
                         android:background="@android:color/transparent"
                         android:gravity="center"
-                        android:padding="4dp"
-                        android:stateListAnimator="@null"
                         android:text="1Y"
-                        android:textAlignment="center"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="@+id/sparkView"
-                        app:layout_constraintStart_toEndOf="@+id/threeMonthButton"
+                        app:layout_constraintStart_toEndOf="@+id/threeMonthTextView"
                         app:layout_constraintTop_toBottomOf="@+id/sparkView" />
 
                     <View
@@ -159,7 +150,7 @@
                         android:background="?android:attr/listDivider"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/threeMonthButton" />
+                        app:layout_constraintTop_toBottomOf="@+id/threeMonthTextView" />
 
                     <FrameLayout
                         android:id="@+id/frameLayoutMonthlyActivity"

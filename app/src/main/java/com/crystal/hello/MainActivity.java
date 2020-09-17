@@ -32,11 +32,9 @@ public class MainActivity extends AppCompatActivity {
         final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
-                signUpButton.setTextColor(Color.WHITE);
                 logInTextView.setTextColor(Color.BLACK);
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                signUpButton.setTextColor(Color.BLACK);
                 logInTextView.setTextColor(Color.WHITE);
                 break;
         }
