@@ -1,11 +1,14 @@
 package com.crystal.hello;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -185,7 +188,19 @@ public class TransactionItemDetailFragment extends Fragment {
 
         if (!addressList.isEmpty()) {
             final Address address = addressList.get(0);
-            final LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+            final double latitude = address.getLatitude();
+            final double longitude = address.getLongitude();
+            final LatLng latLng = new LatLng(latitude, longitude);
+
+            // Google map listener
+            final FrameLayout transactionDetailAddressFrameLayout = root.findViewById(R.id.transactionDetailAddressFrameLayout);
+            transactionDetailAddressFrameLayout.setOnClickListener(view -> {
+                final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
+                final Uri gmmIntentUri = Uri.parse(uriString);
+                final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            });
 
             if (googleMap != null) {
                 googleMap.addMarker(new MarkerOptions()
@@ -193,6 +208,7 @@ public class TransactionItemDetailFragment extends Fragment {
                         .title(name));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 googleMap.setMinZoomPreference(15);
+                googleMap.getUiSettings().setAllGesturesEnabled(false);
             }
         } else {
             locationCardView.setVisibility(View.GONE);

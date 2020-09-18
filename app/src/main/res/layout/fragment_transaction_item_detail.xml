@@ -153,16 +153,17 @@
                     android:layout_height="match_parent">
 
                     <fragment
-                        tools:context=".MapsActivity"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:id="@+id/transactionDetailMapFragment"
+                        android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="0dp"
                         android:layout_height="150dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:context=".MapsActivity" />
 
                     <FrameLayout
+                        android:id="@+id/transactionDetailAddressFrameLayout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"

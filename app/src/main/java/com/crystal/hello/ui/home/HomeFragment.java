@@ -165,7 +165,7 @@ public class HomeFragment extends Fragment {
 
         firstUnselectedTextView.setSelected(false);
         firstUnselectedTextView.setBackgroundResource(0);
-        
+
         secondUnselectedTextView.setSelected(false);
         secondUnselectedTextView.setBackgroundResource(0);
 
