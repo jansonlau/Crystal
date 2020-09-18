@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.R;
 import com.crystal.hello.TransactionRecyclerAdapter;
-import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.robinhood.spark.SparkAdapter;
 import com.robinhood.spark.SparkView;
 
@@ -59,19 +57,8 @@ public class HomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_home, container, false);
         root.findViewById(R.id.nestedScrollViewHome).setVisibility(View.INVISIBLE);
-        setMonthlyActivityOnClickListener();
         observeTransactionList();
         return root;
-    }
-
-    private void setMonthlyActivityOnClickListener() {
-        FrameLayout monthlyActivityFrameLayout = root.findViewById(R.id.frameLayoutMonthlyActivity);
-        monthlyActivityFrameLayout.setOnClickListener(v -> Objects.requireNonNull(getActivity())
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentFrameLayout, new MonthlyActivityFragment())
-                .addToBackStack(null)
-                .commit());
     }
 
     private void observeTransactionList() {

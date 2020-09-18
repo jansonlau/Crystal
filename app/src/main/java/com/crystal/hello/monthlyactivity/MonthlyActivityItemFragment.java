@@ -32,26 +32,30 @@ public class MonthlyActivityItemFragment extends Fragment {
         monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
 
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
-                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
+                (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
 
         final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap =
-                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
+                (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
 
         final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap =
-                (Map<String, List<DocumentSnapshot>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
+                (Map<String, List<DocumentSnapshot>>) getArguments().getSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
 
         final List<Map<String, Double>> oneMonthAmountByMerchantNameList =
-                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST");
+                (List<Map<String, Double>>) getArguments().getSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST");
 
         final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList =
-                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
+                (List<Map<String, Double>>) getArguments().getSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
 
         final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList =
-                (List<Map<String, Double>>) Objects.requireNonNull(getArguments()).getSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
+                (List<Map<String, Double>>) getArguments().getSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
+
+        final Map<String, Object> budgetsMap =
+                (Map<String, Object>) getArguments().getSerializable("com.crystal.hello.BUDGETS_MAP");
 
         monthlyActivityItemBudgetRecyclerAdapter = new MonthlyActivityItemBudgetRecyclerAdapter(getActivity()
                 , oneMonthPositiveAmountTransactionsByCategoryMap
-                , oneMonthSortedPositiveAmountByCategoryList);
+                , oneMonthSortedPositiveAmountByCategoryList
+                , budgetsMap);
 
         monthlyActivityItemCreditRecyclerAdapter = new MonthlyActivityItemCreditRecyclerAdapter(getActivity()
                 , oneMonthNegativeAmountTransactionsByCategoryMap

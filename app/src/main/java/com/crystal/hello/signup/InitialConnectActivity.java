@@ -141,7 +141,7 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     // Set user profile information to "users" collection with Firebase Auth Uid as document ID
     private void setUserToDatabase(@NotNull FirebaseUser user, String email, String firstName, String lastName, String mobileNumber) {
-        Map<String, Object> userData = new HashMap<>();
+        final Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
         userData.put("first", firstName);
         userData.put("last", lastName);

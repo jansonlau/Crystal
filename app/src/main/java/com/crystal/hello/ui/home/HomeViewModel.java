@@ -28,6 +28,7 @@ import com.plaid.client.response.TransactionsGetResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -205,10 +206,11 @@ public class HomeViewModel extends ViewModel {
                                                          final int totalTransactions) {
         final WriteBatch batch = db.batch();
         for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
-            DocumentReference transactionsRef = docRef.collection("transactions")
+            final DocumentReference transactionsRef = docRef.collection("transactions")
                     .document(transaction.getTransactionId());
 
             batch.set(transactionsRef, transaction, SetOptions.merge());
+            batch.set(transactionsRef, Collections.singletonMap("saved", false), SetOptions.merge());
         }
 
         // If there are more than 500 transactions, get more because they're paginated
@@ -236,20 +238,35 @@ public class HomeViewModel extends ViewModel {
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
     private void setPlaidAccountsToDatabase() {
         final WriteBatch batch = db.batch();
-        for (Account account : accountIdToAccountMap.values()) {
-            Map<String, Object> identifiers = new HashMap<>();
+        for (final Account account : accountIdToAccountMap.values()) {
+
+            final Map<String, Object> identifiers = new HashMap<>();
             identifiers.put("accessToken", accessToken);
             identifiers.put("itemId", itemId);
 
-            DocumentReference identifiersRef = docRef.collection("identifiers")
+            final DocumentReference identifiersRef = docRef.collection("identifiers")
                     .document(account.getAccountId());
 
-            DocumentReference banksRef = docRef.collection("banks")
+            final DocumentReference banksRef = docRef.collection("banks")
                     .document(account.getAccountId());
 
             batch.set(identifiersRef, identifiers, SetOptions.merge());
             batch.set(banksRef, account, SetOptions.merge());
         }
+
+        // Set default budget values
+        final Map<String, Integer> budgets = new HashMap<>();
+        budgets.put("travel"        , 100);
+        budgets.put("health"        , 100);
+        budgets.put("shopping"      , 500);
+        budgets.put("services"      , 100);
+        budgets.put("foodDrinks"    , 100);
+        budgets.put("entertainment" , 100);
+
+        final DocumentReference budgetRef = docRef.collection("profile")
+                .document("budget");
+
+        batch.set(budgetRef, budgets, SetOptions.merge());
 
         batch.commit()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -90,6 +90,7 @@ public class MonthlyActivityFragment extends Fragment {
             bundle.putSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP"    , (Serializable) oneMonthMerchantTransactionsMap);
             bundle.putSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST"        , (Serializable) oneMonthNegativeAmountByCategoryList);
             bundle.putSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST"        , (Serializable) oneMonthAmountByMerchantNameList);
+            bundle.putSerializable("com.crystal.hello.BUDGETS_MAP"                  , (Serializable) HomeViewModel.getMonthlyActivityViewModel().getBudgetsMap());
             transactionMonthlyActivityItemFragment.setArguments(bundle);
             return transactionMonthlyActivityItemFragment;
         }

@@ -4,6 +4,12 @@
         android:id="@+id/navigation_home"
         android:icon="@drawable/navigation_home_selector"
         android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_monthly"
+        android:icon="@drawable/ic_baseline_sort_24"
+        android:title="@string/title_monthly" />
+
     <item
         android:id="@+id/navigation_saved"
         android:icon="@drawable/navigation_saved_selector"

@@ -21,6 +21,7 @@ import com.plaid.client.response.TransactionsGetResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +153,7 @@ public class ProfileViewModel extends ViewModel {
                     .document(transaction.getTransactionId());
 
             batch.set(transactionsRef, transaction, SetOptions.merge());
+            batch.set(transactionsRef, Collections.singletonMap("saved", false), SetOptions.merge());
         }
 
         // If there are more than 500 transactions, get more because they're paginated

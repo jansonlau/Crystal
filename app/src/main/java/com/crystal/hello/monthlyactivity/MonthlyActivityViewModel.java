@@ -37,6 +37,7 @@ public class MonthlyActivityViewModel extends ViewModel {
     private final MutableLiveData<Boolean> mutableInitializePagerBoolean;
     private double oneMonthPaymentsAmount;
     private double oneMonthRefundsAmount;
+    private Map<String, Object> budgetsMap;
 
     public MonthlyActivityViewModel() {
         allTransactionsByCategoryList       = new ArrayList<>();
@@ -47,6 +48,7 @@ public class MonthlyActivityViewModel extends ViewModel {
                 .collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
+        getBudgetAmountsFromDatabase();
         initializeCategoriesMap();
         getOldestTransactionDateFromDatabase();
     }
@@ -65,6 +67,10 @@ public class MonthlyActivityViewModel extends ViewModel {
 
     public List<Map<String, List<DocumentSnapshot>>> getAllTransactionsByCategoryList() {
         return allTransactionsByCategoryList;
+    }
+
+    protected Map<String, Object> getBudgetsMap() {
+        return budgetsMap;
     }
 
     private void getOldestTransactionDateFromDatabase() {
@@ -305,8 +311,19 @@ public class MonthlyActivityViewModel extends ViewModel {
 
     private static class CompareDouble implements Comparator<Map<String, Double>> {
         @Override
-        public int compare(Map<String, Double> x, Map<String, Double> y) {
+        public int compare(@NotNull Map<String, Double> x, @NotNull Map<String, Double> y) {
             return y.entrySet().iterator().next().getValue().compareTo(x.entrySet().iterator().next().getValue());
         }
+    }
+
+    private void getBudgetAmountsFromDatabase() {
+        docRef.collection("profile")
+                .document("budget")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        budgetsMap = Objects.requireNonNull(task.getResult()).getData();
+                    }
+        });
     }
 }

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
+import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.crystal.hello.ui.home.HomeFragment;
 import com.crystal.hello.ui.profile.ProfileFragment;
 import com.crystal.hello.ui.saved.SavedFragment;
@@ -40,6 +41,9 @@ public class HomeActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_saved:
                         fragment = new SavedFragment();
+                        break;
+                    case R.id.navigation_monthly:
+                        fragment = new MonthlyActivityFragment();
                         break;
                     case R.id.navigation_profile:
                         fragment = new ProfileFragment();

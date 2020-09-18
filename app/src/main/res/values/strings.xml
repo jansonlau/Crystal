@@ -2,6 +2,7 @@
     <string name="app_name">Crystal</string>
     <string name="title_activity_home">MainActivity</string>
     <string name="title_home">Overview</string>
+    <string name="title_monthly">Overview</string>
     <string name="title_saved">Saved</string>
     <string name="title_profile">Profile</string>
 </resources>

@@ -29,15 +29,18 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
     private final LayoutInflater layoutInflater;
     private final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap; // Key: Category, Value: Documents
     private final List<Map<String, Double>> oneMonthSortedPositiveAmountByCategoryList; // Key: Category, Value: Total transaction amount
+    private final Map<String, Object> budgetsMap;
 
     public MonthlyActivityItemBudgetRecyclerAdapter(final FragmentActivity activity,
                                                     final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap,
-                                                    final List<Map<String, Double>> sortedPositiveAmountByCategoryList) {
+                                                    final List<Map<String, Double>> sortedPositiveAmountByCategoryList,
+                                                    final Map<String, Object> budgetsMap) {
 
         fragmentActivity = activity;
         layoutInflater = LayoutInflater.from(activity);
         this.oneMonthPositiveAmountTransactionsByCategoryMap = oneMonthPositiveAmountTransactionsByCategoryMap;
         this.oneMonthSortedPositiveAmountByCategoryList = sortedPositiveAmountByCategoryList;
+        this.budgetsMap = budgetsMap;
     }
 
     @NonNull
@@ -59,34 +62,42 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         final String amountString = "$" + String.format(Locale.US,"%.2f", amount);
 
         holder.budgetNameTextView.setText(category);
-        holder.budgetProgressBar.setProgress(amount.intValue());
         holder.budgetAmountTextView.setText(amountString);
+        final long budgetInt;
 
         switch (category) {
             case "Food & Drinks":
                 holder.budgetLogoImageView.setImageResource(R.drawable.food);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.food_background);
+                budgetInt = (long) budgetsMap.get("foodDrinks");
                 break;
             case "Shopping":
                 holder.budgetLogoImageView.setImageResource(R.drawable.shopping);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.shopping_background);
+                budgetInt = (long) budgetsMap.get("shopping");
                 break;
             case "Travel":
                 holder.budgetLogoImageView.setImageResource(R.drawable.travel);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.travel_background);
+                budgetInt = (long) budgetsMap.get("travel");
                 break;
             case "Entertainment":
                 holder.budgetLogoImageView.setImageResource(R.drawable.entertainment);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.entertainment_background);
+                budgetInt = (long) budgetsMap.get("entertainment");
                 break;
             case "Health":
                 holder.budgetLogoImageView.setImageResource(R.drawable.health);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.health_background);
+                budgetInt = (long) budgetsMap.get("health");
                 break;
             default:
                 holder.budgetLogoImageView.setImageResource(R.drawable.services);
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.services_background);
+                budgetInt = (long) budgetsMap.get("services");
         }
+        holder.budgetProgressBar.setMax((int) budgetInt);
+        holder.budgetProgressBar.setProgress(amount.intValue());
 
         if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
             holder.budgetConstraintLayout.removeView(holder.budgetDividerView);
