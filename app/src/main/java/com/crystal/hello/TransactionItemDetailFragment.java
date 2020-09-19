@@ -51,10 +51,12 @@ public class TransactionItemDetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root                                = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
+        root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
         final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Similar transactions
+        root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
+        root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
         homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
             DocumentSnapshot removeDuplicateTransactionDoc = null;
@@ -88,11 +90,6 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
 
-        // Hide views with API calls until response received
-        root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.GONE);
-        root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
-        root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
-
         // Bank account
         Map<String, Object> account = null;
         for (Map<String, Object> bankAccount : homeViewModel.getBankAccountsList()) {
@@ -103,7 +100,7 @@ public class TransactionItemDetailFragment extends Fragment {
 
         final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
-        final String transactionItemName        = Objects.requireNonNull(getArguments().getString("TRANSACTION_ITEM_NAME"));
+        final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
         final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
         final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         final String transactionItemCategory    = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
@@ -114,6 +111,17 @@ public class TransactionItemDetailFragment extends Fragment {
 
         if (!String.valueOf(account.get("mask")).equals("null")) {
             transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");
+        }
+
+        // Transaction status
+        final List<String> categoriesList = (List<String>) transaction.get("category");
+        String transactionStatus = "Status: ";
+        if ((boolean) transaction.get("pending")) {
+            transactionStatus = transactionStatus.concat("Pending");
+        } else if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer") && (double) transaction.get("amount") < 0) {
+            transactionStatus = transactionStatus.concat("Refunded");
+        } else {
+            transactionStatus = transactionStatus.concat("Posted");
         }
 
         // Show location or map if available. Else, hide the views
@@ -146,32 +154,21 @@ public class TransactionItemDetailFragment extends Fragment {
             if (postalCode != null) {
                 locationString = locationString.concat(", ").concat(postalCode);
             }
-        }
 
-        // Map
-        if (!locationString.isEmpty() && mapFragment != null) {
-            final String finalLocationString = locationString;
-            mapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    try {
-                        loadMap(googleMap, transactionItemName, finalLocationString, locationCardView);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            // Map
+            if (mapFragment != null) {
+                final String finalLocationString = locationString;
+                mapFragment.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        try {
+                            loadMap(googleMap, transactionItemName, finalLocationString, locationCardView);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-        }
-
-        // Transaction status
-        final List<String> categoriesList = (List<String>) transaction.get("category");
-        String transactionStatus = "Status: ";
-        if ((boolean) transaction.get("pending")) {
-            transactionStatus = transactionStatus.concat("Pending");
-        } else if (!Objects.requireNonNull(categoriesList).get(0).equals("Transfer") && (double) transaction.get("amount") < 0) {
-            transactionStatus = transactionStatus.concat("Refunded");
-        } else {
-            transactionStatus = transactionStatus.concat("Posted");
+                });
+            }
         }
 
         logoImageView       .setImageResource(transactionItemLogo);

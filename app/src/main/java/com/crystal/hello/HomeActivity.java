@@ -70,8 +70,8 @@ public class HomeActivity extends AppCompatActivity {
                         getSupportFragmentManager().popBackStack();
                     }
                 } else if (item.getItemId() == R.id.navigation_home) {
-                    NestedScrollView nestedScrollView = HomeActivity.this.findViewById(R.id.nestedScrollViewHome);
-                    nestedScrollView.smoothScrollTo(0, 0);
+                    NestedScrollView homeFragmentNestedScrollView = HomeActivity.this.findViewById(R.id.homeFragmentNestedScrollView);
+                    homeFragmentNestedScrollView.smoothScrollTo(0, 0);
                 }
             }
         });

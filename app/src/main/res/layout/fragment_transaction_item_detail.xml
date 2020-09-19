@@ -1,246 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/transactionDetailConstraintLayout"
+    android:id="@+id/transactionDetailNestedScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
     tools:context=".TransactionItemDetailFragment">
 
-    <ImageView
-        android:id="@+id/transactionDetailSaveImageView"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:src="@drawable/ic_baseline_add_circle_outline_24"
-        app:layout_constraintEnd_toEndOf="@+id/transactionDetailNestedScrollView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/colorPrimary" />
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/transactionDetailNestedScrollView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/transactionDetailSaveImageView"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_baseline_add_circle_outline_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+
+        <ImageView
+            android:id="@+id/imageViewTransactionDetailLogo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/shopping_background"
+            android:contentDescription="TODO"
+            android:padding="12dp"
+            android:src="@drawable/shopping" />
+
+        <TextView
+            android:id="@+id/textViewTransactionDetailAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:fontFamily="sans-serif-medium"
+            android:text="$35.71"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textSize="52sp" />
 
-            <ImageView
-                android:id="@+id/imageViewTransactionDetailLogo"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="32dp"
-                android:background="@drawable/shopping_background"
-                android:contentDescription="TODO"
-                android:padding="12dp"
-                android:src="@drawable/shopping" />
+        <TextView
+            android:id="@+id/textViewTransactionDetailName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The Home Depot"
+            android:textAlignment="center" />
 
-            <TextView
-                android:id="@+id/textViewTransactionDetailAmount"
+        <TextView
+            android:id="@+id/textViewTransactionDetailDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="4/1/20"
+            android:textAlignment="center" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/transactionDetailStatusCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="12dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/cardview_default_elevation">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="$35.71"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textSize="52sp" />
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textViewTransactionDetailName"
+                <TextView
+                    android:id="@+id/textViewTransactionDetailStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:text="Status: Posted"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textViewTransactionDetailCategory"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Shopping"
+                    app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
+                    app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
+                    app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailStatus" />
+
+                <TextView
+                    android:id="@+id/textViewTransactionDetailBankName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:maxLines="1"
+                    android:text="Costco Citi Cash Card Long String Hello Longer String"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/textViewTransactionDetailAccountMask"
+                    app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
+                    app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailCategory" />
+
+                <TextView
+                    android:id="@+id/textViewTransactionDetailAccountMask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:text="•••• 9999"
+                    android:textAlignment="viewEnd"
+                    app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailBankName"
+                    app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
+                    app:layout_constraintStart_toEndOf="@+id/textViewTransactionDetailBankName"
+                    app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailBankName" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/transactionDetailMapAndLocationCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="12dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/cardview_default_elevation">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="The Home Depot"
-                android:textAlignment="center" />
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textViewTransactionDetailDate"
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/transactionDetailMapFragment"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="0dp"
+                    android:layout_height="150dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:context=".MapsActivity" />
+
+                <FrameLayout
+                    android:id="@+id/transactionDetailAddressFrameLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/transactionDetailMapFragment">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:id="@+id/textViewTransactionDetailAddress"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginBottom="12dp"
+                            android:text="1234 Folsom St, San Francisco, CA 94107"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/imageView"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/imageView"
+                            android:layout_width="16dp"
+                            android:layout_height="0dp"
+                            android:layout_marginEnd="12dp"
+                            android:contentDescription="TODO"
+                            android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                            app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailAddress"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailAddress" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <ProgressBar
+            android:id="@+id/transactionItemDetailProgressBar"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:layout_margin="12dp"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/transactionDetailHistoryTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="12dp"
+            android:text="Similar Transactions"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:id="@+id/transactionDetailHistoryCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/transactionDetailTransactionHistoryRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="4/1/20"
-                android:textAlignment="center" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/transactionDetailStatusCardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="12dp"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="@dimen/cardview_default_elevation">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:id="@+id/textViewTransactionDetailStatus"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="12dp"
-                        android:text="Status: Posted"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/textViewTransactionDetailCategory"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Shopping"
-                        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
-                        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
-                        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailStatus" />
-
-                    <TextView
-                        android:id="@+id/textViewTransactionDetailBankName"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="12dp"
-                        android:maxLines="1"
-                        android:text="Costco Citi Cash Card Long String Hello Longer String"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/textViewTransactionDetailAccountMask"
-                        app:layout_constraintStart_toStartOf="@+id/textViewTransactionDetailStatus"
-                        app:layout_constraintTop_toBottomOf="@+id/textViewTransactionDetailCategory" />
-
-                    <TextView
-                        android:id="@+id/textViewTransactionDetailAccountMask"
-                        android:layout_width="wrap_content"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="8dp"
-                        android:text="•••• 9999"
-                        android:textAlignment="viewEnd"
-                        app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailBankName"
-                        app:layout_constraintEnd_toEndOf="@+id/textViewTransactionDetailStatus"
-                        app:layout_constraintStart_toEndOf="@+id/textViewTransactionDetailBankName"
-                        app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailBankName" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/transactionDetailMapAndLocationCardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="12dp"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="@dimen/cardview_default_elevation">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <androidx.fragment.app.FragmentContainerView
-                        android:id="@+id/transactionDetailMapFragment"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
-                        android:layout_width="0dp"
-                        android:layout_height="150dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:context=".MapsActivity" />
-
-                    <FrameLayout
-                        android:id="@+id/transactionDetailAddressFrameLayout"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/transactionDetailMapFragment">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-                            <TextView
-                                android:id="@+id/textViewTransactionDetailAddress"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:layout_marginTop="12dp"
-                                android:layout_marginEnd="8dp"
-                                android:layout_marginBottom="12dp"
-                                android:text="1234 Folsom St, San Francisco, CA 94107"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toStartOf="@+id/imageView"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <ImageView
-                                android:id="@+id/imageView"
-                                android:layout_width="16dp"
-                                android:layout_height="0dp"
-                                android:layout_marginEnd="12dp"
-                                android:contentDescription="TODO"
-                                android:src="@drawable/ic_baseline_arrow_forward_ios_24"
-                                app:layout_constraintBottom_toBottomOf="@+id/textViewTransactionDetailAddress"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailAddress" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </FrameLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <ProgressBar
-                android:id="@+id/transactionItemDetailProgressBar"
-                style="@android:style/Widget.Material.Light.ProgressBar.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="12dp"
-                android:indeterminate="true" />
-
-            <TextView
-                android:id="@+id/transactionDetailHistoryTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="12dp"
-                android:text="Similar Transactions"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textStyle="bold" />
-
-            <FrameLayout
-                android:id="@+id/transactionDetailHistoryCardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/transactionDetailTransactionHistoryRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="2"
-                    tools:listitem="@layout/item_transaction" />
-            </FrameLayout>
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="match_parent"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_transaction" />
+        </FrameLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
