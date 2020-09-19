@@ -264,7 +264,7 @@ public class HomeViewModel extends ViewModel {
         budgets.put("entertainment" , 100);
 
         final DocumentReference budgetRef = docRef.collection("profile")
-                .document("budget");
+                .document("budgets");
 
         batch.set(budgetRef, budgets, SetOptions.merge());
 

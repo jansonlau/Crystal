@@ -318,7 +318,7 @@ public class MonthlyActivityViewModel extends ViewModel {
 
     private void getBudgetAmountsFromDatabase() {
         docRef.collection("profile")
-                .document("budget")
+                .document("budgets")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -192,23 +193,33 @@ public class TransactionItemDetailFragment extends Fragment {
             final double longitude = address.getLongitude();
             final LatLng latLng = new LatLng(latitude, longitude);
 
-            // Google map listener
+            // Address listener
             final FrameLayout transactionDetailAddressFrameLayout = root.findViewById(R.id.transactionDetailAddressFrameLayout);
+            final NestedScrollView transactionDetailNestedScrollView = root.findViewById(R.id.transactionDetailNestedScrollView);
+
+            final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
+            final Uri gmmIntentUri = Uri.parse(uriString);
+            final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+
             transactionDetailAddressFrameLayout.setOnClickListener(view -> {
-                final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
-                final Uri gmmIntentUri = Uri.parse(uriString);
-                final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
             });
 
             if (googleMap != null) {
+                googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+                    @Override
+                    public void onCameraMove() {
+                        transactionDetailNestedScrollView.requestDisallowInterceptTouchEvent(true);
+                    }
+                });
+
                 googleMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(name));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 googleMap.setMinZoomPreference(15);
-                googleMap.getUiSettings().setAllGesturesEnabled(false);
+                googleMap.getUiSettings().setAllGesturesEnabled(true);
             }
         } else {
             locationCardView.setVisibility(View.GONE);
