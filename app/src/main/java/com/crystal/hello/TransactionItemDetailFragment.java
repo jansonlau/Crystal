@@ -41,10 +41,26 @@ public class TransactionItemDetailFragment extends Fragment {
     private HomeViewModel homeViewModel;
     private View root;
 
+    private Map<String, Object> transaction;
+    private int transactionItemLogo;
+    private int transactionItemLogoBackground;
+    private String transactionItemName;
+    private String transactionItemDate;
+    private String transactionItemAmount;
+    private String transactionItemCategory;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        homeViewModel                   = new ViewModelProvider(this).get(HomeViewModel.class);
+        transaction                     = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
+        transactionItemLogo             = getArguments().getInt("TRANSACTION_ITEM_LOGO");
+        transactionItemLogoBackground   = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
+        transactionItemName             = getArguments().getString("TRANSACTION_ITEM_NAME");
+        transactionItemDate             = getArguments().getString("TRANSACTION_ITEM_DATE");
+        transactionItemAmount           = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
+        transactionItemCategory         = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
+        homeViewModel.getTransactionHistoryFromDatabase(transaction);
     }
 
     @Override
@@ -52,12 +68,11 @@ public class TransactionItemDetailFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-        final Map<String, Object> transaction = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
 
         // Similar transactions
         root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
         root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
-        homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
+        
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (final DocumentSnapshot doc : transactionHistoryList) {
@@ -98,12 +113,6 @@ public class TransactionItemDetailFragment extends Fragment {
             }
         }
 
-        final int transactionItemLogo           = getArguments().getInt("TRANSACTION_ITEM_LOGO");
-        final int transactionItemLogoBackground = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
-        final String transactionItemName        = getArguments().getString("TRANSACTION_ITEM_NAME");
-        final String transactionItemDate        = getArguments().getString("TRANSACTION_ITEM_DATE");
-        final String transactionItemAmount      = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
-        final String transactionItemCategory    = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
         String transactionItemAccountMask       = "";
         String locationString                   = "";
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
