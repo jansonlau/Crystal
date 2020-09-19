@@ -7,17 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".TransactionItemDetailFragment">
 
-    <ProgressBar
-        android:id="@+id/transactionItemDetailProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="12dp"
-        android:indeterminate="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/transactionDetailSaveImageView"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:src="@drawable/ic_baseline_add_circle_outline_24"
+        app:layout_constraintEnd_toEndOf="@+id/transactionDetailNestedScrollView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorPrimary" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/transactionDetailNestedScrollView"
@@ -135,7 +134,6 @@
                         app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailBankName" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
@@ -152,7 +150,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <fragment
+                    <androidx.fragment.app.FragmentContainerView
                         android:id="@+id/transactionDetailMapFragment"
                         android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="0dp"
@@ -205,9 +203,17 @@
                                 app:layout_constraintTop_toTopOf="@+id/textViewTransactionDetailAddress" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </FrameLayout>
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <ProgressBar
+                android:id="@+id/transactionItemDetailProgressBar"
+                style="@android:style/Widget.Material.Light.ProgressBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="12dp"
+                android:indeterminate="true" />
 
             <TextView
                 android:id="@+id/transactionDetailHistoryTextView"

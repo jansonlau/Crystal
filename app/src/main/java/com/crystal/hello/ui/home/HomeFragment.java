@@ -56,7 +56,6 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_home, container, false);
-        root.findViewById(R.id.nestedScrollViewHome).setVisibility(View.INVISIBLE);
         observeTransactionList();
         return root;
     }
@@ -69,7 +68,6 @@ public class HomeFragment extends Fragment {
             final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
             homeRecyclerView.setAdapter(recyclerAdapter);
             observeCurrentBalance();
-            root.findViewById(R.id.nestedScrollViewHome).setVisibility(View.VISIBLE);
             root.findViewById(R.id.homeFragmentProgressBar).setVisibility(View.GONE);
         });
     }
