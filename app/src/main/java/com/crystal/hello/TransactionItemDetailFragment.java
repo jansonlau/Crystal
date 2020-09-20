@@ -72,7 +72,7 @@ public class TransactionItemDetailFragment extends Fragment {
         // Similar transactions
         root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
         root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
-        
+
         homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (final DocumentSnapshot doc : transactionHistoryList) {
@@ -115,8 +115,13 @@ public class TransactionItemDetailFragment extends Fragment {
 
         String transactionItemAccountMask       = "";
         String locationString                   = "";
-        String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("name"));
-        transactionItemAccountName              = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
+        String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("officialName"));
+
+        // Remove numbers if last 4 digits contains mask
+        if (transactionItemAccountName.length() >= 4
+                && transactionItemAccountName.substring(transactionItemAccountName.length() - 5, transactionItemAccountName.length()-1).matches(".*\\d.*")) {
+            transactionItemAccountName = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
+        }
 
         if (!String.valueOf(account.get("mask")).equals("null")) {
             transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");

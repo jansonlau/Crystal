@@ -95,8 +95,8 @@ public class HomeViewModel extends ViewModel {
 
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
-                .sandboxBaseUrl()
+                .clientIdAndSecret(clientIdKey, developmentSecretKey)
+                .developmentBaseUrl()
                 .build();
     }
 
@@ -148,9 +148,7 @@ public class HomeViewModel extends ViewModel {
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
         final int count = 500;
-//        Date startDate = new Date(1511049600L); // 1970
-        Date startDate = new Date(System.currentTimeMillis() - 1511049600L * 100); // 2017
-//        Date startDate = new Date(System.currentTimeMillis() - 86400000L * 100); // 2020
+        Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
         Date endDate = new Date();
 
         TransactionsGetRequest request = new TransactionsGetRequest(Objects.requireNonNull(accessToken), startDate, endDate)
@@ -216,6 +214,8 @@ public class HomeViewModel extends ViewModel {
         // If there are more than 500 transactions, get more because they're paginated
         if (transactionOffset < totalTransactions) {
             getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
+            batch.commit();
+            return;
         }
 
         batch.commit()
