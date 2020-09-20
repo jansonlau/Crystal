@@ -8,8 +8,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,6 +56,7 @@ public class HomeViewModel extends ViewModel {
     private static List<Map<String, Object>> bankAccountsList;
     private final Map<String, Account> accountIdToAccountMap;
     private static MonthlyActivityViewModel monthlyActivityViewModel;
+    private final MutableLiveData<Boolean> mutableSavedTransactionBoolean;
 
     private PlaidClient plaidClient;
     private int transactionOffset;
@@ -65,6 +68,7 @@ public class HomeViewModel extends ViewModel {
         currentTotalBalance             = new MutableLiveData<>();
         mutableSubsetTransactionsList   = new MutableLiveData<>();
         mutableTransactionHistoryList   = new MutableLiveData<>();
+        mutableSavedTransactionBoolean  = new MutableLiveData<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
@@ -83,6 +87,10 @@ public class HomeViewModel extends ViewModel {
 
     public MutableLiveData<List<DocumentSnapshot>> getMutableTransactionHistoryList() {
         return mutableTransactionHistoryList;
+    }
+
+    public MutableLiveData<Boolean> getMutableSavedTransactionBoolean() {
+        return mutableSavedTransactionBoolean;
     }
 
     public List<Map<String, Object>> getBankAccountsList() {
@@ -335,6 +343,22 @@ public class HomeViewModel extends ViewModel {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         mutableTransactionHistoryList.setValue(Objects.requireNonNull(task.getResult()).getDocuments());
+                    }
+                });
+    }
+
+    public void setSaveTransactionToDatabase(@NotNull final Map<String, Object> transaction) {
+        final String transactionId = String.valueOf(transaction.get("transactionId"));
+
+        docRef.collection("transactions")
+                .document(transactionId)
+                .set(Collections.singletonMap("saved", true), SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            mutableSavedTransactionBoolean.setValue(true);
+                        }
                     }
                 });
     }

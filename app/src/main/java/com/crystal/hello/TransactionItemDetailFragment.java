@@ -1,6 +1,8 @@
 package com.crystal.hello;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +33,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -138,6 +144,12 @@ public class TransactionItemDetailFragment extends Fragment {
             transactionStatus = transactionStatus.concat("Posted");
         }
 
+        // Saved transaction
+        if ((boolean) transaction.get("saved")) {
+            setImageViewToSavedResource(saveImageView);
+        }
+        setSaveTransactionClickListener(saveImageView, transaction);
+
         // Show location or map if available. Else, hide the views
         final Map<String, Object> locationMap = (HashMap<String, Object>) Objects.requireNonNull(transaction.get("location"));
         final String address                  = (String) locationMap.get("address");
@@ -203,7 +215,7 @@ public class TransactionItemDetailFragment extends Fragment {
         final List<Address> addressList = geocoder.getFromLocationName(addressString, 1);
 
         if (!addressList.isEmpty()) {
-            root.findViewById(R.id.transactionDetailMapAndLocationCardView).setVisibility(View.VISIBLE);
+            locationCardView.setVisibility(View.VISIBLE);
             final Address address = addressList.get(0);
             final double latitude = address.getLatitude();
             final double longitude = address.getLongitude();
@@ -227,16 +239,43 @@ public class TransactionItemDetailFragment extends Fragment {
 
             // Address listener
             final FrameLayout transactionDetailAddressFrameLayout = root.findViewById(R.id.transactionDetailAddressFrameLayout);
-            final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
-            final Uri gmmIntentUri = Uri.parse(uriString);
-            final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-            mapIntent.setPackage("com.google.android.apps.maps");
-
             transactionDetailAddressFrameLayout.setOnClickListener(view -> {
+                final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
+                final Uri gmmIntentUri = Uri.parse(uriString);
+                final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
             });
         } else {
             locationCardView.setVisibility(View.GONE);
         }
+    }
+
+    private void setSaveTransactionClickListener(@NotNull final ImageView saveImageView, final Map<String, Object> transaction) {
+        saveImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final ProgressBar saveProgressBar = root.findViewById(R.id.transactionDetailSaveProgressBar);
+                saveImageView.setVisibility(View.GONE);
+                saveProgressBar.setVisibility(View.VISIBLE);
+                homeViewModel.setSaveTransactionToDatabase(transaction);
+
+                homeViewModel.getMutableSavedTransactionBoolean().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean aBoolean) {
+                        saveProgressBar.setVisibility(View.GONE);
+                        saveImageView.setVisibility(View.VISIBLE);
+                        setImageViewToSavedResource(saveImageView);
+                    }
+                });
+            }
+        });
+    }
+
+    private void setImageViewToSavedResource(@NotNull final ImageView saveImageView) {
+        saveImageView.setImageResource(R.drawable.ic_outline_bookmark_border_24);
+        saveImageView.setPadding(4, 4, 4, 4);
+        saveImageView.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+        saveImageView.setBackgroundResource(R.drawable.round_corner);
     }
 }
