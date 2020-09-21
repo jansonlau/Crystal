@@ -56,7 +56,9 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_home, container, false);
+        observeCurrentBalance();
         observeTransactionList();
+        homeViewModel.getSubsetTransactionsFromDatabase();
         return root;
     }
 
@@ -67,7 +69,6 @@ public class HomeFragment extends Fragment {
         homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), list -> {
             final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
             homeRecyclerView.setAdapter(recyclerAdapter);
-            observeCurrentBalance();
             root.findViewById(R.id.homeFragmentProgressBar).setVisibility(View.GONE);
         });
     }

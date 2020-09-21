@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,19 +53,21 @@ public class TransactionItemDetailFragment extends Fragment {
     private String transactionItemDate;
     private String transactionItemAmount;
     private String transactionItemCategory;
+    private boolean isSavedTransaction;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeViewModel                   = new ViewModelProvider(this).get(HomeViewModel.class);
         transaction                     = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
+
         transactionItemLogo             = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         transactionItemLogoBackground   = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
         transactionItemName             = getArguments().getString("TRANSACTION_ITEM_NAME");
         transactionItemDate             = getArguments().getString("TRANSACTION_ITEM_DATE");
         transactionItemAmount           = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         transactionItemCategory         = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
-        homeViewModel.getTransactionHistoryFromDatabase(transaction);
+        isSavedTransaction              = (boolean) transaction.get("saved");
     }
 
     @Override
@@ -74,6 +75,7 @@ public class TransactionItemDetailFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
+        homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
 
         // Similar transactions
         root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
@@ -145,7 +147,7 @@ public class TransactionItemDetailFragment extends Fragment {
         }
 
         // Saved transaction
-        if ((boolean) transaction.get("saved")) {
+        if (isSavedTransaction) {
             setImageViewToSavedResource(saveImageView);
         }
         setSaveTransactionClickListener(saveImageView, transaction);
@@ -256,18 +258,16 @@ public class TransactionItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 final ProgressBar saveProgressBar = root.findViewById(R.id.transactionDetailSaveProgressBar);
-                saveImageView.setVisibility(View.GONE);
                 saveProgressBar.setVisibility(View.VISIBLE);
-                homeViewModel.setSaveTransactionToDatabase(transaction);
+                saveImageView.setVisibility(View.GONE);
 
-                homeViewModel.getMutableSavedTransactionBoolean().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-                    @Override
-                    public void onChanged(Boolean aBoolean) {
-                        saveProgressBar.setVisibility(View.GONE);
-                        saveImageView.setVisibility(View.VISIBLE);
-                        setImageViewToSavedResource(saveImageView);
-                    }
-                });
+                isSavedTransaction = !isSavedTransaction;
+                homeViewModel.setSaveTransactionToDatabase(transaction, isSavedTransaction);
+                if (isSavedTransaction) {
+                    setImageViewToSavedResource(saveImageView);
+                } else {
+                    setImageViewToUnsavedResource(saveImageView);
+                }
             }
         });
     }
@@ -277,5 +277,12 @@ public class TransactionItemDetailFragment extends Fragment {
         saveImageView.setPadding(4, 4, 4, 4);
         saveImageView.setImageTintList(ColorStateList.valueOf(Color.WHITE));
         saveImageView.setBackgroundResource(R.drawable.round_corner);
+    }
+
+    private void setImageViewToUnsavedResource(@NotNull final ImageView saveImageView) {
+        saveImageView.setImageResource(R.drawable.ic_baseline_add_circle_outline_24);
+        saveImageView.setPadding(0, 0, 0, 0);
+        saveImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+        saveImageView.setBackgroundResource(0);
     }
 }

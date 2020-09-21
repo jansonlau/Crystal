@@ -347,12 +347,12 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    public void setSaveTransactionToDatabase(@NotNull final Map<String, Object> transaction) {
+    public void setSaveTransactionToDatabase(@NotNull final Map<String, Object> transaction, boolean saveBoolean) {
         final String transactionId = String.valueOf(transaction.get("transactionId"));
 
         docRef.collection("transactions")
                 .document(transactionId)
-                .set(Collections.singletonMap("saved", true), SetOptions.merge())
+                .set(Collections.singletonMap("saved", saveBoolean), SetOptions.merge())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
