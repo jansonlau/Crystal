@@ -58,7 +58,6 @@ public class HomeFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_home, container, false);
         observeCurrentBalance();
         observeTransactionList();
-        homeViewModel.getSubsetTransactionsFromDatabase();
         return root;
     }
 

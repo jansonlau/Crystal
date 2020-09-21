@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,7 +67,6 @@ public class TransactionItemDetailFragment extends Fragment {
         transactionItemDate             = getArguments().getString("TRANSACTION_ITEM_DATE");
         transactionItemAmount           = getArguments().getString("TRANSACTION_ITEM_AMOUNT");
         transactionItemCategory         = getArguments().getString("TRANSACTION_ITEM_CATEGORY");
-        isSavedTransaction              = (boolean) transaction.get("saved");
     }
 
     @Override
@@ -75,32 +74,6 @@ public class TransactionItemDetailFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-        homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
-
-        // Similar transactions
-        root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
-        root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
-
-        homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
-            DocumentSnapshot removeDuplicateTransactionDoc = null;
-            for (final DocumentSnapshot doc : transactionHistoryList) {
-                if (String.valueOf(doc.get("transactionId")).equals(transaction.get("transactionId"))) {
-                    removeDuplicateTransactionDoc = doc;
-                }
-            }
-            transactionHistoryList.remove(removeDuplicateTransactionDoc);
-
-            root.findViewById(R.id.transactionItemDetailProgressBar).setVisibility(View.GONE);
-            if (!transactionHistoryList.isEmpty()) {
-                root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.VISIBLE);
-            }
-
-            final RecyclerView transactionHistoryRecyclerView = root.findViewById(R.id.transactionDetailTransactionHistoryRecyclerView);
-            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), transactionHistoryList);
-            transactionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            transactionHistoryRecyclerView.setAdapter(recyclerAdapter);
-        });
 
         final ImageView logoImageView       = root.findViewById(R.id.imageViewTransactionDetailLogo);
         final ImageView saveImageView       = root.findViewById(R.id.transactionDetailSaveImageView);
@@ -112,6 +85,17 @@ public class TransactionItemDetailFragment extends Fragment {
         final TextView accountMaskTextView  = root.findViewById(R.id.textViewTransactionDetailAccountMask);
         final TextView addressTextView      = root.findViewById(R.id.textViewTransactionDetailAddress);
         final TextView categoryTextView     = root.findViewById(R.id.textViewTransactionDetailCategory);
+
+        // Set initial visibility
+        saveImageView.setVisibility(View.INVISIBLE);
+        root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.GONE);
+        root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
+
+        observeTransactionHistoryList();
+        observeLatestTransactionMap(saveImageView);
+
+        homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
+        homeViewModel.getLatestTransactionFromDatabase(String.valueOf(transaction.get("transactionId")));
 
         // Bank account
         Map<String, Object> account = null;
@@ -145,12 +129,6 @@ public class TransactionItemDetailFragment extends Fragment {
         } else {
             transactionStatus = transactionStatus.concat("Posted");
         }
-
-        // Saved transaction
-        if (isSavedTransaction) {
-            setImageViewToSavedResource(saveImageView);
-        }
-        setSaveTransactionClickListener(saveImageView, transaction);
 
         // Show location or map if available. Else, hide the views
         final Map<String, Object> locationMap = (HashMap<String, Object>) Objects.requireNonNull(transaction.get("location"));
@@ -253,16 +231,53 @@ public class TransactionItemDetailFragment extends Fragment {
         }
     }
 
+    private void observeTransactionHistoryList() {
+        homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
+            DocumentSnapshot removeDuplicateTransactionDoc = null;
+            for (final DocumentSnapshot doc : transactionHistoryList) {
+                if (String.valueOf(doc.get("transactionId")).equals(transaction.get("transactionId"))) {
+                    removeDuplicateTransactionDoc = doc;
+                }
+            }
+            transactionHistoryList.remove(removeDuplicateTransactionDoc);
+
+            root.findViewById(R.id.transactionItemDetailProgressBar).setVisibility(View.GONE);
+            if (!transactionHistoryList.isEmpty()) {
+                root.findViewById(R.id.transactionDetailHistoryTextView).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.VISIBLE);
+            }
+
+            final RecyclerView transactionHistoryRecyclerView = root.findViewById(R.id.transactionDetailTransactionHistoryRecyclerView);
+            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), transactionHistoryList);
+            transactionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            transactionHistoryRecyclerView.setAdapter(recyclerAdapter);
+        });
+    }
+
+    private void observeLatestTransactionMap(ImageView saveImageView) {
+        homeViewModel.getMutableLatestTransactionMap().observe(getViewLifecycleOwner(), new Observer<Map<String, Object>>() {
+            @Override
+            public void onChanged(Map<String, Object> latestTransactionMap) {
+                isSavedTransaction = (boolean) latestTransactionMap.get("saved");
+                saveImageView.setVisibility(View.VISIBLE);
+                setSaveTransactionClickListener(saveImageView, transaction);
+
+                if (isSavedTransaction) {
+                    setImageViewToSavedResource(saveImageView);
+                } else {
+                    setImageViewToUnsavedResource(saveImageView);
+                }
+            }
+        });
+    }
+
     private void setSaveTransactionClickListener(@NotNull final ImageView saveImageView, final Map<String, Object> transaction) {
         saveImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final ProgressBar saveProgressBar = root.findViewById(R.id.transactionDetailSaveProgressBar);
-                saveProgressBar.setVisibility(View.VISIBLE);
-                saveImageView.setVisibility(View.GONE);
-
                 isSavedTransaction = !isSavedTransaction;
-                homeViewModel.setSaveTransactionToDatabase(transaction, isSavedTransaction);
+                homeViewModel.setSaveTransactionToDatabase(String.valueOf(transaction.get("transactionId")), isSavedTransaction);
+
                 if (isSavedTransaction) {
                     setImageViewToSavedResource(saveImageView);
                 } else {

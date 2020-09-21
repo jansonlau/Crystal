@@ -53,6 +53,7 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Double> currentTotalBalance;
     private final MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
     private final MutableLiveData<List<DocumentSnapshot>> mutableTransactionHistoryList;
+    private final MutableLiveData<Map<String, Object>> mutableLatestTransactionMap;
     private static List<Map<String, Object>> bankAccountsList;
     private final Map<String, Account> accountIdToAccountMap;
     private static MonthlyActivityViewModel monthlyActivityViewModel;
@@ -69,6 +70,7 @@ public class HomeViewModel extends ViewModel {
         mutableSubsetTransactionsList   = new MutableLiveData<>();
         mutableTransactionHistoryList   = new MutableLiveData<>();
         mutableSavedTransactionBoolean  = new MutableLiveData<>();
+        mutableLatestTransactionMap     = new MutableLiveData<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
@@ -89,8 +91,8 @@ public class HomeViewModel extends ViewModel {
         return mutableTransactionHistoryList;
     }
 
-    public MutableLiveData<Boolean> getMutableSavedTransactionBoolean() {
-        return mutableSavedTransactionBoolean;
+    public MutableLiveData<Map<String, Object>> getMutableLatestTransactionMap() {
+        return mutableLatestTransactionMap;
     }
 
     public List<Map<String, Object>> getBankAccountsList() {
@@ -347,9 +349,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    public void setSaveTransactionToDatabase(@NotNull final Map<String, Object> transaction, boolean saveBoolean) {
-        final String transactionId = String.valueOf(transaction.get("transactionId"));
-
+    public void setSaveTransactionToDatabase(@NotNull final String transactionId, boolean saveBoolean) {
         docRef.collection("transactions")
                 .document(transactionId)
                 .set(Collections.singletonMap("saved", saveBoolean), SetOptions.merge())
@@ -360,6 +360,17 @@ public class HomeViewModel extends ViewModel {
                             mutableSavedTransactionBoolean.setValue(true);
                         }
                     }
+                });
+    }
+
+    public void getLatestTransactionFromDatabase(@NotNull final String transactionId) {
+        docRef.collection("transactions")
+                .document(transactionId)
+                .get()
+                .addOnCompleteListener(task -> {
+                   if (task.isSuccessful()) {
+                       mutableLatestTransactionMap.setValue(Objects.requireNonNull(task.getResult()).getData());
+                   }
                 });
     }
 }
