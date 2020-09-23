@@ -33,8 +33,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +52,7 @@ public class TransactionItemDetailFragment extends Fragment {
     private String transactionItemAmount;
     private String transactionItemCategory;
     private boolean isSavedTransaction;
+    private ImageView saveImageView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,10 +72,9 @@ public class TransactionItemDetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
-
+        root                                = inflater.inflate(R.layout.fragment_transaction_item_detail, container, false);
+        saveImageView                       = root.findViewById(R.id.transactionDetailSaveImageView);
         final ImageView logoImageView       = root.findViewById(R.id.imageViewTransactionDetailLogo);
-        final ImageView saveImageView       = root.findViewById(R.id.transactionDetailSaveImageView);
         final TextView amountTextView       = root.findViewById(R.id.textViewTransactionDetailAmount);
         final TextView nameTextView         = root.findViewById(R.id.textViewTransactionDetailName);
         final TextView dateTextView         = root.findViewById(R.id.textViewTransactionDetailDate);
@@ -92,7 +90,7 @@ public class TransactionItemDetailFragment extends Fragment {
         root.findViewById(R.id.transactionDetailHistoryCardView).setVisibility(View.GONE);
 
         observeTransactionHistoryList();
-        observeLatestTransactionMap(saveImageView);
+        observeLatestTransactionMap();
 
         homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
         homeViewModel.getLatestTransactionFromDatabase(String.valueOf(transaction.get("transactionId")));
@@ -254,47 +252,45 @@ public class TransactionItemDetailFragment extends Fragment {
         });
     }
 
-    private void observeLatestTransactionMap(ImageView saveImageView) {
+    private void observeLatestTransactionMap() {
         homeViewModel.getMutableLatestTransactionMap().observe(getViewLifecycleOwner(), new Observer<Map<String, Object>>() {
             @Override
             public void onChanged(Map<String, Object> latestTransactionMap) {
                 isSavedTransaction = (boolean) latestTransactionMap.get("saved");
+                setSaveTransactionClickListener(transaction);
+                setSaveImageResource();
                 saveImageView.setVisibility(View.VISIBLE);
-                setSaveTransactionClickListener(saveImageView, transaction);
-
-                if (isSavedTransaction) {
-                    setImageViewToSavedResource(saveImageView);
-                } else {
-                    setImageViewToUnsavedResource(saveImageView);
-                }
             }
         });
     }
 
-    private void setSaveTransactionClickListener(@NotNull final ImageView saveImageView, final Map<String, Object> transaction) {
+    private void setSaveTransactionClickListener(final Map<String, Object> transaction) {
         saveImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 isSavedTransaction = !isSavedTransaction;
                 homeViewModel.setSaveTransactionToDatabase(String.valueOf(transaction.get("transactionId")), isSavedTransaction);
-
-                if (isSavedTransaction) {
-                    setImageViewToSavedResource(saveImageView);
-                } else {
-                    setImageViewToUnsavedResource(saveImageView);
-                }
+                setSaveImageResource();
             }
         });
     }
 
-    private void setImageViewToSavedResource(@NotNull final ImageView saveImageView) {
+    private void setSaveImageResource() {
+        if (isSavedTransaction) {
+            setImageViewToSavedResource();
+        } else {
+            setImageViewToUnsavedResource();
+        }
+    }
+
+    private void setImageViewToSavedResource() {
         saveImageView.setImageResource(R.drawable.ic_outline_bookmark_border_24);
         saveImageView.setPadding(4, 4, 4, 4);
         saveImageView.setImageTintList(ColorStateList.valueOf(Color.WHITE));
         saveImageView.setBackgroundResource(R.drawable.round_corner);
     }
 
-    private void setImageViewToUnsavedResource(@NotNull final ImageView saveImageView) {
+    private void setImageViewToUnsavedResource() {
         saveImageView.setImageResource(R.drawable.ic_baseline_add_circle_outline_24);
         saveImageView.setPadding(0, 0, 0, 0);
         saveImageView.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));

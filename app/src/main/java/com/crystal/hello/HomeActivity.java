@@ -7,12 +7,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.crystal.hello.monthlyactivity.MonthlyActivityFragment;
 import com.crystal.hello.ui.home.HomeFragment;
 import com.crystal.hello.ui.profile.ProfileFragment;
 import com.crystal.hello.ui.saved.SavedFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
     @Override
@@ -33,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
         setBottomNavigationItemReselectedListener(navView);
     }
 
-    private void setBottomNavigationItemSelectedListener(BottomNavigationView navView) {
+    private void setBottomNavigationItemSelectedListener(@NotNull BottomNavigationView navView) {
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -53,6 +58,10 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                 }
 
+                for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
                 HomeActivity.this.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragmentFrameLayout, fragment)
                         .commit();
@@ -61,17 +70,22 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setBottomNavigationItemReselectedListener(BottomNavigationView navView) {
+    private void setBottomNavigationItemReselectedListener(@NotNull BottomNavigationView navView) {
         navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
-                if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
+                if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                    if (item.getItemId() == R.id.navigation_home) {
+                        final NestedScrollView homeFragmentNestedScrollView = findViewById(R.id.homeFragmentNestedScrollView);
+                        homeFragmentNestedScrollView.smoothScrollTo(0, 0);
+                    } else if (item.getItemId() == R.id.navigation_monthly) {
+                        final ViewPager2 viewPager = findViewById(R.id.pager);
+                        viewPager.setCurrentItem(Objects.requireNonNull(viewPager.getAdapter()).getItemCount() - 1, true);
+                    }
+                } else {
                     for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
                         getSupportFragmentManager().popBackStack();
                     }
-                } else if (item.getItemId() == R.id.navigation_home) {
-                    NestedScrollView homeFragmentNestedScrollView = HomeActivity.this.findViewById(R.id.homeFragmentNestedScrollView);
-                    homeFragmentNestedScrollView.smoothScrollTo(0, 0);
                 }
             }
         });

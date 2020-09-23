@@ -51,7 +51,7 @@ public class MonthlyActivityFragment extends Fragment {
                 viewPager.setAdapter(pagerAdapter);
 
                 if (!isSetToLastItem) {
-                    viewPager.setCurrentItem(HomeViewModel.getMonthlyActivityViewModel().getMonths() - 1, false);
+                    viewPager.setCurrentItem(pagerAdapter.getItemCount() - 1, false);
                     isSetToLastItem = true;
                 }
             }
