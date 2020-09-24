@@ -41,7 +41,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button button = root.findViewById(R.id.addAccountButton);
-        button.setOnClickListener(view -> ProfileFragment.this.openLink());
+        button.setOnClickListener(view -> openLink());
 
         profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean) {

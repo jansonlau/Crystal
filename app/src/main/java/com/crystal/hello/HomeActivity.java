@@ -75,12 +75,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onNavigationItemReselected(@NonNull MenuItem item) {
                 if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                    if (item.getItemId() == R.id.navigation_home) {
-                        final NestedScrollView homeFragmentNestedScrollView = findViewById(R.id.homeFragmentNestedScrollView);
-                        homeFragmentNestedScrollView.smoothScrollTo(0, 0);
-                    } else if (item.getItemId() == R.id.navigation_monthly) {
-                        final ViewPager2 viewPager = findViewById(R.id.pager);
-                        viewPager.setCurrentItem(Objects.requireNonNull(viewPager.getAdapter()).getItemCount() - 1, true);
+                    switch (item.getItemId()) {
+                        case R.id.navigation_home:
+                            final NestedScrollView homeFragmentNestedScrollView = findViewById(R.id.homeFragmentNestedScrollView);
+                            homeFragmentNestedScrollView.smoothScrollTo(0, 0);
+                            break;
+                        case R.id.navigation_monthly:
+                            final ViewPager2 viewPager = findViewById(R.id.pager);
+                            viewPager.setCurrentItem(Objects.requireNonNull(viewPager.getAdapter()).getItemCount() - 1, true);
+                            break;
                     }
                 } else {
                     for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {

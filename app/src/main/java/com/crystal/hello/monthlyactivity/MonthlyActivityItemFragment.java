@@ -28,7 +28,32 @@ public class MonthlyActivityItemFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBundleArguments();
+    }
 
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        final View root = inflater.inflate(R.layout.fragment_monthly_activity_item, container, false);
+        final TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
+        final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
+        final RecyclerView creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
+        final RecyclerView merchantRecyclerView = root.findViewById(R.id.merchantRecyclerView);
+
+        monthAndYearTextView.setText(monthAndYearString);
+
+        budgetRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        budgetRecyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
+
+        creditRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        creditRecyclerView.setAdapter(monthlyActivityItemCreditRecyclerAdapter);
+
+        merchantRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        merchantRecyclerView.setAdapter(monthlyActivityItemMerchantRecyclerAdapter);
+        return root;
+    }
+
+    private void getBundleArguments() {
         monthAndYearString = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.MONTH_YEAR");
 
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
@@ -64,27 +89,13 @@ public class MonthlyActivityItemFragment extends Fragment {
         monthlyActivityItemMerchantRecyclerAdapter = new MonthlyActivityItemMerchantRecyclerAdapter(getActivity()
                 , oneMonthMerchantTransactionsMap
                 , oneMonthAmountByMerchantNameList);
-    }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.fragment_monthly_activity_item, container, false);
-        final TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
-        final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
-        final RecyclerView creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
-        final RecyclerView merchantRecyclerView = root.findViewById(R.id.merchantRecyclerView);
-
-        monthAndYearTextView.setText(monthAndYearString);
-
-        budgetRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        budgetRecyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
-
-        creditRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        creditRecyclerView.setAdapter(monthlyActivityItemCreditRecyclerAdapter);
-
-        merchantRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        merchantRecyclerView.setAdapter(monthlyActivityItemMerchantRecyclerAdapter);
-        return root;
+        getArguments().remove("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
+        getArguments().remove("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
+        getArguments().remove("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
+        getArguments().remove("com.crystal.hello.MERCHANT_AMOUNTS_LIST");
+        getArguments().remove("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
+        getArguments().remove("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
+        getArguments().remove("com.crystal.hello.BUDGETS_MAP");
     }
 }
