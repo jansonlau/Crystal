@@ -232,10 +232,8 @@ public class HomeViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        if (transactionOffset >= totalTransactions) {
-                            getSubsetTransactionsFromDatabase();
-                            monthlyActivityViewModel = new MonthlyActivityViewModel();
-                        }
+                        getSubsetTransactionsFromDatabase();
+                        monthlyActivityViewModel = new MonthlyActivityViewModel();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

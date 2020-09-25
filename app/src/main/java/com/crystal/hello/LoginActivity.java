@@ -9,6 +9,7 @@ import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText passwordEditText;
     private TextView forgotPasswordTextView;
     private Button loginButton;
+    private ProgressBar loginProgressBar;
     private FirebaseAuth auth;
 
     @Override
@@ -46,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.editTextLoginPassword);
         forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
         loginButton = findViewById(R.id.buttonLogin);
+        loginProgressBar = findViewById(R.id.loginProgressBar);
         auth = FirebaseAuth.getInstance();
         setListeners();
     }
@@ -75,6 +78,48 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
+            }
+        });
+
+        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Editable emailAddress = usernameEditText.getText();
+                passwordLayout.setError(null);
+
+                if (!isUsernameValid(emailAddress)) {
+                    usernameLayout.setError("Please enter a valid email.");
+                    return;
+                } else {
+                    usernameLayout.setError(null);
+                }
+
+                auth.fetchSignInMethodsForEmail(emailAddress.toString())
+                        .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                                if (task.isSuccessful()) {
+                                    SignInMethodQueryResult result = task.getResult();
+                                    List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
+
+                                    if (Objects.requireNonNull(signInMethods).contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
+                                        auth.sendPasswordResetEmail(emailAddress.toString())
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            Toast.makeText(LoginActivity.this
+                                                                    , "Password reset email sent."
+                                                                    , Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                });
+                                    } else {
+                                        usernameLayout.setError("The email you entered doesn't belong to an account.");
+                                    }
+                                }
+                            }
+                        });
             }
         });
 
@@ -122,6 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!validateForm()) {
             return;
         }
+        setViewVisibility(true);
 
         // Check if email exists
         auth.fetchSignInMethodsForEmail(email)
@@ -129,15 +175,14 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                         if (task.isSuccessful()) {
-                            SignInMethodQueryResult result = task.getResult();
-                            List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
+                            final SignInMethodQueryResult result = task.getResult();
+                            final List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
 
                             if (Objects.requireNonNull(signInMethods).contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
                                 signIn(email, password);
                             } else {
-                                Toast.makeText(LoginActivity.this
-                                        , "The email you entered doesn't belong to an account."
-                                        , Toast.LENGTH_LONG).show();
+                                setViewVisibility(false);
+                                usernameLayout.setError("The email you entered doesn't belong to an account.");
                             }
                         }
                     }
@@ -151,16 +196,26 @@ public class LoginActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    final Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
                     finishAffinity();
                 } else {
-                    // If sign in fails, display a message to the user
-                    Toast.makeText(LoginActivity.this
-                            , "Sorry, your password was incorrect."
-                            , Toast.LENGTH_LONG).show();
+                    setViewVisibility(false);
+                    passwordLayout.setError("Sorry, your password was incorrect.");
                 }
             }
         });
+    }
+
+    public void setViewVisibility(boolean progressBarVisible) {
+        if (progressBarVisible) {
+            usernameLayout.setVisibility(View.GONE);
+            passwordLayout.setVisibility(View.GONE);
+            loginProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            usernameLayout.setVisibility(View.VISIBLE);
+            passwordLayout.setVisibility(View.VISIBLE);
+            loginProgressBar.setVisibility(View.GONE);
+        }
     }
 }
