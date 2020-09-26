@@ -158,10 +158,10 @@ public class HomeViewModel extends ViewModel {
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
         final int count = 500;
-        Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
-        Date endDate = new Date();
+        final Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
+        final Date endDate = new Date();
 
-        TransactionsGetRequest request = new TransactionsGetRequest(Objects.requireNonNull(accessToken), startDate, endDate)
+        final TransactionsGetRequest request = new TransactionsGetRequest(Objects.requireNonNull(accessToken), startDate, endDate)
                 .withCount(count)
                 .withOffset(offset);
 

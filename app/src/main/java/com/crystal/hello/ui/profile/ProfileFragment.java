@@ -6,13 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.crystal.hello.MainActivity;
 import com.crystal.hello.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.plaid.link.Plaid;
 import com.plaid.link.configuration.AccountSubtype;
 import com.plaid.link.configuration.LinkConfiguration;
@@ -43,11 +46,13 @@ public class ProfileFragment extends Fragment {
         final Button button = root.findViewById(R.id.addAccountButton);
         button.setOnClickListener(view -> openLink());
 
+        final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
+        logOutTextView.setOnClickListener(view -> logOut());
+
         profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean) {
                 root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
                 root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.supportEmailTextView).setVisibility(View.VISIBLE);
                 root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
             }
         });
@@ -78,7 +83,6 @@ public class ProfileFragment extends Fragment {
             linkSuccess -> {
                 root.findViewById(R.id.bankAccountsTextView).setVisibility(View.GONE);
                 root.findViewById(R.id.addAccountButton).setVisibility(View.GONE);
-                root.findViewById(R.id.supportEmailTextView).setVisibility(View.GONE);
                 root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.VISIBLE);
 
                 final String publicToken = linkSuccess.getPublicToken();
@@ -96,4 +100,11 @@ public class ProfileFragment extends Fragment {
                 return Unit.INSTANCE;
             }
     );
+
+    private void logOut() {
+        FirebaseAuth.getInstance().signOut();
+        final Intent intent = new Intent(getActivity(), MainActivity.class);
+        startActivity(intent);
+        Objects.requireNonNull(getActivity()).finishAffinity();
+    }
 }
