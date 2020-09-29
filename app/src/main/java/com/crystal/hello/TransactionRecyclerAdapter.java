@@ -75,6 +75,11 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<ViewHolder>
             transactionDate = transactionDate.concat(" - Pending");
         }
 
+        // Remove divider in last item of recycler view
+        if (position == getItemCount() - 1) {
+            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
+        }
+
         holder.transactionLogoImageView.setImageResource(drawableInt);
         holder.transactionLogoImageView.setBackgroundResource(logoBackgroundDrawableInt);
         holder.transactionTitleTextView.setText(transactionName);

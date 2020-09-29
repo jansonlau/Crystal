@@ -69,6 +69,10 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
         holder.transactionAmountTextView.setText(parsedTransactionAmountString);
         holder.transactionSubtitleTextView.setText(transactionCountString);
         initializeMonthlyActivityItemDetailFragment(holder, merchantName);
+
+        if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
+            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
+        }
     }
 
     @Override
