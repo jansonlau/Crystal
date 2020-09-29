@@ -4,11 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,7 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class TransactionRecyclerAdapter extends RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder> {
+public class TransactionRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final List<DocumentSnapshot> transactionsList;
     private final LayoutInflater layoutInflater;
     private final FragmentActivity fragmentActivity;
@@ -41,13 +38,13 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Map<String, Object> transaction   = transactionsList.get(position).getData();
         final double transactionAmount          = (double) Objects.requireNonNull(transaction).get("amount");
         final List<String> categoriesList       = (List<String>) transaction.get("category");
@@ -78,40 +75,16 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
             transactionDate = transactionDate.concat(" - Pending");
         }
 
-        // Remove divider in last item of recycler view
-        if (position == getItemCount() - 1) {
-            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
-        }
-
         holder.transactionLogoImageView.setImageResource(drawableInt);
         holder.transactionLogoImageView.setBackgroundResource(logoBackgroundDrawableInt);
-        holder.transactionNameTextView.setText(transactionName);
-        holder.transactionDateTextView.setText(transactionDate);
+        holder.transactionTitleTextView.setText(transactionName);
+        holder.transactionSubtitleTextView.setText(transactionDate);
         holder.transactionAmountTextView.setText(parsedTransactionAmount);
     }
 
     @Override
     public int getItemCount() {
         return transactionsList.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        final ConstraintLayout transactionConstraintLayout;
-        final ImageView transactionLogoImageView;
-        final TextView transactionNameTextView;
-        final TextView transactionDateTextView;
-        final TextView transactionAmountTextView;
-        final View transactionDividerView;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            transactionConstraintLayout = itemView.findViewById(R.id.transactionConstraintLayout);
-            transactionLogoImageView    = itemView.findViewById(R.id.transactionLogoImageView);
-            transactionNameTextView     = itemView.findViewById(R.id.transactionNameTextView);
-            transactionDateTextView     = itemView.findViewById(R.id.transactionDateTextView);
-            transactionAmountTextView   = itemView.findViewById(R.id.transactionAmountTextView);
-            transactionDividerView      = itemView.findViewById(R.id.transactionDividerView);
-        }
     }
 
     @NotNull

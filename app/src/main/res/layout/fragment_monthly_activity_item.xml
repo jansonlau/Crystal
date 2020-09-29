@@ -89,7 +89,7 @@
                     android:layout_height="match_parent"
                     android:nestedScrollingEnabled="false"
                     tools:itemCount="2"
-                    tools:listitem="@layout/item_monthly_activity_credits" />
+                    tools:listitem="@layout/item_transaction" />
             </FrameLayout>
 
             <TextView
@@ -114,7 +114,7 @@
                     android:layout_height="match_parent"
                     android:nestedScrollingEnabled="false"
                     tools:itemCount="2"
-                    tools:listitem="@layout/item_monthly_activity_credits" />
+                    tools:listitem="@layout/item_transaction" />
             </FrameLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

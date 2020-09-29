@@ -7,7 +7,7 @@
     tools:context=".monthlyactivity.MonthlyActivityItemDetailFragment" >
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/monthlyActivityDetailRecyclerView"
+        android:id="@+id/extendedTransactionsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

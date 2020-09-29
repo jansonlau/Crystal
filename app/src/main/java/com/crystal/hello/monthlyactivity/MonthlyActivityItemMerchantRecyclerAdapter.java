@@ -4,16 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.R;
+import com.crystal.hello.ViewHolder;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Adapter<MonthlyActivityItemMerchantRecyclerAdapter.ViewHolder> {
+public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final FragmentActivity fragmentActivity;
     private final LayoutInflater layoutInflater;
     private final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap; // Key: Category, Value: Documents
@@ -42,13 +40,13 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
 
     @NonNull
     @Override
-    public MonthlyActivityItemMerchantRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View itemView = layoutInflater.inflate(R.layout.item_monthly_activity_credits, parent, false);
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MonthlyActivityItemMerchantRecyclerAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Map.Entry<String, Double> transaction = oneMonthAmountByMerchantNameList.get(position).entrySet().iterator().next();
         final String merchantName = transaction.getKey();
         final double amount = transaction.getValue();
@@ -65,40 +63,17 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
         final String parsedTransactionAmountString = parseTransactionAmount(amount);
         final int drawableInt = parseTransactionLogo(Objects.requireNonNull(categoriesList));
 
-        holder.creditNameTextView.setText(merchantName);
-        holder.creditAmountTextView.setText(parsedTransactionAmountString);
-        holder.creditCountTextView.setText(transactionCountString);
-        holder.creditLogoImageView.setImageResource(drawableInt);
-        holder.creditLogoImageView.setBackgroundResource(logoBackgroundDrawableInt);
+        holder.transactionLogoImageView.setBackgroundResource(logoBackgroundDrawableInt);
+        holder.transactionLogoImageView.setImageResource(drawableInt);
+        holder.transactionTitleTextView.setText(merchantName);
+        holder.transactionAmountTextView.setText(parsedTransactionAmountString);
+        holder.transactionSubtitleTextView.setText(transactionCountString);
         initializeMonthlyActivityItemDetailFragment(holder, merchantName);
-
-        if (position == getItemCount() - 1) { // Remove divider in last item of recycler view
-            holder.creditConstraintLayout.removeView(holder.creditDividerView);
-        }
     }
 
     @Override
     public int getItemCount() {
         return Math.min(oneMonthMerchantTransactionsMap.size(), 5);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        final View              creditDividerView;
-        final TextView          creditNameTextView;
-        final TextView          creditAmountTextView;
-        final TextView          creditCountTextView;
-        final ImageView         creditLogoImageView;
-        final ConstraintLayout  creditConstraintLayout;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            creditDividerView       = itemView.findViewById(R.id.creditDividerView);
-            creditNameTextView      = itemView.findViewById(R.id.creditNameTextView);
-            creditAmountTextView    = itemView.findViewById(R.id.creditAmountTextView);
-            creditCountTextView     = itemView.findViewById(R.id.creditCountTextView);
-            creditLogoImageView     = itemView.findViewById(R.id.creditLogoImageView);
-            creditConstraintLayout  = itemView.findViewById(R.id.creditConstraintLayout);
-        }
     }
 
     private void initializeMonthlyActivityItemDetailFragment(@NotNull final ViewHolder holder, final String merchantName) {

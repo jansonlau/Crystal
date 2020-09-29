@@ -29,9 +29,9 @@ public class MonthlyActivityItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.fragment_monthly_activity_item_detail, container, false);
+        final View root = inflater.inflate(R.layout.fragment_extended_transactions, container, false);
         final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), oneMonthPositiveAmountTransactionsByCategoryMap);
-        final RecyclerView recyclerView = root.findViewById(R.id.monthlyActivityDetailRecyclerView);
+        final RecyclerView recyclerView = root.findViewById(R.id.extendedTransactionsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(recyclerAdapter);
         return root;

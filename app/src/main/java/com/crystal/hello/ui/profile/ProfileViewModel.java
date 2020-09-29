@@ -174,6 +174,7 @@ public class ProfileViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        getBankAccountsFromDatabase();
                         mutableTransactionsCompleteBoolean.setValue(true);
                     }
                 })

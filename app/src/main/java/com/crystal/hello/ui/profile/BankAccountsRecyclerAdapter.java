@@ -3,13 +3,13 @@ package com.crystal.hello.ui.profile;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.R;
+import com.crystal.hello.ViewHolder;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<BankAccountsRecyclerAdapter.ViewHolder> {
+public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final List<DocumentSnapshot> bankAccountsList;
     private final LayoutInflater layoutInflater;
 
@@ -30,7 +30,7 @@ public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<BankAccoun
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_bank_account, parent, false);
+        View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
         return new ViewHolder(itemView);
     }
 
@@ -68,28 +68,20 @@ public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<BankAccoun
             amountString = new StringBuilder(amountString).insert(1, "$").toString();
         }
 
-        holder.bankNameTextView.setText(name);
-        holder.bankBalanceTextView.setText(amountString);
-        holder.bankMaskTextView.setText(mask);
+        holder.transactionTitleTextView.setText(name);
+        holder.transactionAmountTextView.setText(amountString);
+        holder.transactionSubtitleTextView.setText(mask);
+        holder.transactionArrowImageView.setVisibility(View.GONE);
+        holder.transactionLogoImageView.setImageResource(R.drawable.ic_baseline_account_balance_24);
+        holder.transactionLogoImageView.setBackgroundResource(R.drawable.payments_background);
+
+        if (position == getItemCount() - 1) {
+            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
+        }
     }
 
     @Override
     public int getItemCount() {
         return bankAccountsList.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView bankNameTextView;
-        final TextView bankBalanceTextView;
-        final TextView bankMaskTextView;
-        final View bankDividerView;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            bankNameTextView    = itemView.findViewById(R.id.bankNameTextView);
-            bankBalanceTextView = itemView.findViewById(R.id.bankBalanceTextView);
-            bankMaskTextView    = itemView.findViewById(R.id.bankMaskTextView);
-            bankDividerView     = itemView.findViewById(R.id.bankDividerView);
-        }
     }
 }

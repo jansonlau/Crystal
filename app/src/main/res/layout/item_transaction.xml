@@ -17,19 +17,19 @@
         android:background="@drawable/shopping_background"
         android:contentDescription="TODO"
         android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/transactionDateTextView"
+        app:layout_constraintBottom_toBottomOf="@+id/transactionSubtitleTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/transactionNameTextView"
+        app:layout_constraintTop_toTopOf="@+id/transactionTitleTextView"
         app:srcCompat="@drawable/shopping" />
 
     <TextView
-        android:id="@+id/transactionNameTextView"
+        android:id="@+id/transactionTitleTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:lines="1"
+        android:layout_marginEnd="12dp"
+        android:singleLine="true"
         android:text="This is a very long text that repeats itself over and over"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
@@ -38,19 +38,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/transactionLocationTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="San Francisco, CA"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@android:color/tertiary_text_light"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/transactionAmountTextView"
-        app:layout_constraintStart_toStartOf="@+id/transactionNameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/transactionNameTextView" />
-
-    <TextView
-        android:id="@+id/transactionDateTextView"
+        android:id="@+id/transactionSubtitleTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
@@ -58,22 +46,22 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/tertiary_text_light"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/transactionNameTextView"
-        app:layout_constraintStart_toStartOf="@+id/transactionNameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/transactionLocationTextView" />
+        app:layout_constraintEnd_toEndOf="@+id/transactionTitleTextView"
+        app:layout_constraintStart_toStartOf="@+id/transactionTitleTextView"
+        app:layout_constraintTop_toBottomOf="@+id/transactionTitleTextView" />
 
     <TextView
         android:id="@+id/transactionAmountTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="12dp"
         android:maxLines="1"
         android:text="$500000.14"
         android:textAlignment="viewEnd"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        app:layout_constraintBottom_toBottomOf="@+id/transactionNameTextView"
+        app:layout_constraintBottom_toBottomOf="@+id/transactionTitleTextView"
         app:layout_constraintEnd_toStartOf="@+id/transactionArrowImageView"
-        app:layout_constraintTop_toTopOf="@+id/transactionNameTextView" />
+        app:layout_constraintTop_toTopOf="@+id/transactionTitleTextView" />
 
     <ImageView
         android:id="@+id/transactionArrowImageView"
