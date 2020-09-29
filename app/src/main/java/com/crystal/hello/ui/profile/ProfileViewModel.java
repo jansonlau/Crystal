@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
@@ -45,6 +46,7 @@ public class ProfileViewModel extends ViewModel {
     private int transactionOffset;
     private final Map<String, Account> accountIdToAccountMap;
     private final MutableLiveData<Boolean> mutableTransactionsCompleteBoolean;
+    private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
 
     public ProfileViewModel() {
         transactionOffset = 0;
@@ -53,10 +55,15 @@ public class ProfileViewModel extends ViewModel {
         docRef = db.collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         mutableTransactionsCompleteBoolean = new MutableLiveData<>();
+        mutableBankAccountsList = new MutableLiveData<>();
     }
 
     public MutableLiveData<Boolean> getMutableTransactionsCompleteBoolean() {
         return mutableTransactionsCompleteBoolean;
+    }
+
+    public MutableLiveData<List<DocumentSnapshot>> getMutableBankAccountsList() {
+        return mutableBankAccountsList;
     }
 
     protected void buildPlaidClient() {
@@ -167,9 +174,7 @@ public class ProfileViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        if (transactionOffset >= totalTransactions) {
-                            mutableTransactionsCompleteBoolean.setValue(true);
-                        }
+                        mutableTransactionsCompleteBoolean.setValue(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -198,5 +203,15 @@ public class ProfileViewModel extends ViewModel {
         }
 
         batch.commit();
+    }
+
+    protected void getBankAccountsFromDatabase() {
+        docRef.collection("banks")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        getMutableBankAccountsList().setValue(Objects.requireNonNull(task.getResult()).getDocuments());
+                    }
+                });
     }
 }

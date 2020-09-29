@@ -59,7 +59,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
 
         final String category = categoryAndAmountMap.getKey();
         final Double amount = categoryAndAmountMap.getValue();
-        final String amountString = "$" + String.format(Locale.US,"%.2f", amount);
+        final String amountString = "$".concat(String.format(Locale.US,"%.2f", amount));
 
         holder.budgetNameTextView.setText(category);
         holder.budgetAmountTextView.setText(amountString);

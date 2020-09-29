@@ -118,7 +118,7 @@ public class TransactionRecyclerAdapter extends RecyclerView.Adapter<Transaction
     private String parseTransactionAmount(final double transactionAmount) {
         String amountString = String.format(Locale.US,"%.2f", transactionAmount);
         if (transactionAmount >= 0.0) {
-            amountString = "$" + amountString;
+            amountString = "$".concat(amountString);
         } else {
             amountString = new StringBuilder(amountString).insert(1, "$").toString();
         }

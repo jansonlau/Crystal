@@ -11,11 +11,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.MainActivity;
 import com.crystal.hello.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
 import com.plaid.link.configuration.AccountSubtype;
 import com.plaid.link.configuration.LinkConfiguration;
@@ -24,6 +28,7 @@ import com.plaid.link.configuration.PlaidProduct;
 import com.plaid.link.result.PlaidLinkResultHandler;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import kotlin.Unit;
@@ -36,6 +41,7 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        profileViewModel.getBankAccountsFromDatabase();
         Plaid.initialize(Objects.requireNonNull(getActivity()).getApplication());
     }
 
@@ -48,6 +54,8 @@ public class ProfileFragment extends Fragment {
 
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
         logOutTextView.setOnClickListener(view -> logOut());
+
+        observeBankAccountsList();
 
         profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean) {
@@ -92,11 +100,11 @@ public class ProfileFragment extends Fragment {
             },
 
             linkExit -> {
-                if (linkExit.error != null) {
-                    System.out.println("link error");
-                } else {
-                    System.out.println("left link");
-                }
+//                if (linkExit.error != null) {
+//                    // Link error
+//                } else {
+//                    // Left link
+//                }
                 return Unit.INSTANCE;
             }
     );
@@ -106,5 +114,18 @@ public class ProfileFragment extends Fragment {
         final Intent intent = new Intent(getActivity(), MainActivity.class);
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finishAffinity();
+    }
+
+    private void observeBankAccountsList() {
+        final RecyclerView bankAccountsRecyclerView = root.findViewById(R.id.bankAccountsRecyclerView);
+        bankAccountsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        profileViewModel.getMutableBankAccountsList().observe(getViewLifecycleOwner(), new Observer<List<DocumentSnapshot>>() {
+            @Override
+            public void onChanged(List<DocumentSnapshot> documentSnapshotList) {
+                final BankAccountsRecyclerAdapter recyclerAdapter = new BankAccountsRecyclerAdapter(getActivity(), documentSnapshotList);
+                bankAccountsRecyclerView.setAdapter(recyclerAdapter);
+            }
+        });
     }
 }

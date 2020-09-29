@@ -2,8 +2,6 @@ package com.crystal.hello.ui.home;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +45,7 @@ public class HomeFragment extends Fragment {
             homeViewModel.buildPlaidClient();
             homeViewModel.exchangeAccessToken(publicToken);
         } else {
-            homeViewModel.getSubsetTransactionsFromDatabase();
+            homeViewModel.getLatestTransactionsFromDatabase();
             homeViewModel.getBalancesAndBankAccountsFromDatabase();
         }
     }
@@ -65,7 +63,7 @@ public class HomeFragment extends Fragment {
         final RecyclerView homeRecyclerView = root.findViewById(R.id.homeRecyclerView);
         homeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        homeViewModel.getMutableSubsetTransactionsList().observe(getViewLifecycleOwner(), list -> {
+        homeViewModel.getMutableLatestTransactionsList().observe(getViewLifecycleOwner(), list -> {
             final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
             homeRecyclerView.setAdapter(recyclerAdapter);
             root.findViewById(R.id.homeFragmentProgressBar).setVisibility(View.GONE);
@@ -80,7 +78,7 @@ public class HomeFragment extends Fragment {
             String currentBalanceString = String.format(Locale.US,"%.2f", aDouble);
 
             if (aDouble >= 0) {
-                currentBalanceString = "$" + currentBalanceString;
+                currentBalanceString = "$".concat(currentBalanceString);
             } else { // Negative transactions
                 currentBalanceString = new StringBuilder(currentBalanceString).insert(1, "$").toString();
             }
@@ -106,14 +104,13 @@ public class HomeFragment extends Fragment {
         });
 
         // Create baseline
-        float baseLineDashSpacing = 15;
-        float baseLineDashLength = 3;
-        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
-        Paint baseLinePaint = sparkView.getBaseLinePaint();
-        baseLinePaint.setPathEffect(dashPathEffect);
+//        float baseLineDashSpacing = 15;
+//        float baseLineDashLength = 3;
+//        DashPathEffect dashPathEffect = new DashPathEffect(new float[] {baseLineDashLength, baseLineDashSpacing}, 0);
+//        Paint baseLinePaint = sparkView.getBaseLinePaint();
+//        baseLinePaint.setPathEffect(dashPathEffect);
 
         initializeSparkTimePeriodListeners();
-//        sparkAdapter.initializeTransactionAmount();
     }
 
     public void initializeSparkTimePeriodListeners() {
@@ -173,17 +170,9 @@ public class HomeFragment extends Fragment {
 
         public TransactionSparkAdapter() {
             random = new Random();
-            yData = new double[31]; // this will be axis of balance later. not transaction amount.
-//            initializeTransactionAmount();
+            yData = new double[31];
             randomize();
         }
-
-//        public void initializeTransactionAmount() {
-//            for (int i = 0, count = yData.length; i < count; i++) {
-//                yData[i] = homeViewModel.getCurrentBalanceAmount();
-//            }
-//            notifyDataSetChanged();
-//        }
 
         public void randomize() {
             for (int i = 0, count = yData.length; i < count; i++) {
@@ -208,9 +197,9 @@ public class HomeFragment extends Fragment {
             return (float) yData[index];
         }
 
-        @Override
-        public boolean hasBaseLine() {
-            return true;
-        }
+//        @Override
+//        public boolean hasBaseLine() {
+//            return true;
+//        }
     }
 }

@@ -133,7 +133,7 @@ public class InitialConnectActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(InitialConnectActivity.this
-                                , "Verification email sent to " + user.getEmail()
+                                , "Verification email sent to ".concat(Objects.requireNonNull(user.getEmail()))
                                 , Toast.LENGTH_LONG).show();
                     }
                 });

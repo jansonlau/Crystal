@@ -118,7 +118,7 @@ public class MonthlyActivityViewModel extends ViewModel {
             allTransactionsByCategoryList.add(new HashMap<>());
             final LocalDate startDate = new LocalDate(oldestTransactionDate).withDayOfMonth(1).plusMonths(i);
             final LocalDate endDate = startDate.withDayOfMonth(1).plusMonths(1);
-            monthAndYearList.add(startDate.monthOfYear().getAsText() + " " + startDate.getYear());
+            monthAndYearList.add(startDate.monthOfYear().getAsText().concat(" ").concat(String.valueOf(startDate.getYear())));
 
             // Get all 6 categories for each month
             for (Map.Entry<String, List<String>> entry : categoriesMap.entrySet()) {

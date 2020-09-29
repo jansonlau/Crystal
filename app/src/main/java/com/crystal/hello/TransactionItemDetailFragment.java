@@ -92,7 +92,7 @@ public class TransactionItemDetailFragment extends Fragment {
         observeTransactionHistoryList();
         observeLatestTransactionMap();
 
-        homeViewModel.getTransactionHistoryFromDatabase(Objects.requireNonNull(transaction));
+        homeViewModel.getSimilarTransactionsFromDatabase(Objects.requireNonNull(transaction));
         homeViewModel.getLatestTransactionFromDatabase(String.valueOf(transaction.get("transactionId")));
 
         // Bank account
@@ -107,14 +107,21 @@ public class TransactionItemDetailFragment extends Fragment {
         String locationString                   = "";
         String transactionItemAccountName       = String.valueOf(Objects.requireNonNull(account).get("officialName"));
 
+        // Replace non-word characters
+        transactionItemAccountName = transactionItemAccountName.replaceAll("[^\\p{L}\\p{Z}]", "");
+
         // Remove numbers if last 4 digits contains mask
         if (transactionItemAccountName.length() >= 4
                 && transactionItemAccountName.substring(transactionItemAccountName.length() - 5, transactionItemAccountName.length()-1).matches(".*\\d.*")) {
             transactionItemAccountName = transactionItemAccountName.substring(0, transactionItemAccountName.length() - 5);
         }
 
+        if (transactionItemAccountName.equals("null")) {
+            transactionItemAccountName = String.valueOf(account.get("name"));
+        }
+
         if (!String.valueOf(account.get("mask")).equals("null")) {
-            transactionItemAccountMask = "\u2022\u2022\u2022\u2022 " + account.get("mask");
+            transactionItemAccountMask = "\u2022\u2022\u2022\u2022 ".concat(String.valueOf(account.get("mask")));
         }
 
         // Transaction status
@@ -230,7 +237,7 @@ public class TransactionItemDetailFragment extends Fragment {
     }
 
     private void observeTransactionHistoryList() {
-        homeViewModel.getMutableTransactionHistoryList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
+        homeViewModel.getMutableSimilarTransactionsList().observe(getViewLifecycleOwner(), transactionHistoryList -> {
             DocumentSnapshot removeDuplicateTransactionDoc = null;
             for (final DocumentSnapshot doc : transactionHistoryList) {
                 if (String.valueOf(doc.get("transactionId")).equals(transaction.get("transactionId"))) {

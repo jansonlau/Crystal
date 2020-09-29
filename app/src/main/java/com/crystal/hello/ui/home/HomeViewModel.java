@@ -51,8 +51,8 @@ public class HomeViewModel extends ViewModel {
     private final String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
 
     private final MutableLiveData<Double> currentTotalBalance;
-    private final MutableLiveData<List<DocumentSnapshot>> mutableSubsetTransactionsList;
-    private final MutableLiveData<List<DocumentSnapshot>> mutableTransactionHistoryList;
+    private final MutableLiveData<List<DocumentSnapshot>> mutableLatestTransactionsList;
+    private final MutableLiveData<List<DocumentSnapshot>> mutableSimilarTransactionsList;
     private final MutableLiveData<Map<String, Object>> mutableLatestTransactionMap;
     private static List<Map<String, Object>> bankAccountsList;
     private final Map<String, Account> accountIdToAccountMap;
@@ -67,8 +67,8 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         currentTotalBalance             = new MutableLiveData<>();
-        mutableSubsetTransactionsList   = new MutableLiveData<>();
-        mutableTransactionHistoryList   = new MutableLiveData<>();
+        mutableLatestTransactionsList = new MutableLiveData<>();
+        mutableSimilarTransactionsList = new MutableLiveData<>();
         mutableSavedTransactionBoolean  = new MutableLiveData<>();
         mutableLatestTransactionMap     = new MutableLiveData<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
@@ -83,12 +83,12 @@ public class HomeViewModel extends ViewModel {
         return currentTotalBalance;
     }
 
-    public MutableLiveData<List<DocumentSnapshot>> getMutableSubsetTransactionsList() {
-        return mutableSubsetTransactionsList;
+    public MutableLiveData<List<DocumentSnapshot>> getMutableLatestTransactionsList() {
+        return mutableLatestTransactionsList;
     }
 
-    public MutableLiveData<List<DocumentSnapshot>> getMutableTransactionHistoryList() {
-        return mutableTransactionHistoryList;
+    public MutableLiveData<List<DocumentSnapshot>> getMutableSimilarTransactionsList() {
+        return mutableSimilarTransactionsList;
     }
 
     public MutableLiveData<Map<String, Object>> getMutableLatestTransactionMap() {
@@ -232,7 +232,7 @@ public class HomeViewModel extends ViewModel {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        getSubsetTransactionsFromDatabase();
+                        getLatestTransactionsFromDatabase();
                         monthlyActivityViewModel = new MonthlyActivityViewModel();
                     }
                 })
@@ -290,15 +290,15 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    protected void getSubsetTransactionsFromDatabase() {
+    protected void getLatestTransactionsFromDatabase() {
         docRef.collection("transactions")
                 .orderBy("date", Query.Direction.DESCENDING)
                 .limit(10)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        final List<DocumentSnapshot> subsetTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
-                        mutableSubsetTransactionsList.setValue(subsetTransactionsList);
+                        final List<DocumentSnapshot> latestTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
+                        mutableLatestTransactionsList.setValue(latestTransactionsList);
                     }
                 });
     }
@@ -324,7 +324,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    public void getTransactionHistoryFromDatabase(@NotNull final Map<String, Object> transaction) {
+    public void getSimilarTransactionsFromDatabase(@NotNull final Map<String, Object> transaction) {
         final String transactionDate = String.valueOf(transaction.get("date"));
         String queryNameField = "merchantName";
         String transactionName = String.valueOf(Objects.requireNonNull(transaction).get("merchantName"));
@@ -342,7 +342,7 @@ public class HomeViewModel extends ViewModel {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        mutableTransactionHistoryList.setValue(Objects.requireNonNull(task.getResult()).getDocuments());
+                        mutableSimilarTransactionsList.setValue(Objects.requireNonNull(task.getResult()).getDocuments());
                     }
                 });
     }
