@@ -46,7 +46,9 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_budget_amount" />
 
             <TextView
                 android:id="@+id/bankAccountsTextView"
