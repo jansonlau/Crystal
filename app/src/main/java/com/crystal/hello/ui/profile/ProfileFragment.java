@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.MainActivity;
 import com.crystal.hello.R;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
@@ -29,6 +30,7 @@ import com.plaid.link.result.PlaidLinkResultHandler;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import kotlin.Unit;
@@ -36,12 +38,12 @@ import kotlin.Unit;
 public class ProfileFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private View root;
+    private RecyclerView budgetAmountsRecyclerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-        profileViewModel.getBankAccountsFromDatabase();
         Plaid.initialize(Objects.requireNonNull(getActivity()).getApplication());
     }
 
@@ -55,15 +57,12 @@ public class ProfileFragment extends Fragment {
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
         logOutTextView.setOnClickListener(view -> logOut());
 
-        observeBankAccountsList();
+        budgetAmountsRecyclerView = root.findViewById(R.id.budgetAmountsRecyclerView);
 
-        profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
-            if (aBoolean) {
-                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
-            }
-        });
+        observeBankAccountsList();
+        observeBudgetAmountsList();
+        observeAddAccountCompleteBoolean();
+
         return root;
     }
 
@@ -116,6 +115,16 @@ public class ProfileFragment extends Fragment {
         Objects.requireNonNull(getActivity()).finishAffinity();
     }
 
+    private void observeAddAccountCompleteBoolean() {
+        profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
+            if (aBoolean) {
+                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
+                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void observeBankAccountsList() {
         final RecyclerView bankAccountsRecyclerView = root.findViewById(R.id.bankAccountsRecyclerView);
         bankAccountsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -125,6 +134,32 @@ public class ProfileFragment extends Fragment {
             public void onChanged(List<DocumentSnapshot> documentSnapshotList) {
                 final BankAccountsRecyclerAdapter recyclerAdapter = new BankAccountsRecyclerAdapter(getActivity(), documentSnapshotList);
                 bankAccountsRecyclerView.setAdapter(recyclerAdapter);
+            }
+        });
+    }
+
+    private void observeBudgetAmountsList() {
+        budgetAmountsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        profileViewModel.getMutableBudgetsMap().observe(getViewLifecycleOwner(), new Observer<Map<String, Object>>() {
+            @Override
+            public void onChanged(Map<String, Object> categoryBudgetAmountMap) {
+                final BudgetAmountsRecyclerAdapter recyclerAdapter = new BudgetAmountsRecyclerAdapter(getActivity(), categoryBudgetAmountMap);
+                budgetAmountsRecyclerView.setAdapter(recyclerAdapter);
+            }
+        });
+    }
+
+    private void setBudgetAmountSaveButtonListener(Map<String, Object> categoryBudgetAmountMap) {
+        final Button budgetAmountSaveButton = root.findViewById(R.id.budgetAmountSaveButton);
+        budgetAmountsRecyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (int i = 0; i < 6; i++) {
+                    final TextInputEditText budgetAmountEditText = Objects.requireNonNull(budgetAmountsRecyclerView.findViewHolderForLayoutPosition(i))
+                            .itemView
+                            .findViewById(R.id.budgetAmountEditText);
+                     budgetAmountEditText.getText().toString();
+                }
             }
         });
     }

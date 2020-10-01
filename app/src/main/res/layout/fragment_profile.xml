@@ -45,10 +45,26 @@
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/budgetAmountsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:nestedScrollingEnabled="false"
                 tools:itemCount="2"
                 tools:listitem="@layout/item_budget_amount" />
+
+            <Button
+                android:id="@+id/budgetAmountSaveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:insetTop="@dimen/inset_top"
+                android:insetBottom="@dimen/inset_bottom"
+                android:text="Save"
+                android:textColor="@color/textColor"
+                android:textSize="@dimen/text_size"
+                app:cornerRadius="@dimen/button_corner_radius" />
 
             <TextView
                 android:id="@+id/bankAccountsTextView"
@@ -66,6 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                android:nestedScrollingEnabled="false"
                 tools:itemCount="2"
                 tools:listitem="@layout/item_transaction" />
 

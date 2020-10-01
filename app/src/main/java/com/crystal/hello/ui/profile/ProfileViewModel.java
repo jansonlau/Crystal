@@ -47,6 +47,7 @@ public class ProfileViewModel extends ViewModel {
     private final Map<String, Account> accountIdToAccountMap;
     private final MutableLiveData<Boolean> mutableTransactionsCompleteBoolean;
     private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
+    private final MutableLiveData<Map<String, Object>> mutableBudgetsMap;
 
     public ProfileViewModel() {
         transactionOffset = 0;
@@ -56,6 +57,9 @@ public class ProfileViewModel extends ViewModel {
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         mutableTransactionsCompleteBoolean = new MutableLiveData<>();
         mutableBankAccountsList = new MutableLiveData<>();
+        mutableBudgetsMap = new MutableLiveData<>();
+        getBankAccountsFromDatabase();
+        getBudgetAmountsFromDatabase();
     }
 
     public MutableLiveData<Boolean> getMutableTransactionsCompleteBoolean() {
@@ -64,6 +68,10 @@ public class ProfileViewModel extends ViewModel {
 
     public MutableLiveData<List<DocumentSnapshot>> getMutableBankAccountsList() {
         return mutableBankAccountsList;
+    }
+
+    public MutableLiveData<Map<String, Object>> getMutableBudgetsMap() {
+        return mutableBudgetsMap;
     }
 
     protected void buildPlaidClient() {
@@ -206,12 +214,23 @@ public class ProfileViewModel extends ViewModel {
         batch.commit();
     }
 
-    protected void getBankAccountsFromDatabase() {
+    private void getBankAccountsFromDatabase() {
         docRef.collection("banks")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         getMutableBankAccountsList().setValue(Objects.requireNonNull(task.getResult()).getDocuments());
+                    }
+                });
+    }
+
+    private void getBudgetAmountsFromDatabase() {
+        docRef.collection("profile")
+                .document("budgets")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        mutableBudgetsMap.setValue(Objects.requireNonNull(task.getResult()).getData());
                     }
                 });
     }

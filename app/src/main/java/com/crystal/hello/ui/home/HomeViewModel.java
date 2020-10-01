@@ -67,8 +67,8 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         currentTotalBalance             = new MutableLiveData<>();
-        mutableLatestTransactionsList = new MutableLiveData<>();
-        mutableSimilarTransactionsList = new MutableLiveData<>();
+        mutableLatestTransactionsList   = new MutableLiveData<>();
+        mutableSimilarTransactionsList  = new MutableLiveData<>();
         mutableSavedTransactionBoolean  = new MutableLiveData<>();
         mutableLatestTransactionMap     = new MutableLiveData<>();
         accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only

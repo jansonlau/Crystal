@@ -112,7 +112,7 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
     // Categories from Plaid are stored in a list
     private int parseTransactionLogo(@NotNull final List<String> categoriesList) {
         final String category = categoriesList.get(0);
-        int logoDrawableInt = R.drawable.services;
+        int logoDrawableInt;
 
         switch (category) {
             case "Food and Drink":
@@ -136,6 +136,7 @@ public class MonthlyActivityItemMerchantRecyclerAdapter extends RecyclerView.Ada
                 logoBackgroundDrawableInt = R.drawable.health_background;
                 break;
             default:
+                logoDrawableInt = R.drawable.services;
                 logoBackgroundDrawableInt = R.drawable.services_background;
         }
         return logoDrawableInt;

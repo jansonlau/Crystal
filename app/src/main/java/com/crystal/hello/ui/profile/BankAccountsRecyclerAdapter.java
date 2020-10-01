@@ -30,7 +30,7 @@ public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
+        final View itemView = layoutInflater.inflate(R.layout.item_transaction, parent, false);
         return new ViewHolder(itemView);
     }
 
@@ -74,10 +74,7 @@ public class BankAccountsRecyclerAdapter extends RecyclerView.Adapter<ViewHolder
         holder.transactionArrowImageView.setVisibility(View.GONE);
         holder.transactionLogoImageView.setImageResource(R.drawable.ic_baseline_account_balance_24);
         holder.transactionLogoImageView.setBackgroundResource(R.drawable.payments_background);
-
-        if (position == getItemCount() - 1) {
-            holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
-        }
+        holder.transactionConstraintLayout.removeView(holder.transactionDividerView);
     }
 
     @Override
