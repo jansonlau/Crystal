@@ -266,7 +266,7 @@ public class HomeViewModel extends ViewModel {
         final Map<String, Integer> budgets = new HashMap<>();
         budgets.put("travel"        , 100);
         budgets.put("health"        , 100);
-        budgets.put("shopping"      , 500);
+        budgets.put("shopping"      , 100);
         budgets.put("services"      , 100);
         budgets.put("foodDrinks"    , 100);
         budgets.put("entertainment" , 100);

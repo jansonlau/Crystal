@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.R;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Map;
 
@@ -94,14 +93,12 @@ public class BudgetAmountsRecyclerAdapter extends RecyclerView.Adapter<BudgetAmo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final ImageView          budgetAmountImageView;
         public final TextView           budgetAmountTitleTextView;
-        public final TextInputLayout    budgetAmountInputLayout;
         public final TextInputEditText  budgetAmountEditText;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             budgetAmountImageView       = itemView.findViewById(R.id.budgetAmountImageView);
             budgetAmountTitleTextView   = itemView.findViewById(R.id.budgetAmountTitleTextView);
-            budgetAmountInputLayout     = itemView.findViewById(R.id.budgetAmountInputLayout);
             budgetAmountEditText        = itemView.findViewById(R.id.budgetAmountEditText);
         }
     }

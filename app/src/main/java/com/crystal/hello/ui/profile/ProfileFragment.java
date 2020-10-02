@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,7 @@ import com.plaid.link.configuration.PlaidProduct;
 import com.plaid.link.result.PlaidLinkResultHandler;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +64,7 @@ public class ProfileFragment extends Fragment {
         observeBankAccountsList();
         observeBudgetAmountsList();
         observeAddAccountCompleteBoolean();
-
+        setBudgetAmountSaveButtonListener();
         return root;
     }
 
@@ -149,16 +151,48 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void setBudgetAmountSaveButtonListener(Map<String, Object> categoryBudgetAmountMap) {
+    // Check each recycler view item / category for new text
+    private void setBudgetAmountSaveButtonListener() {
         final Button budgetAmountSaveButton = root.findViewById(R.id.budgetAmountSaveButton);
-        budgetAmountsRecyclerView.setOnClickListener(new View.OnClickListener() {
+        budgetAmountSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (int i = 0; i < 6; i++) {
-                    final TextInputEditText budgetAmountEditText = Objects.requireNonNull(budgetAmountsRecyclerView.findViewHolderForLayoutPosition(i))
-                            .itemView
-                            .findViewById(R.id.budgetAmountEditText);
-                     budgetAmountEditText.getText().toString();
+                Toast.makeText(getContext(), "Saved budget amounts", Toast.LENGTH_LONG).show();
+                final Map<String, Integer> budgetData = new HashMap<>();
+
+                for (int position = 0; position < 6; position++) {
+                    final View itemView = Objects.requireNonNull(budgetAmountsRecyclerView.findViewHolderForLayoutPosition(position)).itemView;
+                    final TextInputEditText budgetAmountEditText = itemView.findViewById(R.id.budgetAmountEditText);
+                    final String budgetAmount = Objects.requireNonNull(budgetAmountEditText.getText()).toString();
+                    final Button budgetAmountSaveButton = root.findViewById(R.id.budgetAmountSaveButton);
+
+                    if (!budgetAmount.isEmpty()) {
+                        String category;
+                        switch (position) {
+                            case 0:
+                                category = "shopping";
+                                break;
+                            case 1:
+                                category = "foodDrinks";
+                                break;
+                            case 2:
+                                category = "travel";
+                                break;
+                            case 3:
+                                category = "entertainment";
+                                break;
+                            case 4:
+                                category = "health";
+                                break;
+                            default:
+                                category = "services";
+                        }
+                        budgetData.put(category, Integer.decode(budgetAmount));
+                        budgetAmountEditText.setText("");
+                    }
+                }
+                if (!budgetData.isEmpty()) {
+                    profileViewModel.setBudgetAmountsToDatabase(budgetData);
                 }
             }
         });
