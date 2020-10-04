@@ -1,13 +1,13 @@
 package com.crystal.hello;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,6 +24,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.SignInMethodQueryResult;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -77,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
             }
         });
@@ -84,29 +87,32 @@ public class LoginActivity extends AppCompatActivity {
         forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 final Editable emailAddress = usernameEditText.getText();
                 passwordLayout.setError(null);
 
                 if (!isUsernameValid(emailAddress)) {
                     usernameLayout.setError("Please enter a valid email.");
                     return;
-                } else {
-                    usernameLayout.setError(null);
                 }
 
+                showProgressBar(true);
+                usernameLayout.setError(null);
                 auth.fetchSignInMethodsForEmail(emailAddress.toString())
                         .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                             @Override
                             public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                                 if (task.isSuccessful()) {
-                                    SignInMethodQueryResult result = task.getResult();
-                                    List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
+                                    final SignInMethodQueryResult result = task.getResult();
+                                    final List<String> signInMethods = Objects.requireNonNull(result).getSignInMethods();
 
+                                    // Check if email exists in Firebase
                                     if (Objects.requireNonNull(signInMethods).contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
                                         auth.sendPasswordResetEmail(emailAddress.toString())
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
+                                                        showProgressBar(false);
                                                         if (task.isSuccessful()) {
                                                             Toast.makeText(LoginActivity.this
                                                                     , "Password reset email sent."
@@ -115,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     }
                                                 });
                                     } else {
+                                        showProgressBar(false);
                                         usernameLayout.setError("The email you entered doesn't belong to an account.");
                                     }
                                 }
@@ -122,16 +129,6 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
-
-        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                forgotPasswordTextView.setTextColor(Color.BLACK);
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                forgotPasswordTextView.setTextColor(Color.WHITE);
-                break;
-        }
     }
 
     private boolean isPasswordValid(Editable text) {
@@ -167,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!validateForm()) {
             return;
         }
-        setViewVisibility(true);
+        showProgressBar(true);
 
         // Check if email exists
         auth.fetchSignInMethodsForEmail(email)
@@ -181,7 +178,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (Objects.requireNonNull(signInMethods).contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
                                 signIn(email, password);
                             } else {
-                                setViewVisibility(false);
+                                showProgressBar(false);
                                 usernameLayout.setError("The email you entered doesn't belong to an account.");
                             }
                         }
@@ -200,14 +197,14 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                     finishAffinity();
                 } else {
-                    setViewVisibility(false);
+                    showProgressBar(false);
                     passwordLayout.setError("Sorry, your password was incorrect.");
                 }
             }
         });
     }
 
-    public void setViewVisibility(boolean progressBarVisible) {
+    public void showProgressBar(boolean progressBarVisible) {
         if (progressBarVisible) {
             usernameLayout.setVisibility(View.GONE);
             passwordLayout.setVisibility(View.GONE);
@@ -217,5 +214,10 @@ public class LoginActivity extends AppCompatActivity {
             passwordLayout.setVisibility(View.VISIBLE);
             loginProgressBar.setVisibility(View.GONE);
         }
+    }
+
+    private void hideKeyboard(@NotNull final View view) {
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

@@ -99,6 +99,7 @@
         android:text="Forgot Password?"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
         app:layout_constraintStart_toStartOf="@+id/buttonLogin" />

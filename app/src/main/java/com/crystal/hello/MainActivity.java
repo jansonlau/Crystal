@@ -1,8 +1,6 @@
 package com.crystal.hello;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -28,16 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
         final Button signUpButton = findViewById(R.id.mainSignUpButton);
         final TextView logInTextView = findViewById(R.id.mainLogInTextView);
-
-        final int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                logInTextView.setTextColor(Color.BLACK);
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                logInTextView.setTextColor(Color.WHITE);
-                break;
-        }
 
         signUpButton.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NameActivity.class);

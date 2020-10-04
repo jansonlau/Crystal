@@ -39,7 +39,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeViewModel extends ViewModel {
-    // Key Initialization vector, Value encrypted data
     private String accessToken;
     private String itemId;
 
