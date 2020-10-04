@@ -41,7 +41,7 @@ public class HomeFragment extends Fragment {
 
         // New user from create account
         if (getArguments() != null && getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING") != null) {
-            final String publicToken = Objects.requireNonNull(getArguments()).getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
+            final String publicToken = getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
             homeViewModel.buildPlaidClient();
             homeViewModel.exchangeAccessToken(publicToken);
         } else {

@@ -25,11 +25,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
-import com.plaid.link.configuration.AccountSubtype;
-import com.plaid.link.configuration.LinkConfiguration;
+import com.plaid.link.configuration.LinkPublicKeyConfiguration;
 import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
-import com.plaid.link.result.PlaidLinkResultHandler;
+import com.plaid.link.result.LinkAccountSubtype;
+import com.plaid.link.result.LinkResultHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-        Plaid.initialize(Objects.requireNonNull(getActivity()).getApplication());
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -71,14 +70,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void openLink() {
-        Plaid.openLink(this, new LinkConfiguration.Builder()
+        Plaid.create(requireActivity().getApplication(), new LinkPublicKeyConfiguration.Builder()
                 .clientName("Crystal")
                 .environment(PlaidEnvironment.DEVELOPMENT)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
-                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build());
+                .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
+                .build())
+                .open(this);
 
         // TODO: Get linkToken with server
 //        LinkTokenRequester.INSTANCE.getToken().subscribe(this::onLinkTokenSuccess, this::onLinkTokenError);
@@ -90,7 +90,7 @@ public class ProfileFragment extends Fragment {
         myPlaidResultHandler.onActivityResult(requestCode, resultCode, data);
     }
 
-    private final PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
+    private final LinkResultHandler myPlaidResultHandler = new LinkResultHandler(
             linkSuccess -> {
                 root.findViewById(R.id.bankAccountsTextView).setVisibility(View.GONE);
                 root.findViewById(R.id.addAccountButton).setVisibility(View.GONE);
@@ -103,7 +103,7 @@ public class ProfileFragment extends Fragment {
             },
 
             linkExit -> {
-//                if (linkExit.error != null) {
+//                if (linkExit.getError() != null) {
 //                    // Link error
 //                } else {
 //                    // Left link
@@ -116,7 +116,7 @@ public class ProfileFragment extends Fragment {
         FirebaseAuth.getInstance().signOut();
         final Intent intent = new Intent(getActivity(), MainActivity.class);
         startActivity(intent);
-        Objects.requireNonNull(getActivity()).finishAffinity();
+        requireActivity().finishAffinity();
     }
 
     private void observeAddAccountCompleteBoolean() {
@@ -160,7 +160,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Hide keyboard
-                final InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                final InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                 Toast.makeText(getContext(), "Saved budget amounts", Toast.LENGTH_LONG).show();

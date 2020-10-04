@@ -15,11 +15,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.plaid.link.Plaid;
-import com.plaid.link.configuration.AccountSubtype;
-import com.plaid.link.configuration.LinkConfiguration;
+import com.plaid.link.configuration.LinkPublicKeyConfiguration;
 import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
-import com.plaid.link.result.PlaidLinkResultHandler;
+import com.plaid.link.result.LinkAccountSubtype;
+import com.plaid.link.result.LinkResultHandler;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,21 +40,21 @@ public class InitialConnectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_initial_connect);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        Plaid.initialize(getApplication());
 
-        Button button = findViewById(R.id.buttonLinkBankContinue);
+        final Button button = findViewById(R.id.buttonLinkBankContinue);
         button.setOnClickListener(view -> InitialConnectActivity.this.openLink());
     }
 
     private void openLink() {
-        Plaid.openLink(this, new LinkConfiguration.Builder()
+        Plaid.create(getApplication(), new LinkPublicKeyConfiguration.Builder()
                 .clientName("Crystal")
                 .environment(PlaidEnvironment.DEVELOPMENT)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
-                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build());
+                .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
+                .build())
+                .open(this);
 
         // TODO: Get linkToken with server
 //        LinkTokenRequester.INSTANCE.getToken().subscribe(this::onLinkTokenSuccess, this::onLinkTokenError);
@@ -80,7 +80,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         myPlaidResultHandler.onActivityResult(requestCode, resultCode, data);
     }
 
-    private final PlaidLinkResultHandler myPlaidResultHandler = new PlaidLinkResultHandler(
+    private final LinkResultHandler myPlaidResultHandler = new LinkResultHandler(
             linkSuccess -> {
                 findViewById(R.id.text_finish_sign_up).setVisibility(View.GONE);
                 findViewById(R.id.text_link_bank_caption).setVisibility(View.GONE);

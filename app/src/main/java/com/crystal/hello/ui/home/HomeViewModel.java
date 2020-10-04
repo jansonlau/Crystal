@@ -1,9 +1,6 @@
 package com.crystal.hello.ui.home;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -111,17 +108,16 @@ public class HomeViewModel extends ViewModel {
     }
 
     // Asynchronously get access token for a bank account
-    protected void exchangeAccessToken(String publicToken) {
+    protected void exchangeAccessToken(final String publicToken) {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
 
-                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            ItemPublicTokenExchangeResponse responseBody = response.body();
+                            final ItemPublicTokenExchangeResponse responseBody = response.body();
                             accessToken = responseBody.getAccessToken();
                             itemId = responseBody.getItemId();
                             getPlaidAccountsAndTransactions(transactionOffset);
