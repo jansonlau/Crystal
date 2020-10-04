@@ -56,7 +56,7 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Map<String, Object>> mutableLatestTransactionMap;
     private static List<Map<String, Object>> bankAccountsList;
     private final Map<String, Account> accountIdToAccountMap;
-    private static MonthlyActivityViewModel monthlyActivityViewModel;
+    public static MonthlyActivityViewModel monthlyActivityViewModel;
     private final MutableLiveData<Boolean> mutableSavedTransactionBoolean;
 
     private PlaidClient plaidClient;

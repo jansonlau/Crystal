@@ -60,9 +60,6 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         final String category = categoryAndAmountMap.getKey();
         final Double amount = categoryAndAmountMap.getValue();
         final String amountString = "$".concat(String.format(Locale.US,"%.2f", amount));
-
-        holder.budgetNameTextView.setText(category);
-        holder.budgetAmountTextView.setText(amountString);
         final long budgetInt;
 
         switch (category) {
@@ -96,6 +93,10 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
                 holder.budgetLogoImageView.setBackgroundResource(R.drawable.services_background);
                 budgetInt = (long) budgetsMap.get("services");
         }
+
+        holder.budgetNameTextView.setText(category);
+        holder.budgetAmountTextView.setText(amountString);
+        holder.budgetSubtitleTextView.setText("of $".concat(String.valueOf(budgetInt)));
         holder.budgetProgressBar.setMax((int) budgetInt);
         holder.budgetProgressBar.setProgress(amount.intValue());
 
@@ -115,6 +116,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
         final View              budgetDividerView;
         final TextView          budgetNameTextView;
         final TextView          budgetAmountTextView;
+        final TextView          budgetSubtitleTextView;
         final ImageView         budgetLogoImageView;
         final ProgressBar       budgetProgressBar;
         final ConstraintLayout  budgetConstraintLayout;
@@ -124,6 +126,7 @@ public class MonthlyActivityItemBudgetRecyclerAdapter extends RecyclerView.Adapt
             budgetDividerView       = itemView.findViewById(R.id.budgetDividerView);
             budgetNameTextView      = itemView.findViewById(R.id.budgetNameTextView);
             budgetAmountTextView    = itemView.findViewById(R.id.budgetAmountTextView);
+            budgetSubtitleTextView  = itemView.findViewById(R.id.budgetSubtitleTextView);
             budgetLogoImageView     = itemView.findViewById(R.id.budgetLogoImageView);
             budgetProgressBar       = itemView.findViewById(R.id.budgetProgressBar);
             budgetConstraintLayout  = itemView.findViewById(R.id.budgetConstraintLayout);

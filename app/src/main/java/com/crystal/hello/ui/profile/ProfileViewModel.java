@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
+import com.crystal.hello.ui.home.HomeViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -245,7 +247,7 @@ public class ProfileViewModel extends ViewModel {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            getBudgetAmountsFromDatabase();
+                            HomeViewModel.monthlyActivityViewModel = new MonthlyActivityViewModel();
                         }
                     }
                 });

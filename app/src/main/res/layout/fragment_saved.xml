@@ -13,7 +13,7 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/savedTransactionsTextView"
+                android:id="@+id/savedTransactionsTitleTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -26,15 +26,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/savedTransactionsSubtitleTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="12dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textStyle="bold" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/savedTransactionsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/savedTransactionsTextView"
-                app:layout_constraintStart_toStartOf="@id/savedTransactionsTextView"
-                app:layout_constraintTop_toBottomOf="@id/savedTransactionsTextView"
+                app:layout_constraintEnd_toEndOf="@id/savedTransactionsTitleTextView"
+                app:layout_constraintStart_toStartOf="@id/savedTransactionsTitleTextView"
+                app:layout_constraintTop_toBottomOf="@id/savedTransactionsTitleTextView"
                 tools:listitem="@layout/item_transaction" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -50,10 +50,10 @@ public class MonthlyActivityFragment extends Fragment {
                 final FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(getActivity());
                 viewPager.setAdapter(pagerAdapter);
 
-                if (!isSetToLastItem) {
+//                if (!isSetToLastItem) { // TODO: This used to fix a crash. Not sure if needed anymore.
                     viewPager.setCurrentItem(pagerAdapter.getItemCount() - 1, false);
-                    isSetToLastItem = true;
-                }
+//                    isSetToLastItem = true;
+//                }
             }
         });
     }

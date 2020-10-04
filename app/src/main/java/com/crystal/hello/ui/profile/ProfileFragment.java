@@ -1,10 +1,12 @@
 package com.crystal.hello.ui.profile;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -157,6 +159,10 @@ public class ProfileFragment extends Fragment {
         budgetAmountSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Hide keyboard
+                final InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                 Toast.makeText(getContext(), "Saved budget amounts", Toast.LENGTH_LONG).show();
                 final Map<String, Integer> budgetData = new HashMap<>();
 
@@ -164,7 +170,10 @@ public class ProfileFragment extends Fragment {
                     final View itemView = Objects.requireNonNull(budgetAmountsRecyclerView.findViewHolderForLayoutPosition(position)).itemView;
                     final TextInputEditText budgetAmountEditText = itemView.findViewById(R.id.budgetAmountEditText);
                     final String budgetAmount = Objects.requireNonNull(budgetAmountEditText.getText()).toString();
-                    final Button budgetAmountSaveButton = root.findViewById(R.id.budgetAmountSaveButton);
+
+                    if (budgetAmountEditText.isFocused()) {
+                        budgetAmountEditText.clearFocus();
+                    }
 
                     if (!budgetAmount.isEmpty()) {
                         String category;
@@ -188,6 +197,7 @@ public class ProfileFragment extends Fragment {
                                 category = "services";
                         }
                         budgetData.put(category, Integer.decode(budgetAmount));
+                        budgetAmountEditText.setHint("$".concat(budgetAmount));
                         budgetAmountEditText.setText("");
                     }
                 }

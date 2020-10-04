@@ -17,8 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +80,9 @@ public class HomeActivity extends AppCompatActivity {
                             break;
                         case R.id.navigation_monthly:
                             final ViewPager2 viewPager = findViewById(R.id.pager);
-                            viewPager.setCurrentItem(Objects.requireNonNull(viewPager.getAdapter()).getItemCount() - 1, true);
+                            if (viewPager != null && viewPager.getAdapter() != null) {
+                                viewPager.setCurrentItem(viewPager.getAdapter().getItemCount() - 1, true);
+                            }
                             break;
                     }
                 } else {

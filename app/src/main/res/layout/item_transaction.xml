@@ -69,17 +69,19 @@
         android:layout_width="16dp"
         android:layout_height="0dp"
         android:layout_marginEnd="12dp"
+        android:contentDescription="TODO"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/transactionAmountTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/transactionAmountTextView"
-        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24"
-        android:contentDescription="TODO" />
+        app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
 
     <View
         android:id="@+id/transactionDividerView"
         android:layout_width="0dp"
         android:layout_height="0.7dp"
         android:background="?android:attr/listDivider"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/transactionLogoImageView" />
