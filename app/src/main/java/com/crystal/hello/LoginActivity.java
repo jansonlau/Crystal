@@ -204,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void showProgressBar(boolean progressBarVisible) {
+    private void showProgressBar(boolean progressBarVisible) {
         if (progressBarVisible) {
             usernameLayout.setVisibility(View.GONE);
             passwordLayout.setVisibility(View.GONE);

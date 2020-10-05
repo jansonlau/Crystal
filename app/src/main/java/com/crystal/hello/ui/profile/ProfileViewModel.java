@@ -49,7 +49,6 @@ public class ProfileViewModel extends ViewModel {
     private final DocumentReference docRef;
     private int transactionOffset;
     private final Map<String, Account> accountIdToAccountMap;
-//    private final MutableLiveData<Boolean> mutableTransactionsCompleteBoolean;
     private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
     private final MutableLiveData<Map<String, Object>> mutableBudgetsMap;
 
@@ -59,16 +58,11 @@ public class ProfileViewModel extends ViewModel {
         db = FirebaseFirestore.getInstance();
         docRef = db.collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-//        mutableTransactionsCompleteBoolean = new MutableLiveData<>();
         mutableBankAccountsList = new MutableLiveData<>();
         mutableBudgetsMap = new MutableLiveData<>();
         getBankAccountsFromDatabase();
         getBudgetAmountsFromDatabase();
     }
-
-//    public MutableLiveData<Boolean> getMutableTransactionsCompleteBoolean() {
-//        return mutableTransactionsCompleteBoolean;
-//    }
 
     public MutableLiveData<List<DocumentSnapshot>> getMutableBankAccountsList() {
         return mutableBankAccountsList;
@@ -80,8 +74,8 @@ public class ProfileViewModel extends ViewModel {
 
     protected void buildPlaidClient() {
         plaidClient = PlaidClient.newBuilder()
-                .clientIdAndSecret(clientIdKey, developmentSecretKey)
-                .developmentBaseUrl()
+                .clientIdAndSecret(clientIdKey, sandboxSecretKey)
+                .sandboxBaseUrl()
                 .build();
     }
 
@@ -187,7 +181,6 @@ public class ProfileViewModel extends ViewModel {
                     @Override
                     public void onSuccess(Void aVoid) {
                         getBankAccountsFromDatabase();
-//                        mutableTransactionsCompleteBoolean.setValue(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
