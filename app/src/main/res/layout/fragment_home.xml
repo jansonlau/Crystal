@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="24dp"
-                android:text="No Transactions"
+                android:text="Add your credit cards to see transactions!"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                 android:visibility="gone" />
 
