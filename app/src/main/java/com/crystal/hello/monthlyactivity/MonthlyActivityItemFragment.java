@@ -56,7 +56,7 @@ public class MonthlyActivityItemFragment extends Fragment {
             requireArguments().remove("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST");
             requireArguments().remove("com.crystal.hello.BUDGETS_MAP");
         } else {
-            root.findViewById(R.id.noTransactionsTextView).setVisibility(View.VISIBLE);
+            root.findViewById(R.id.monthlyActivityNoTransactionsTextView).setVisibility(View.VISIBLE);
         }
     }
 

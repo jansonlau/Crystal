@@ -43,12 +43,17 @@ public class SavedFragment extends Fragment {
         savedTransactionsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         savedViewModel.getMutableSavedTransactionsList().observe(getViewLifecycleOwner(), list -> {
-            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
-            savedTransactionsRecyclerView.setAdapter(recyclerAdapter);
-
             double totalSavedTransactionAmount = 0;
-            for (DocumentSnapshot doc : list) {
-                totalSavedTransactionAmount += (double) doc.get("amount");
+
+            if (!list.isEmpty()) {
+                final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
+                savedTransactionsRecyclerView.setAdapter(recyclerAdapter);
+
+                for (final DocumentSnapshot doc : list) {
+                    totalSavedTransactionAmount += (double) doc.get("amount");
+                }
+            } else {
+                root.findViewById(R.id.savedNoTransactionsTextView).setVisibility(View.VISIBLE);
             }
             savedTransactionsSubtitleTextView.setText("$".concat(String.format(Locale.US,"%.2f", totalSavedTransactionAmount)));
         });
