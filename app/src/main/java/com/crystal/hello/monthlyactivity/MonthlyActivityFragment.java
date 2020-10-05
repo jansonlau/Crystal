@@ -83,14 +83,27 @@ public class MonthlyActivityFragment extends Fragment {
 
             final Fragment transactionMonthlyActivityItemFragment = new MonthlyActivityItemFragment();
             final Bundle bundle = new Bundle();
-            bundle.putString("com.crystal.hello.MONTH_YEAR"                         , HomeViewModel.getMonthlyActivityViewModel().getMonthAndYearList().get(position));
-            bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST" , (Serializable) oneMonthSortedPositiveAmountByCategoryList);
-            bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
-            bundle.putSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthNegativeAmountTransactionsByCategoryMap);
-            bundle.putSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP"    , (Serializable) oneMonthMerchantTransactionsMap);
-            bundle.putSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST"        , (Serializable) oneMonthNegativeAmountByCategoryList);
-            bundle.putSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST"        , (Serializable) oneMonthAmountByMerchantNameList);
-            bundle.putSerializable("com.crystal.hello.BUDGETS_MAP"                  , (Serializable) HomeViewModel.getMonthlyActivityViewModel().getBudgetsMap());
+            bundle.putString("com.crystal.hello.MONTH_YEAR", HomeViewModel.getMonthlyActivityViewModel().getMonthAndYearList().get(position));
+
+            // Budgets and categories
+            if (!oneMonthPositiveAmountTransactionsByCategoryMap.isEmpty()) {
+                bundle.putSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthPositiveAmountTransactionsByCategoryMap);
+                bundle.putSerializable("com.crystal.hello.SORTED_POSITIVE_AMOUNTS_LIST" , (Serializable) oneMonthSortedPositiveAmountByCategoryList);
+                bundle.putSerializable("com.crystal.hello.BUDGETS_MAP"                  , (Serializable) HomeViewModel.getMonthlyActivityViewModel().getBudgetsMap());
+            }
+
+            // Merchants
+            if (!oneMonthMerchantTransactionsMap.isEmpty()) {
+                bundle.putSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP"    , (Serializable) oneMonthMerchantTransactionsMap);
+                bundle.putSerializable("com.crystal.hello.MERCHANT_AMOUNTS_LIST"        , (Serializable) oneMonthAmountByMerchantNameList);
+            }
+
+            // Payments and refunds
+            if (!oneMonthNegativeAmountTransactionsByCategoryMap.isEmpty()) {
+                bundle.putSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP"    , (Serializable) oneMonthNegativeAmountTransactionsByCategoryMap);
+                bundle.putSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST"        , (Serializable) oneMonthNegativeAmountByCategoryList);
+            }
+
             transactionMonthlyActivityItemFragment.setArguments(bundle);
             return transactionMonthlyActivityItemFragment;
         }

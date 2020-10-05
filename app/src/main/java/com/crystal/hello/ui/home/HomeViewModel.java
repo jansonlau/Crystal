@@ -51,7 +51,7 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<List<DocumentSnapshot>> mutableSimilarTransactionsList;
     private final MutableLiveData<Map<String, Object>> mutableLatestTransactionMap;
     private static List<Map<String, Object>> bankAccountsList;
-    private final Map<String, Account> accountIdToAccountMap;
+    private Map<String, Account> accountIdToAccountMap;
     public static MonthlyActivityViewModel monthlyActivityViewModel;
     private final MutableLiveData<Boolean> mutableSavedTransactionBoolean;
 
@@ -67,7 +67,6 @@ public class HomeViewModel extends ViewModel {
         mutableSimilarTransactionsList  = new MutableLiveData<>();
         mutableSavedTransactionBoolean  = new MutableLiveData<>();
         mutableLatestTransactionMap     = new MutableLiveData<>();
-        accountIdToAccountMap           = new HashMap<>(); // Credit card accounts only
         transactionOffset               = 0;
         db                              = FirebaseFirestore.getInstance();
         docRef                          = db.collection("users")
@@ -172,6 +171,7 @@ public class HomeViewModel extends ViewModel {
                             // Get credit card accounts once
                             // Accounts include account name and current balance
                             if (transactionOffset == 0) {
+                                accountIdToAccountMap = new HashMap<>();
                                 for (Account account : responseBody.getAccounts()) {
                                     if (account.getSubtype().equals("credit card")) {
                                         accountIdToAccountMap.put(account.getAccountId(), account);

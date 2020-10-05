@@ -48,13 +48,12 @@ public class ProfileViewModel extends ViewModel {
     private final FirebaseFirestore db;
     private final DocumentReference docRef;
     private int transactionOffset;
-    private final Map<String, Account> accountIdToAccountMap;
+    private Map<String, Account> accountIdToAccountMap;
     private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
     private final MutableLiveData<Map<String, Object>> mutableBudgetsMap;
 
     public ProfileViewModel() {
         transactionOffset = 0;
-        accountIdToAccountMap = new HashMap<>(); // Credit card accounts only
         db = FirebaseFirestore.getInstance();
         docRef = db.collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
@@ -125,6 +124,7 @@ public class ProfileViewModel extends ViewModel {
                             // Get credit card accounts once
                             // Accounts include account name and current balance
                             if (transactionOffset == 0) {
+                                accountIdToAccountMap = new HashMap<>();
                                 for (Account account : responseBody.getAccounts()) {
                                     if (account.getSubtype().equals("credit card")) {
                                         accountIdToAccountMap.put(account.getAccountId(), account);
@@ -181,6 +181,7 @@ public class ProfileViewModel extends ViewModel {
                     @Override
                     public void onSuccess(Void aVoid) {
                         getBankAccountsFromDatabase();
+                        transactionOffset = 0;
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

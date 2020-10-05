@@ -17,6 +17,8 @@ import com.crystal.hello.R;
 import com.crystal.hello.TransactionRecyclerAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.Locale;
+
 public class SavedFragment extends Fragment {
     private View root;
     private SavedViewModel savedViewModel;
@@ -48,7 +50,7 @@ public class SavedFragment extends Fragment {
             for (DocumentSnapshot doc : list) {
                 totalSavedTransactionAmount += (double) doc.get("amount");
             }
-            savedTransactionsSubtitleTextView.setText("$".concat(String.valueOf(totalSavedTransactionAmount)));
+            savedTransactionsSubtitleTextView.setText("$".concat(String.format(Locale.US,"%.2f", totalSavedTransactionAmount)));
         });
     }
 }

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,9 +56,11 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button button = root.findViewById(R.id.addAccountButton);
-        button.setOnClickListener(view -> {
-            openLink();
-            showProgressBar(true);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openLink();
+            }
         });
 
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
@@ -94,6 +97,7 @@ public class ProfileFragment extends Fragment {
 
     private final LinkResultHandler myPlaidResultHandler = new LinkResultHandler(
             linkSuccess -> {
+                showProgressBar(true);
                 final String publicToken = linkSuccess.getPublicToken();
                 profileViewModel.buildPlaidClient();
                 profileViewModel.exchangeAccessToken(publicToken);
@@ -199,14 +203,21 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showProgressBar(boolean progressBarVisible) {
+        final TextView bankAccountsTextView = root.findViewById(R.id.bankAccountsTextView);
+        final RecyclerView bankAccountsRecyclerView = root.findViewById(R.id.bankAccountsRecyclerView);
+        final Button addAccountButton = root.findViewById(R.id.addAccountButton);
+        final ProgressBar profileFragmentProgressBar = root.findViewById(R.id.profileFragmentProgressBar);
+
         if (progressBarVisible) {
-            root.findViewById(R.id.bankAccountsTextView).setVisibility(View.GONE);
-            root.findViewById(R.id.addAccountButton).setVisibility(View.GONE);
-            root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.VISIBLE);
+            bankAccountsTextView.setVisibility(View.GONE);
+            bankAccountsRecyclerView.setVisibility(View.GONE);
+            addAccountButton.setVisibility(View.GONE);
+            profileFragmentProgressBar.setVisibility(View.VISIBLE);
         } else {
-            root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
-            root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
-            root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
+            bankAccountsTextView.setVisibility(View.VISIBLE);
+            bankAccountsRecyclerView.setVisibility(View.VISIBLE);
+            addAccountButton.setVisibility(View.VISIBLE);
+            profileFragmentProgressBar.setVisibility(View.GONE);
         }
     }
 }
