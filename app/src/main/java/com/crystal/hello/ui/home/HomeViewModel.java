@@ -220,22 +220,16 @@ public class HomeViewModel extends ViewModel {
         if (transactionOffset < totalTransactions) {
             getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
             batch.commit();
-            return;
+        } else {
+            batch.commit()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            getLatestTransactionsFromDatabase();
+                            monthlyActivityViewModel = new MonthlyActivityViewModel();
+                        }
+                    });
         }
-
-        batch.commit()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        getLatestTransactionsFromDatabase();
-                        monthlyActivityViewModel = new MonthlyActivityViewModel();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
-                });
     }
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID

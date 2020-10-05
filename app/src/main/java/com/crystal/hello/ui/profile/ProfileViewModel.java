@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
 import com.crystal.hello.ui.home.HomeViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -174,22 +173,16 @@ public class ProfileViewModel extends ViewModel {
         if (transactionOffset < totalTransactions) {
             getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
             batch.commit();
-            return;
+        } else {
+            batch.commit()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            getBankAccountsFromDatabase();
+                            transactionOffset = 0;
+                        }
+                    });
         }
-
-        batch.commit()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        getBankAccountsFromDatabase();
-                        transactionOffset = 0;
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
-                });
     }
 
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
