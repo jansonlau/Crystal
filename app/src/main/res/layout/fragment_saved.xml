@@ -44,7 +44,8 @@
                 android:layout_margin="24dp"
                 android:gravity="center_horizontal"
                 android:text="No Transactions"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/savedTransactionsRecyclerView"
