@@ -64,8 +64,12 @@ public class HomeFragment extends Fragment {
         homeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         homeViewModel.getMutableLatestTransactionsList().observe(getViewLifecycleOwner(), list -> {
-            final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
-            homeRecyclerView.setAdapter(recyclerAdapter);
+            if (!list.isEmpty()) {
+                final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
+                homeRecyclerView.setAdapter(recyclerAdapter);
+            } else {
+                root.findViewById(R.id.homeFragmentNoTransactionsTextView).setVisibility(View.VISIBLE);
+            }
             root.findViewById(R.id.homeFragmentProgressBar).setVisibility(View.GONE);
         });
     }
