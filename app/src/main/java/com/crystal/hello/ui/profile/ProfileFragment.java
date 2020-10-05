@@ -77,7 +77,7 @@ public class ProfileFragment extends Fragment {
     private void openLink() {
         Plaid.create(requireActivity().getApplication(), new LinkPublicKeyConfiguration.Builder()
                 .clientName("Crystal")
-                .environment(PlaidEnvironment.SANDBOX)
+                .environment(PlaidEnvironment.DEVELOPMENT)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")

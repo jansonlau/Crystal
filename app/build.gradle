@@ -17,7 +17,7 @@ android {
         applicationId "com.crystal.hello"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 11
+        versionCode 12
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
