@@ -55,7 +55,13 @@ public class SavedFragment extends Fragment {
             } else {
                 root.findViewById(R.id.savedNoTransactionsTextView).setVisibility(View.VISIBLE);
             }
-            savedTransactionsSubtitleTextView.setText("$".concat(String.format(Locale.US,"%.2f", totalSavedTransactionAmount)));
+            String amountString = String.format(Locale.US,"%.2f", totalSavedTransactionAmount);
+            if (totalSavedTransactionAmount >= 0) {
+                amountString = "$".concat(amountString);
+            } else {
+                amountString = new StringBuilder(amountString).insert(1, "$").toString();
+            }
+            savedTransactionsSubtitleTextView.setText(amountString);
         });
     }
 }

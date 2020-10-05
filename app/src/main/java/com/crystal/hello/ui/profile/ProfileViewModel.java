@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
 import com.crystal.hello.ui.home.HomeViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -150,6 +151,7 @@ public class ProfileViewModel extends ViewModel {
 
                     @Override
                     public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
+                        t.getLocalizedMessage();
                     }
                 });
     }
@@ -180,6 +182,12 @@ public class ProfileViewModel extends ViewModel {
                         public void onSuccess(Void aVoid) {
                             getBankAccountsFromDatabase();
                             transactionOffset = 0;
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.getLocalizedMessage();
                         }
                     });
         }
