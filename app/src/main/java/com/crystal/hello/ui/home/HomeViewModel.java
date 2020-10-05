@@ -163,43 +163,43 @@ public class HomeViewModel extends ViewModel {
         plaidClient.service()
                 .transactionsGet(request)
                 .enqueue(new Callback<TransactionsGetResponse>() {
-            @Override
-            public void onResponse(@NotNull Call<TransactionsGetResponse> call,
-                                   @NotNull Response<TransactionsGetResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    TransactionsGetResponse responseBody = response.body();
+                    @Override
+                    public void onResponse(@NotNull Call<TransactionsGetResponse> call,
+                                           @NotNull Response<TransactionsGetResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            final TransactionsGetResponse responseBody = response.body();
 
-                    // Get credit card accounts once
-                    // Accounts include account name and current balance
-                    if (transactionOffset == 0) {
-                        for (Account account : responseBody.getAccounts()) {
-                            if (account.getSubtype().equals("credit card")) {
-                                accountIdToAccountMap.put(account.getAccountId(), account);
+                            // Get credit card accounts once
+                            // Accounts include account name and current balance
+                            if (transactionOffset == 0) {
+                                for (Account account : responseBody.getAccounts()) {
+                                    if (account.getSubtype().equals("credit card")) {
+                                        accountIdToAccountMap.put(account.getAccountId(), account);
+                                    }
+                                }
+                                setPlaidAccountsToDatabase();
                             }
+
+                            // Get transactions
+                            final List<TransactionsGetResponse.Transaction> paginatedTransactionsList = new ArrayList<>();
+                            for (String accountId : accountIdToAccountMap.keySet()) {
+                                for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
+                                    if (transaction.getAccountId().equals(accountId)) {
+                                        paginatedTransactionsList.add(transaction);
+                                    }
+                                }
+                            }
+
+                            transactionOffset += count;
+                            final int totalTransactions = responseBody.getTotalTransactions();
+                            setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
                         }
-                        setPlaidAccountsToDatabase();
                     }
 
-                    // Get transactions
-                    List<TransactionsGetResponse.Transaction> paginatedTransactionsList = new ArrayList<>();
-                    for (String accountId : accountIdToAccountMap.keySet()) {
-                        for (TransactionsGetResponse.Transaction transaction : responseBody.getTransactions()) {
-                            if (transaction.getAccountId().equals(accountId)) {
-                                paginatedTransactionsList.add(transaction);
-                            }
-                        }
+                    @Override
+                    public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
                     }
-
-                    transactionOffset += count;
-                    int totalTransactions = responseBody.getTotalTransactions();
-                    setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
-                }
-            }
-
-            @Override
-            public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
-            }
-        });
+                });
     }
 
     // Write to Firestore with paginated list because of Plaid's 500 transaction limit and
@@ -242,7 +242,6 @@ public class HomeViewModel extends ViewModel {
     private void setPlaidAccountsToDatabase() {
         final WriteBatch batch = db.batch();
         for (final Account account : accountIdToAccountMap.values()) {
-
             final Map<String, Object> identifiers = new HashMap<>();
             identifiers.put("accessToken", accessToken);
             identifiers.put("itemId", itemId);

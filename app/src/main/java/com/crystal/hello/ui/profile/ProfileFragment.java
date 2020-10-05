@@ -64,7 +64,7 @@ public class ProfileFragment extends Fragment {
 
         observeBankAccountsList();
         observeBudgetAmountsList();
-        observeAddAccountCompleteBoolean();
+//        observeAddAccountCompleteBoolean();
         setBudgetAmountSaveButtonListener();
         return root;
     }
@@ -92,9 +92,9 @@ public class ProfileFragment extends Fragment {
 
     private final LinkResultHandler myPlaidResultHandler = new LinkResultHandler(
             linkSuccess -> {
-                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.GONE);
-                root.findViewById(R.id.addAccountButton).setVisibility(View.GONE);
-                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.VISIBLE);
+//                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.GONE);
+//                root.findViewById(R.id.addAccountButton).setVisibility(View.GONE);
+//                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.VISIBLE);
 
                 final String publicToken = linkSuccess.getPublicToken();
                 profileViewModel.buildPlaidClient();
@@ -119,15 +119,15 @@ public class ProfileFragment extends Fragment {
         requireActivity().finishAffinity();
     }
 
-    private void observeAddAccountCompleteBoolean() {
-        profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
-            if (aBoolean) {
-                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
-                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
-            }
-        });
-    }
+//    private void observeAddAccountCompleteBoolean() {
+//        profileViewModel.getMutableTransactionsCompleteBoolean().observe(getViewLifecycleOwner(), aBoolean -> {
+//            if (aBoolean) {
+//                root.findViewById(R.id.bankAccountsTextView).setVisibility(View.VISIBLE);
+//                root.findViewById(R.id.addAccountButton).setVisibility(View.VISIBLE);
+//                root.findViewById(R.id.profileFragmentProgressBar).setVisibility(View.GONE);
+//            }
+//        });
+//    }
 
     private void observeBankAccountsList() {
         final RecyclerView bankAccountsRecyclerView = root.findViewById(R.id.bankAccountsRecyclerView);

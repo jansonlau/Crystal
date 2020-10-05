@@ -49,7 +49,7 @@ public class ProfileViewModel extends ViewModel {
     private final DocumentReference docRef;
     private int transactionOffset;
     private final Map<String, Account> accountIdToAccountMap;
-    private final MutableLiveData<Boolean> mutableTransactionsCompleteBoolean;
+//    private final MutableLiveData<Boolean> mutableTransactionsCompleteBoolean;
     private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
     private final MutableLiveData<Map<String, Object>> mutableBudgetsMap;
 
@@ -59,16 +59,16 @@ public class ProfileViewModel extends ViewModel {
         db = FirebaseFirestore.getInstance();
         docRef = db.collection("users")
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-        mutableTransactionsCompleteBoolean = new MutableLiveData<>();
+//        mutableTransactionsCompleteBoolean = new MutableLiveData<>();
         mutableBankAccountsList = new MutableLiveData<>();
         mutableBudgetsMap = new MutableLiveData<>();
         getBankAccountsFromDatabase();
         getBudgetAmountsFromDatabase();
     }
 
-    public MutableLiveData<Boolean> getMutableTransactionsCompleteBoolean() {
-        return mutableTransactionsCompleteBoolean;
-    }
+//    public MutableLiveData<Boolean> getMutableTransactionsCompleteBoolean() {
+//        return mutableTransactionsCompleteBoolean;
+//    }
 
     public MutableLiveData<List<DocumentSnapshot>> getMutableBankAccountsList() {
         return mutableBankAccountsList;
@@ -86,7 +86,7 @@ public class ProfileViewModel extends ViewModel {
     }
 
     // Asynchronously get access token for a bank account
-    protected void exchangeAccessToken(String publicToken) {
+    protected void exchangeAccessToken(final String publicToken) {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
@@ -112,7 +112,7 @@ public class ProfileViewModel extends ViewModel {
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
         final int count = 500;
-        final Date startDate = new Date(0);
+        final Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
         final Date endDate = new Date();
 
         final TransactionsGetRequest request = new TransactionsGetRequest(Objects.requireNonNull(accessToken), startDate, endDate)
@@ -168,7 +168,7 @@ public class ProfileViewModel extends ViewModel {
                                                          final int totalTransactions) {
         final WriteBatch batch = db.batch();
         for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
-            DocumentReference transactionsRef = docRef.collection("transactions")
+            final DocumentReference transactionsRef = docRef.collection("transactions")
                     .document(transaction.getTransactionId());
 
             batch.set(transactionsRef, transaction, SetOptions.merge());
@@ -187,7 +187,7 @@ public class ProfileViewModel extends ViewModel {
                     @Override
                     public void onSuccess(Void aVoid) {
                         getBankAccountsFromDatabase();
-                        mutableTransactionsCompleteBoolean.setValue(true);
+//                        mutableTransactionsCompleteBoolean.setValue(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -200,7 +200,7 @@ public class ProfileViewModel extends ViewModel {
     // Set Plaid Account to "banks" collection with Plaid accountId as document ID
     private void setPlaidAccountsToDatabase() {
         final WriteBatch batch = db.batch();
-        for (Account account : accountIdToAccountMap.values()) {
+        for (final Account account : accountIdToAccountMap.values()) {
             final Map<String, Object> identifiers = new HashMap<>();
             identifiers.put("accessToken", accessToken);
             identifiers.put("itemId", itemId);
