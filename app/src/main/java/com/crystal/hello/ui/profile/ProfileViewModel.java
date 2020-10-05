@@ -104,7 +104,7 @@ public class ProfileViewModel extends ViewModel {
 
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
-        final int count = 500;
+        final int count = 250; // Plaid and Firestore has 500 transaction limit
         final Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
         final Date endDate = new Date();
 
@@ -161,10 +161,11 @@ public class ProfileViewModel extends ViewModel {
     private void setPaginatedPlaidTransactionsToDatabase(@NotNull final List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
                                                          final int totalTransactions) {
         final WriteBatch batch = db.batch();
-        for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
+        for (final TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
             final DocumentReference transactionsRef = docRef.collection("transactions")
                     .document(transaction.getTransactionId());
 
+            // Each batch counts as a write operation
             batch.set(transactionsRef, transaction, SetOptions.merge());
             batch.set(transactionsRef, Collections.singletonMap("saved", false), SetOptions.merge());
         }

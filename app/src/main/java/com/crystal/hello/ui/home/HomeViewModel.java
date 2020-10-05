@@ -151,7 +151,7 @@ public class HomeViewModel extends ViewModel {
 
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
-        final int count = 500;
+        final int count = 250;
         final Date startDate = new Date(0); // Wed 31 December 1969 16:00:00
         final Date endDate = new Date();
 
@@ -208,7 +208,7 @@ public class HomeViewModel extends ViewModel {
     private void setPaginatedPlaidTransactionsToDatabase(@NotNull final List<TransactionsGetResponse.Transaction> paginatedTransactionsList,
                                                          final int totalTransactions) {
         final WriteBatch batch = db.batch();
-        for (TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
+        for (final TransactionsGetResponse.Transaction transaction : paginatedTransactionsList) {
             final DocumentReference transactionsRef = docRef.collection("transactions")
                     .document(transaction.getTransactionId());
 
@@ -216,7 +216,7 @@ public class HomeViewModel extends ViewModel {
             batch.set(transactionsRef, Collections.singletonMap("saved", false), SetOptions.merge());
         }
 
-        // If there are more than 500 transactions, get more because they're paginated
+        // Get more transactions because they're paginated
         if (transactionOffset < totalTransactions) {
             getPlaidAccountsAndTransactions(transactionOffset); // Get all transactions within the date period set
             batch.commit();

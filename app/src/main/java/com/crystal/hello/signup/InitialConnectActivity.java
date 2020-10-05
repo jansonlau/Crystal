@@ -93,9 +93,9 @@ public class InitialConnectActivity extends AppCompatActivity {
             },
 
             linkExit -> {
-//                Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class);
-//                InitialConnectActivity.this.startActivity(intent);
-//                InitialConnectActivity.this.finishAffinity();
+                final Intent intent = new Intent(this, HomeActivity.class);
+                startActivity(intent);
+                finishAffinity();
                 return Unit.INSTANCE;
             }
     );
