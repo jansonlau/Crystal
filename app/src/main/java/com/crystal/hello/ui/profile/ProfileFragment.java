@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
+import com.plaid.link.PlaidHandler;
 import com.plaid.link.configuration.LinkPublicKeyConfiguration;
 import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
@@ -44,11 +45,13 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private View root;
     private RecyclerView budgetAmountsRecyclerView;
+    private PlaidHandler plaidHandler;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        createPlaidHandler();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -56,12 +59,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button button = root.findViewById(R.id.addAccountButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openLink();
-            }
-        });
+        button.setOnClickListener(view -> openPlaidLink());
 
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
         logOutTextView.setOnClickListener(view -> logOut());
@@ -74,19 +72,19 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
-    private void openLink() {
-        Plaid.create(requireActivity().getApplication(), new LinkPublicKeyConfiguration.Builder()
+    private void createPlaidHandler() {
+        plaidHandler = Plaid.create(requireActivity().getApplication(), new LinkPublicKeyConfiguration.Builder()
                 .clientName("Crystal")
                 .environment(PlaidEnvironment.DEVELOPMENT)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
                 .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build())
-                .open(this);
+                .build());
+    }
 
-        // TODO: Get linkToken with server
-//        LinkTokenRequester.INSTANCE.getToken().subscribe(this::onLinkTokenSuccess, this::onLinkTokenError);
+    private void openPlaidLink() {
+        plaidHandler.open(this);
     }
 
     @Override
@@ -99,7 +97,6 @@ public class ProfileFragment extends Fragment {
             linkSuccess -> {
                 showProgressBar(true);
                 final String publicToken = linkSuccess.getPublicToken();
-                profileViewModel.buildPlaidClient();
                 profileViewModel.exchangeAccessToken(publicToken);
                 return Unit.INSTANCE;
             },
@@ -128,8 +125,10 @@ public class ProfileFragment extends Fragment {
         profileViewModel.getMutableBankAccountsList().observe(getViewLifecycleOwner(), new Observer<List<DocumentSnapshot>>() {
             @Override
             public void onChanged(List<DocumentSnapshot> documentSnapshotList) {
-                final BankAccountsRecyclerAdapter recyclerAdapter = new BankAccountsRecyclerAdapter(getActivity(), documentSnapshotList);
-                bankAccountsRecyclerView.setAdapter(recyclerAdapter);
+                if (!documentSnapshotList.isEmpty()) {
+                    final BankAccountsRecyclerAdapter recyclerAdapter = new BankAccountsRecyclerAdapter(getActivity(), documentSnapshotList);
+                    bankAccountsRecyclerView.setAdapter(recyclerAdapter);
+                }
                 showProgressBar(false);
             }
         });
@@ -140,7 +139,6 @@ public class ProfileFragment extends Fragment {
         profileViewModel.getMutableBudgetsMap().observe(getViewLifecycleOwner(), new Observer<Map<String, Object>>() {
             @Override
             public void onChanged(Map<String, Object> categoryBudgetAmountMap) {
-
                 final BudgetAmountsRecyclerAdapter recyclerAdapter = new BudgetAmountsRecyclerAdapter(getActivity(), categoryBudgetAmountMap);
                 budgetAmountsRecyclerView.setAdapter(recyclerAdapter);
             }

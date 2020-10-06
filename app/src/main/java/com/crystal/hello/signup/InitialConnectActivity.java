@@ -13,8 +13,12 @@ import com.crystal.hello.HomeActivity;
 import com.crystal.hello.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 import com.plaid.link.Plaid;
+import com.plaid.link.PlaidHandler;
 import com.plaid.link.configuration.LinkPublicKeyConfiguration;
 import com.plaid.link.configuration.PlaidEnvironment;
 import com.plaid.link.configuration.PlaidProduct;
@@ -33,31 +37,33 @@ import kotlin.Unit;
 public class InitialConnectActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private PlaidHandler plaidHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
+        createPlaidHandler();
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         final Button button = findViewById(R.id.buttonLinkBankContinue);
-        button.setOnClickListener(view -> InitialConnectActivity.this.openLink());
+        button.setOnClickListener(view -> openPlaidLink());
     }
 
-    private void openLink() {
-        Plaid.create(getApplication(), new LinkPublicKeyConfiguration.Builder()
+    private void createPlaidHandler() {
+        plaidHandler = Plaid.create(getApplication(), new LinkPublicKeyConfiguration.Builder()
                 .clientName("Crystal")
                 .environment(PlaidEnvironment.DEVELOPMENT)
 //                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
                 .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
                 .publicKey("bbf9cf93da45517aa5283841dfc534")
                 .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build())
-                .open(this);
+                .build());
+    }
 
-        // TODO: Get linkToken with server
-//        LinkTokenRequester.INSTANCE.getToken().subscribe(this::onLinkTokenSuccess, this::onLinkTokenError);
+    private void openPlaidLink() {
+        plaidHandler.open(this);
     }
 
 //    private void onLinkTokenSuccess(String token) {
@@ -93,29 +99,29 @@ public class InitialConnectActivity extends AppCompatActivity {
             },
 
             linkExit -> {
-                final Intent intent = new Intent(this, HomeActivity.class);
-                startActivity(intent);
-                finishAffinity();
+                createUserWithEmailAndPassword(null);
                 return Unit.INSTANCE;
             }
     );
 
-    // Add account to database only if account was successfully created in Firebase Auth
+    // Move to HomeActivity
     private void createUserWithEmailAndPassword(final String publicToken) {
         final String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
         final String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
         final String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
         final String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME"));
         final String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER"));
+        final Intent intent = new Intent(this, HomeActivity.class);
+
+        if (publicToken != null) {
+            intent.putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
+        }
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Move to HomeActivity
-                        final Intent intent = new Intent(InitialConnectActivity.this, HomeActivity.class)
-                                .putExtra("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
-                        InitialConnectActivity.this.startActivity(intent);
-                        InitialConnectActivity.this.finishAffinity();
+                        startActivity(intent);
+                        finishAffinity();
 
                         final FirebaseUser user = auth.getCurrentUser();
                         sendEmailVerification(Objects.requireNonNull(user));
@@ -141,16 +147,28 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     // Set user profile information to "users" collection with Firebase Auth Uid as document ID
     private void setUserToDatabase(@NotNull FirebaseUser user, String email, String firstName, String lastName, String mobileNumber) {
+        // Set default budget values
+        final Map<String, Integer> budgets = new HashMap<>();
+        budgets.put("travel"        , 100);
+        budgets.put("health"        , 100);
+        budgets.put("shopping"      , 100);
+        budgets.put("services"      , 100);
+        budgets.put("foodDrinks"    , 100);
+        budgets.put("entertainment" , 100);
+
         final Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
         userData.put("first", firstName);
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
 
-        db.collection("users")
-                .document(user.getUid())
-                .collection("profile")
-                .document("user")
-                .set(userData);
+        final DocumentReference docRef = db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        final DocumentReference budgetRef = docRef.collection("profile").document("budgets");
+        final DocumentReference userRef = docRef.collection("profile").document("user");
+        final WriteBatch batch = db.batch();
+
+        batch.set(budgetRef, budgets, SetOptions.merge())
+                .set(userRef, userData, SetOptions.merge())
+                .commit();
     }
 }

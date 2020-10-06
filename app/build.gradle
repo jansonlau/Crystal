@@ -17,7 +17,7 @@ android {
         applicationId "com.crystal.hello"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 12
+        versionCode 13
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -28,6 +28,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            debuggable true
         }
     }
     compileOptions {

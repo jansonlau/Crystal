@@ -59,6 +59,7 @@ public class ProfileViewModel extends ViewModel {
                 .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         mutableBankAccountsList = new MutableLiveData<>();
         mutableBudgetsMap = new MutableLiveData<>();
+        buildPlaidClient();
         getBankAccountsFromDatabase();
         getBudgetAmountsFromDatabase();
     }
@@ -125,7 +126,7 @@ public class ProfileViewModel extends ViewModel {
                             // Accounts include account name and current balance
                             if (transactionOffset == 0) {
                                 accountIdToAccountMap = new HashMap<>();
-                                for (Account account : responseBody.getAccounts()) {
+                                for (final Account account : responseBody.getAccounts()) {
                                     if (account.getSubtype().equals("credit card")) {
                                         accountIdToAccountMap.put(account.getAccountId(), account);
                                     }
@@ -146,6 +147,9 @@ public class ProfileViewModel extends ViewModel {
                             transactionOffset += count;
                             final int totalTransactions = responseBody.getTotalTransactions();
                             setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
+                        } else {
+                            getBankAccountsFromDatabase();
+                            transactionOffset = 0;
                         }
                     }
 

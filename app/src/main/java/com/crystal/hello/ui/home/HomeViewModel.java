@@ -110,7 +110,6 @@ public class HomeViewModel extends ViewModel {
         plaidClient.service()
                 .itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken))
                 .enqueue(new Callback<ItemPublicTokenExchangeResponse>() {
-
                     @Override
                     public void onResponse(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                            @NotNull Response<ItemPublicTokenExchangeResponse> response) {
@@ -125,29 +124,10 @@ public class HomeViewModel extends ViewModel {
                     @Override
                     public void onFailure(@NotNull Call<ItemPublicTokenExchangeResponse> call,
                                           @NotNull Throwable t) {
+                        t.getLocalizedMessage();
                     }
                 });
     }
-
-    // TODO: Plaid Liabilities for upcoming bill amount
-//    private void getPlaidLiabilities() {
-//        LiabilitiesGetRequest request = new LiabilitiesGetRequest(accessToken);
-//        plaidClient.service().liabilitiesGet(request).enqueue(new Callback<LiabilitiesGetResponse>() {
-//            @Override
-//            public void onResponse(@NotNull Call<LiabilitiesGetResponse> call,
-//                                   @NotNull Response<LiabilitiesGetResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    List<LiabilitiesGetResponse.CreditCardLiability> creditCardList = response.body().getLiabilities().getCredit();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NotNull Call<LiabilitiesGetResponse> call,
-//                                  @NotNull Throwable t) {
-//
-//            }
-//        });
-//    }
 
     // Plaid Transactions for Accounts and Transactions
     private void getPlaidAccountsAndTransactions(final Integer offset) {
@@ -172,7 +152,7 @@ public class HomeViewModel extends ViewModel {
                             // Accounts include account name and current balance
                             if (transactionOffset == 0) {
                                 accountIdToAccountMap = new HashMap<>();
-                                for (Account account : responseBody.getAccounts()) {
+                                for (final Account account : responseBody.getAccounts()) {
                                     if (account.getSubtype().equals("credit card")) {
                                         accountIdToAccountMap.put(account.getAccountId(), account);
                                     }
@@ -193,11 +173,14 @@ public class HomeViewModel extends ViewModel {
                             transactionOffset += count;
                             final int totalTransactions = responseBody.getTotalTransactions();
                             setPaginatedPlaidTransactionsToDatabase(paginatedTransactionsList, totalTransactions);
+                        } else {
+                            getLatestTransactionsFromDatabase();
                         }
                     }
 
                     @Override
                     public void onFailure(@NotNull Call<TransactionsGetResponse> call, @NotNull Throwable t) {
+                        t.getLocalizedMessage();
                     }
                 });
     }
@@ -226,7 +209,12 @@ public class HomeViewModel extends ViewModel {
                         @Override
                         public void onSuccess(Void aVoid) {
                             getLatestTransactionsFromDatabase();
-                            monthlyActivityViewModel = new MonthlyActivityViewModel();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.getLocalizedMessage();
                         }
                     });
         }
@@ -250,20 +238,6 @@ public class HomeViewModel extends ViewModel {
             batch.set(banksRef, account, SetOptions.merge());
         }
 
-        // Set default budget values
-        final Map<String, Integer> budgets = new HashMap<>();
-        budgets.put("travel"        , 100);
-        budgets.put("health"        , 100);
-        budgets.put("shopping"      , 100);
-        budgets.put("services"      , 100);
-        budgets.put("foodDrinks"    , 100);
-        budgets.put("entertainment" , 100);
-
-        final DocumentReference budgetRef = docRef.collection("profile")
-                .document("budgets");
-
-        batch.set(budgetRef, budgets, SetOptions.merge());
-
         batch.commit()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -274,6 +248,7 @@ public class HomeViewModel extends ViewModel {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        e.getMessage();
                     }
                 });
     }
@@ -287,6 +262,7 @@ public class HomeViewModel extends ViewModel {
                     if (task.isSuccessful()) {
                         final List<DocumentSnapshot> latestTransactionsList = Objects.requireNonNull(task.getResult()).getDocuments();
                         mutableLatestTransactionsList.setValue(latestTransactionsList);
+                        monthlyActivityViewModel = new MonthlyActivityViewModel();
                     }
                 });
     }
@@ -359,4 +335,24 @@ public class HomeViewModel extends ViewModel {
                    }
                 });
     }
+
+    // TODO: Plaid Liabilities for upcoming bill amount
+//    private void getPlaidLiabilities() {
+//        LiabilitiesGetRequest request = new LiabilitiesGetRequest(accessToken);
+//        plaidClient.service().liabilitiesGet(request).enqueue(new Callback<LiabilitiesGetResponse>() {
+//            @Override
+//            public void onResponse(@NotNull Call<LiabilitiesGetResponse> call,
+//                                   @NotNull Response<LiabilitiesGetResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    List<LiabilitiesGetResponse.CreditCardLiability> creditCardList = response.body().getLiabilities().getCredit();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NotNull Call<LiabilitiesGetResponse> call,
+//                                  @NotNull Throwable t) {
+//
+//            }
+//        });
+//    }
 }

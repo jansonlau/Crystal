@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 
 public class HomeFragment extends Fragment {
@@ -65,10 +64,11 @@ public class HomeFragment extends Fragment {
 
         homeViewModel.getMutableLatestTransactionsList().observe(getViewLifecycleOwner(), list -> {
             root.findViewById(R.id.homeFragmentProgressBar).setVisibility(View.GONE);
+
             if (!list.isEmpty()) {
                 final TransactionRecyclerAdapter recyclerAdapter = new TransactionRecyclerAdapter(getActivity(), list);
                 homeRecyclerView.setAdapter(recyclerAdapter);
-            } else {
+            } else { // No transactions
                 root.findViewById(R.id.homeFragmentNoTransactionsTextView).setVisibility(View.VISIBLE);
             }
         });
@@ -155,7 +155,7 @@ public class HomeFragment extends Fragment {
         secondUnselectedTextView.setSelected(false);
         secondUnselectedTextView.setBackgroundResource(0);
 
-        final int currentNightMode = Objects.requireNonNull(getContext()).getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        final int currentNightMode = requireContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 firstUnselectedTextView.setTextColor(Color.BLACK);
