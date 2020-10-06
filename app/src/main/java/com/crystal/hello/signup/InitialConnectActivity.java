@@ -88,18 +88,15 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     private final LinkResultHandler myPlaidResultHandler = new LinkResultHandler(
             linkSuccess -> {
-                findViewById(R.id.text_finish_sign_up).setVisibility(View.GONE);
-                findViewById(R.id.text_link_bank_caption).setVisibility(View.GONE);
-                findViewById(R.id.buttonLinkBankContinue).setVisibility(View.GONE);
-                findViewById(R.id.initialConnectProgressBar).setVisibility(View.VISIBLE);
-
                 final String publicToken = linkSuccess.getPublicToken();
                 createUserWithEmailAndPassword(publicToken);
+                showProgressBar();
                 return Unit.INSTANCE;
             },
 
             linkExit -> {
                 createUserWithEmailAndPassword(null);
+                showProgressBar();
                 return Unit.INSTANCE;
             }
     );
@@ -170,5 +167,12 @@ public class InitialConnectActivity extends AppCompatActivity {
         batch.set(budgetRef, budgets, SetOptions.merge())
                 .set(userRef, userData, SetOptions.merge())
                 .commit();
+    }
+
+    private void showProgressBar() {
+        findViewById(R.id.text_finish_sign_up).setVisibility(View.GONE);
+        findViewById(R.id.text_link_bank_caption).setVisibility(View.GONE);
+        findViewById(R.id.buttonLinkBankContinue).setVisibility(View.GONE);
+        findViewById(R.id.initialConnectProgressBar).setVisibility(View.VISIBLE);
     }
 }
