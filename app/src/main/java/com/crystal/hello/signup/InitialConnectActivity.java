@@ -162,7 +162,7 @@ public class InitialConnectActivity extends AppCompatActivity {
         userData.put("last", lastName);
         userData.put("mobile", mobileNumber);
 
-        final DocumentReference docRef = db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+        final DocumentReference docRef = db.collection("users").document(user.getUid());
         final DocumentReference budgetRef = docRef.collection("profile").document("budgets");
         final DocumentReference userRef = docRef.collection("profile").document("user");
         final WriteBatch batch = db.batch();
