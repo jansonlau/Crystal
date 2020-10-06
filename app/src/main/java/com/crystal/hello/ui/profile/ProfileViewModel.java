@@ -185,6 +185,8 @@ public class ProfileViewModel extends ViewModel {
                         @Override
                         public void onSuccess(Void aVoid) {
                             getBankAccountsFromDatabase();
+                            HomeViewModel.monthlyActivityViewModel = new MonthlyActivityViewModel();
+                            HomeViewModel.getBalancesAndBankAccountsFromDatabase();
                             transactionOffset = 0;
                         }
                     })

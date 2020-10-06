@@ -46,7 +46,7 @@ public class HomeViewModel extends ViewModel {
     private final String developmentSecretKey = "60accf9202c1cb270909846affe85a";
     private final String sandboxSecretKey     = "74cf176067e0712cc2eabdf800829e";
 
-    private final MutableLiveData<Double> currentTotalBalance;
+    private static MutableLiveData<Double> currentTotalBalance;
     private final MutableLiveData<List<DocumentSnapshot>> mutableLatestTransactionsList;
     private final MutableLiveData<List<DocumentSnapshot>> mutableSimilarTransactionsList;
     private final MutableLiveData<Map<String, Object>> mutableLatestTransactionMap;
@@ -58,7 +58,7 @@ public class HomeViewModel extends ViewModel {
     private PlaidClient plaidClient;
     private int transactionOffset;
     private final FirebaseFirestore db;
-    private final DocumentReference docRef;
+    private static DocumentReference docRef;
 
 
     public HomeViewModel() {
@@ -267,7 +267,7 @@ public class HomeViewModel extends ViewModel {
                 });
     }
 
-    protected void getBalancesAndBankAccountsFromDatabase() {
+    public static void getBalancesAndBankAccountsFromDatabase() {
         docRef.collection("banks")
                 .get()
                 .addOnCompleteListener(task -> {
