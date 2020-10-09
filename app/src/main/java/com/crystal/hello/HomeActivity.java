@@ -18,12 +18,20 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.jetbrains.annotations.NotNull;
 
 public class HomeActivity extends AppCompatActivity {
+    private int currentMenuItemId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        currentMenuItemId = R.id.navigation_home;
 
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        if (savedInstanceState != null) {
+            currentMenuItemId = savedInstanceState.getInt("com.crystal.hello.ITEM_ID");
+        }
+
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0
+                && currentMenuItemId == R.id.navigation_home) {
             final String publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN_STRING");
             final Fragment homeFragment = new HomeFragment();
 
@@ -59,6 +67,7 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new HomeFragment();
                         break;
                 }
+                currentMenuItemId = item.getItemId();
                 popAllFragments();
                 replaceFragment(fragment);
                 return true;
@@ -74,7 +83,9 @@ public class HomeActivity extends AppCompatActivity {
                     switch (item.getItemId()) {
                         case R.id.navigation_home:
                             final NestedScrollView homeFragmentNestedScrollView = findViewById(R.id.homeFragmentNestedScrollView);
-                            homeFragmentNestedScrollView.smoothScrollTo(0, 0);
+                            if (homeFragmentNestedScrollView != null) {
+                                homeFragmentNestedScrollView.smoothScrollTo(0, 0);
+                            }
                             break;
                         case R.id.navigation_monthly:
                             final ViewPager2 viewPager = findViewById(R.id.pager);
@@ -100,5 +111,11 @@ public class HomeActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentFrameLayout, fragment)
                 .commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("com.crystal.hello.ITEM_ID", currentMenuItemId);
     }
 }
