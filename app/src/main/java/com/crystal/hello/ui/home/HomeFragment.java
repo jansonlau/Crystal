@@ -37,16 +37,6 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
-        // New user from create account
-        if (getArguments() != null && getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING") != null) {
-            final String publicToken = getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
-            homeViewModel.buildPlaidClient();
-            homeViewModel.exchangeAccessToken(publicToken);
-        } else {
-            homeViewModel.getLatestTransactionsFromDatabase();
-            homeViewModel.getBalancesAndBankAccountsFromDatabase();
-        }
     }
 
     @Override
@@ -55,6 +45,17 @@ public class HomeFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_home, container, false);
         observeCurrentBalance();
         observeTransactionList();
+
+        // New user from create account
+        if (getArguments() != null && getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING") != null) {
+            final String publicToken = getArguments().getString("com.crystal.hello.PUBLIC_TOKEN_STRING");
+            homeViewModel.buildPlaidClient();
+            homeViewModel.exchangeAccessToken(publicToken);
+        } else {
+            homeViewModel.getLatestTransactionsFromDatabase();
+            HomeViewModel.getBalancesAndBankAccountsFromDatabase();
+        }
+
         return root;
     }
 

@@ -31,14 +31,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Button signUpButton = findViewById(R.id.mainSignUpButton);
-        final TextView logInTextView = findViewById(R.id.mainLogInTextView);
+        final TextView logInButton = findViewById(R.id.mainLogInButton);
 
         signUpButton.setOnClickListener(view -> {
             final Intent intent = new Intent(MainActivity.this, NameActivity.class);
             startActivity(intent);
         });
 
-        logInTextView.setOnClickListener(view -> {
+        logInButton.setOnClickListener(view -> {
             final Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });

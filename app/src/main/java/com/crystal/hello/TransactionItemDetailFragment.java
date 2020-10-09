@@ -2,6 +2,7 @@ package com.crystal.hello;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -58,7 +60,7 @@ public class TransactionItemDetailFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeViewModel                   = new ViewModelProvider(this).get(HomeViewModel.class);
-        transaction                     = (Map<String, Object>) Objects.requireNonNull(getArguments()).getSerializable("TRANSACTION_ITEM_MAP");
+        transaction                     = (Map<String, Object>) requireArguments().getSerializable("TRANSACTION_ITEM_MAP");
 
         transactionItemLogo             = getArguments().getInt("TRANSACTION_ITEM_LOGO");
         transactionItemLogoBackground   = getArguments().getInt("TRANSACTION_ITEM_LOGO_BACKGROUND");
@@ -173,6 +175,10 @@ public class TransactionItemDetailFragment extends Fragment {
                     @Override
                     public void onMapReady(GoogleMap googleMap) {
                         try {
+                            final int currentNightMode = requireContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                            if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.mapstyle_night));
+                            }
                             loadMap(googleMap, transactionItemName, finalLocationString, locationCardView);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -210,7 +216,6 @@ public class TransactionItemDetailFragment extends Fragment {
                     .position(latLng)
                     .title(name));
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            googleMap.setMinZoomPreference(15);
             googleMap.getUiSettings().setAllGesturesEnabled(true);
 
             final NestedScrollView transactionDetailNestedScrollView = root.findViewById(R.id.transactionDetailNestedScrollView);
@@ -218,7 +223,6 @@ public class TransactionItemDetailFragment extends Fragment {
                 @Override
                 public void onCameraMove() {
                     transactionDetailNestedScrollView.requestDisallowInterceptTouchEvent(true);
-                    googleMap.resetMinMaxZoomPreference();
                 }
             });
 

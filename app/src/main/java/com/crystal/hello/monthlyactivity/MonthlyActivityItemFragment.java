@@ -19,22 +19,29 @@ import java.util.List;
 import java.util.Map;
 
 public class MonthlyActivityItemFragment extends Fragment {
+    private View root;
+    private RecyclerView budgetRecyclerView;
+    private RecyclerView merchantRecyclerView;
+    private RecyclerView creditRecyclerView;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        final View root = inflater.inflate(R.layout.fragment_monthly_activity_item, container, false);
-        final String monthAndYearString = requireArguments().getString("com.crystal.hello.MONTH_YEAR");
+        root = inflater.inflate(R.layout.fragment_monthly_activity_item, container, false);
+        budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
+        merchantRecyclerView = root.findViewById(R.id.merchantRecyclerView);
+        creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
         final TextView monthAndYearTextView = root.findViewById(R.id.monthAndYearTextView);
+        final String monthAndYearString = requireArguments().getString("com.crystal.hello.MONTH_YEAR");
         monthAndYearTextView.setText(monthAndYearString);
 
-        initializeBudgetAndCategories(root);
-        initializeMerchants(root);
-        initializePaymentsAndRefunds(root);
+        initializeBudgetAndCategories();
+        initializeMerchants();
+        initializePaymentsAndRefunds();
         return root;
     }
 
-    private void initializeBudgetAndCategories(View root) {
+    private void initializeBudgetAndCategories() {
         final Map<String, List<DocumentSnapshot>> oneMonthPositiveAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) requireArguments().getSerializable("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
 
@@ -48,8 +55,7 @@ public class MonthlyActivityItemFragment extends Fragment {
                     , oneMonthSortedPositiveAmountByCategoryList
                     , budgetsMap);
 
-            final RecyclerView budgetRecyclerView = root.findViewById(R.id.budgetRecyclerView);
-            budgetRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            budgetRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             budgetRecyclerView.setAdapter(monthlyActivityItemBudgetRecyclerAdapter);
 
             requireArguments().remove("com.crystal.hello.POSITIVE_TRANSACTIONS_MAP");
@@ -60,7 +66,7 @@ public class MonthlyActivityItemFragment extends Fragment {
         }
     }
 
-    private void initializeMerchants(View root) {
+    private void initializeMerchants() {
         final Map<String, List<DocumentSnapshot>> oneMonthMerchantTransactionsMap =
                 (Map<String, List<DocumentSnapshot>>) requireArguments().getSerializable("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
 
@@ -71,8 +77,7 @@ public class MonthlyActivityItemFragment extends Fragment {
                     , oneMonthMerchantTransactionsMap
                     , oneMonthAmountByMerchantNameList);
 
-            final RecyclerView merchantRecyclerView = root.findViewById(R.id.merchantRecyclerView);
-            merchantRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            merchantRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             merchantRecyclerView.setAdapter(monthlyActivityItemMerchantRecyclerAdapter);
 
             requireArguments().remove("com.crystal.hello.MERCHANT_TRANSACTIONS_MAP");
@@ -82,19 +87,18 @@ public class MonthlyActivityItemFragment extends Fragment {
         }
     }
 
-    private void initializePaymentsAndRefunds(View root) {
+    private void initializePaymentsAndRefunds() {
         final Map<String, List<DocumentSnapshot>> oneMonthNegativeAmountTransactionsByCategoryMap =
                 (Map<String, List<DocumentSnapshot>>) requireArguments().getSerializable("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");
 
         if (oneMonthNegativeAmountTransactionsByCategoryMap != null) {
             final List<Map<String, Double>> oneMonthNegativeAmountByCategoryList =
                     (List<Map<String, Double>>) requireArguments().getSerializable("com.crystal.hello.NEGATIVE_AMOUNTS_LIST");
-            MonthlyActivityItemCreditRecyclerAdapter monthlyActivityItemCreditRecyclerAdapter = new MonthlyActivityItemCreditRecyclerAdapter(getActivity()
+            final MonthlyActivityItemCreditRecyclerAdapter monthlyActivityItemCreditRecyclerAdapter = new MonthlyActivityItemCreditRecyclerAdapter(getActivity()
                     , oneMonthNegativeAmountTransactionsByCategoryMap
                     , oneMonthNegativeAmountByCategoryList);
 
-            final RecyclerView creditRecyclerView = root.findViewById(R.id.creditRecyclerView);
-            creditRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            creditRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             creditRecyclerView.setAdapter(monthlyActivityItemCreditRecyclerAdapter);
 
             requireArguments().remove("com.crystal.hello.NEGATIVE_TRANSACTIONS_MAP");

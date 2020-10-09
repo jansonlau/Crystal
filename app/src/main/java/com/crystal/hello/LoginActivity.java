@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout passwordLayout;
     private TextInputEditText usernameEditText;
     private TextInputEditText passwordEditText;
-    private TextView forgotPasswordTextView;
+    private TextView forgotPasswordButton;
     private Button loginButton;
     private ProgressBar loginProgressBar;
     private FirebaseAuth auth;
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordLayout = findViewById(R.id.layoutLoginPassword);
         usernameEditText = findViewById(R.id.editTextLoginUsername);
         passwordEditText = findViewById(R.id.editTextLoginPassword);
-        forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
+        forgotPasswordButton = findViewById(R.id.forgotPasswordButton);
         loginButton = findViewById(R.id.buttonLogin);
         loginProgressBar = findViewById(R.id.loginProgressBar);
         auth = FirebaseAuth.getInstance();
@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+        forgotPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 hideKeyboard(view);
