@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hideKeyboard(view);
-                fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()), String.valueOf(passwordEditText.getText()));
+                fetchSignInMethodsForEmail(String.valueOf(usernameEditText.getText()).trim(), String.valueOf(passwordEditText.getText()));
             }
         });
 

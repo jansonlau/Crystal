@@ -48,7 +48,7 @@ public class PasswordActivity extends AppCompatActivity {
                         .putExtra("com.crystal.hello.FIRST_NAME", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"))
                         .putExtra("com.crystal.hello.LAST_NAME", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.LAST_NAME"))
                         .putExtra("com.crystal.hello.EMAIL", PasswordActivity.this.getIntent().getStringExtra("com.crystal.hello.EMAIL"))
-                        .putExtra("com.crystal.hello.PASSWORD", String.valueOf(passwordEditText));
+                        .putExtra("com.crystal.hello.PASSWORD", String.valueOf(passwordEditText.getText()));
                 PasswordActivity.this.startActivity(intent);
             }
         });

@@ -103,11 +103,11 @@ public class InitialConnectActivity extends AppCompatActivity {
 
     // Move to HomeActivity
     private void createUserWithEmailAndPassword(final String publicToken) {
-        final String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL"));
+        final String email = String.valueOf(getIntent().getStringExtra("com.crystal.hello.EMAIL")).trim();
         final String password = String.valueOf(getIntent().getStringExtra("com.crystal.hello.PASSWORD"));
-        final String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME"));
-        final String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME"));
-        final String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER"));
+        final String firstName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.FIRST_NAME")).trim();
+        final String lastName = String.valueOf(getIntent().getStringExtra("com.crystal.hello.LAST_NAME")).trim();
+        final String mobileNumber = String.valueOf(getIntent().getStringExtra("com.crystal.hello.MOBILE_NUMBER")).trim();
         final Intent intent = new Intent(this, HomeActivity.class);
 
         if (publicToken != null) {
