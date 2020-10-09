@@ -23,13 +23,17 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        final String publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN_STRING");
-        final Bundle bundle = new Bundle();
-        bundle.putString("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            final String publicToken = getIntent().getStringExtra("com.crystal.hello.PUBLIC_TOKEN_STRING");
+            final Fragment homeFragment = new HomeFragment();
 
-        final Fragment homeFragment = new HomeFragment();
-        homeFragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().add(R.id.fragmentFrameLayout, homeFragment).commit();
+            if (publicToken != null) {
+                final Bundle bundle = new Bundle();
+                bundle.putString("com.crystal.hello.PUBLIC_TOKEN_STRING", publicToken);
+                homeFragment.setArguments(bundle);
+            }
+            replaceFragment(homeFragment);
+        }
 
         final BottomNavigationView navView = findViewById(R.id.nav_view);
         setBottomNavigationItemSelectedListener(navView);
@@ -55,14 +59,8 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new HomeFragment();
                         break;
                 }
-
-                for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
-                    getSupportFragmentManager().popBackStack();
-                }
-
-                HomeActivity.this.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentFrameLayout, fragment)
-                        .commit();
+                popAllFragments();
+                replaceFragment(fragment);
                 return true;
             }
         });
@@ -86,11 +84,21 @@ public class HomeActivity extends AppCompatActivity {
                             break;
                     }
                 } else {
-                    for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
-                        getSupportFragmentManager().popBackStack();
-                    }
+                    popAllFragments();
                 }
             }
         });
+    }
+
+    private void popAllFragments() {
+        for (int count = 0; count < getSupportFragmentManager().getBackStackEntryCount(); count++) {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    private void replaceFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentFrameLayout, fragment)
+                .commit();
     }
 }
