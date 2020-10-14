@@ -6,16 +6,20 @@ import androidx.lifecycle.ViewModel;
 
 import com.crystal.hello.monthlyactivity.MonthlyActivityViewModel;
 import com.crystal.hello.ui.home.HomeViewModel;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.request.TransactionsGetRequest;
@@ -45,8 +49,10 @@ public class ProfileViewModel extends ViewModel {
     private PlaidClient plaidClient;
     private String accessToken;
     private String itemId;
+    private final FirebaseUser currentFirebaseUser;
     private final FirebaseFirestore db;
     private final DocumentReference docRef;
+    private FirebaseFunctions functions;
     private int transactionOffset;
     private Map<String, Account> accountIdToAccountMap;
     private final MutableLiveData<List<DocumentSnapshot>> mutableBankAccountsList;
@@ -54,9 +60,11 @@ public class ProfileViewModel extends ViewModel {
 
     public ProfileViewModel() {
         transactionOffset = 0;
+        currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
         docRef = db.collection("users")
-                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+                .document(Objects.requireNonNull(currentFirebaseUser).getUid());
+        functions = FirebaseFunctions.getInstance();
         mutableBankAccountsList = new MutableLiveData<>();
         mutableBudgetsMap = new MutableLiveData<>();
         buildPlaidClient();
@@ -251,6 +259,23 @@ public class ProfileViewModel extends ViewModel {
                         if (task.isSuccessful()) {
                             HomeViewModel.monthlyActivityViewModel = new MonthlyActivityViewModel();
                         }
+                    }
+                });
+    }
+
+    @NotNull
+    protected Task<String> getLinkToken(String userId) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+
+        return functions
+                .getHttpsCallable("getLinkToken")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        final Map<String, Object> result = (Map<String, Object>) Objects.requireNonNull(task.getResult()).getData();
+                        return (String) Objects.requireNonNull(result).get("linkToken");
                     }
                 });
     }

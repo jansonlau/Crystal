@@ -22,18 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.MainActivity;
 import com.crystal.hello.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
 import com.plaid.link.PlaidHandler;
-import com.plaid.link.configuration.LinkPublicKeyConfiguration;
-import com.plaid.link.configuration.PlaidEnvironment;
-import com.plaid.link.configuration.PlaidProduct;
-import com.plaid.link.result.LinkAccountSubtype;
+import com.plaid.link.configuration.LinkTokenConfiguration;
 import com.plaid.link.result.LinkResultHandler;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +44,7 @@ public class ProfileFragment extends Fragment {
     private View root;
     private RecyclerView budgetAmountsRecyclerView;
     private PlaidHandler plaidHandler;
+    private String linkToken;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,18 +72,29 @@ public class ProfileFragment extends Fragment {
     }
 
     private void createPlaidHandler() {
-        plaidHandler = Plaid.create(requireActivity().getApplication(), new LinkPublicKeyConfiguration.Builder()
-                .clientName("Crystal")
-                .environment(PlaidEnvironment.DEVELOPMENT)
-//                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
-                .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
-                .publicKey("bbf9cf93da45517aa5283841dfc534")
-                .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build());
+        linkToken = "";
+
+        profileViewModel.getLinkToken(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (task.isSuccessful()) {
+                            linkToken = task.getResult();
+
+                            plaidHandler = Plaid.create(requireActivity().getApplication(), new LinkTokenConfiguration.Builder()
+                                    .token(linkToken)
+                                    .build());
+                        } else {
+                            task.getException();
+                        }
+                    }
+                });
     }
 
     private void openPlaidLink() {
-        plaidHandler.open(this);
+        if (plaidHandler != null) {
+            plaidHandler.open(this);
+        }
     }
 
     @Override

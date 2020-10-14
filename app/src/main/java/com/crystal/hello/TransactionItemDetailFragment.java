@@ -35,6 +35,8 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -169,22 +171,31 @@ public class TransactionItemDetailFragment extends Fragment {
             }
 
             // Map
-            if (mapFragment != null) {
+            final Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+            List<Address> addressList = null;
+            try {
+                addressList = geocoder.getFromLocationName(locationString, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (mapFragment != null && addressList != null && !addressList.isEmpty()) {
                 final String finalLocationString = locationString;
+                final List<Address> finalAddressList = addressList;
+
                 mapFragment.getMapAsync(new OnMapReadyCallback() {
                     @Override
                     public void onMapReady(GoogleMap googleMap) {
-                        try {
-                            final int currentNightMode = requireContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                            if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.mapstyle_night));
-                            }
-                            loadMap(googleMap, transactionItemName, finalLocationString, locationCardView);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        final int currentNightMode = requireContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.mapstyle_night));
                         }
+                        loadMap(googleMap, transactionItemName, finalLocationString, finalAddressList);
+                        locationCardView.setVisibility(View.VISIBLE);
                     }
                 });
+            } else {
+                locationCardView.setVisibility(View.GONE);
             }
         }
 
@@ -201,43 +212,35 @@ public class TransactionItemDetailFragment extends Fragment {
         return root;
     }
 
-    private void loadMap(final GoogleMap googleMap, String name, final String addressString, CardView locationCardView) throws IOException {
-        final Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-        final List<Address> addressList = geocoder.getFromLocationName(addressString, 1);
+    private void loadMap(@NotNull final GoogleMap googleMap, String name, final String addressString, @NotNull final List<Address> addressList) {
+        final Address address = addressList.get(0);
+        final double latitude = address.getLatitude();
+        final double longitude = address.getLongitude();
+        final LatLng latLng = new LatLng(latitude, longitude);
 
-        if (!addressList.isEmpty()) {
-            locationCardView.setVisibility(View.VISIBLE);
-            final Address address = addressList.get(0);
-            final double latitude = address.getLatitude();
-            final double longitude = address.getLongitude();
-            final LatLng latLng = new LatLng(latitude, longitude);
+        googleMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title(name));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        googleMap.getUiSettings().setAllGesturesEnabled(true);
 
-            googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .title(name));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            googleMap.getUiSettings().setAllGesturesEnabled(true);
+        final NestedScrollView transactionDetailNestedScrollView = root.findViewById(R.id.transactionDetailNestedScrollView);
+        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                transactionDetailNestedScrollView.requestDisallowInterceptTouchEvent(true);
+            }
+        });
 
-            final NestedScrollView transactionDetailNestedScrollView = root.findViewById(R.id.transactionDetailNestedScrollView);
-            googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-                @Override
-                public void onCameraMove() {
-                    transactionDetailNestedScrollView.requestDisallowInterceptTouchEvent(true);
-                }
-            });
-
-            // Address listener
-            final FrameLayout transactionDetailAddressFrameLayout = root.findViewById(R.id.transactionDetailAddressFrameLayout);
-            transactionDetailAddressFrameLayout.setOnClickListener(view -> {
-                final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
-                final Uri gmmIntentUri = Uri.parse(uriString);
-                final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            });
-        } else {
-            locationCardView.setVisibility(View.GONE);
-        }
+        // Address listener
+        final FrameLayout transactionDetailAddressFrameLayout = root.findViewById(R.id.transactionDetailAddressFrameLayout);
+        transactionDetailAddressFrameLayout.setOnClickListener(view -> {
+            final String uriString = "geo:".concat(String.valueOf(latitude)).concat(",").concat(String.valueOf(longitude)).concat("?q=").concat(addressString);
+            final Uri gmmIntentUri = Uri.parse(uriString);
+            final Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        });
     }
 
     private void observeTransactionHistoryList() {
