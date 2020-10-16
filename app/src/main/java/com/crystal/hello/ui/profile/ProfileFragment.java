@@ -28,7 +28,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.plaid.link.Plaid;
-import com.plaid.link.PlaidHandler;
 import com.plaid.link.configuration.LinkTokenConfiguration;
 import com.plaid.link.result.LinkResultHandler;
 
@@ -43,14 +42,11 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private View root;
     private RecyclerView budgetAmountsRecyclerView;
-    private PlaidHandler plaidHandler;
-    private String linkToken;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-        createPlaidHandler();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -58,7 +54,9 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button button = root.findViewById(R.id.addAccountButton);
-        button.setOnClickListener(view -> openPlaidLink());
+        button.setOnClickListener(view -> {
+            openPlaidLink();
+        });
 
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
         logOutTextView.setOnClickListener(view -> logOut());
@@ -71,30 +69,23 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
-    private void createPlaidHandler() {
-        linkToken = "";
-
+    private void openPlaidLink() {
         profileViewModel.getLinkToken(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (task.isSuccessful()) {
-                            linkToken = task.getResult();
+                            final String linkToken = task.getResult();
 
-                            plaidHandler = Plaid.create(requireActivity().getApplication(), new LinkTokenConfiguration.Builder()
-                                    .token(linkToken)
-                                    .build());
+                            Plaid.create(requireActivity().getApplication(), new LinkTokenConfiguration.Builder()
+                                    .token(Objects.requireNonNull(linkToken))
+                                    .build())
+                                    .open(requireActivity());
                         } else {
                             task.getException();
                         }
                     }
                 });
-    }
-
-    private void openPlaidLink() {
-        if (plaidHandler != null) {
-            plaidHandler.open(this);
-        }
     }
 
     @Override
