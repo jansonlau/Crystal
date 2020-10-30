@@ -6,28 +6,29 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.crystal.hello.HomeActivity;
 import com.crystal.hello.R;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.plaid.link.Plaid;
-import com.plaid.link.PlaidHandler;
-import com.plaid.link.configuration.LinkPublicKeyConfiguration;
-import com.plaid.link.configuration.PlaidEnvironment;
-import com.plaid.link.configuration.PlaidProduct;
-import com.plaid.link.result.LinkAccountSubtype;
+import com.plaid.link.configuration.LinkTokenConfiguration;
 import com.plaid.link.result.LinkResultHandler;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,48 +38,44 @@ import kotlin.Unit;
 public class InitialConnectActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
-    private PlaidHandler plaidHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_connect);
-        createPlaidHandler();
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         final Button button = findViewById(R.id.buttonLinkBankContinue);
-        button.setOnClickListener(view -> openPlaidLink());
+        button.setOnClickListener(view -> {
+            final String randomString = RandomStringUtils.randomAlphanumeric(28);
+            getLinkToken(randomString);
+        });
     }
 
-    private void createPlaidHandler() {
-        plaidHandler = Plaid.create(getApplication(), new LinkPublicKeyConfiguration.Builder()
-                .clientName("Crystal")
-                .environment(PlaidEnvironment.DEVELOPMENT)
-//                .products(Arrays.asList(PlaidProduct.TRANSACTIONS, PlaidProduct.LIABILITIES))
-                .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
-                .publicKey("bbf9cf93da45517aa5283841dfc534")
-                .accountSubtypes(Collections.singletonList(LinkAccountSubtype.CREDIT.CREDIT_CARD.INSTANCE))
-                .build());
+    private void getLinkToken(final String userId) {
+        final Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+
+        FirebaseFunctions.getInstance()
+                .getHttpsCallable("getLinkToken")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) {
+                        final Map<String, Object> result = (Map<String, Object>) Objects.requireNonNull(task.getResult()).getData();
+                        final String linkToken = (String) Objects.requireNonNull(result).get("linkToken");
+
+                        // Open Plaid link
+                        Plaid.create(getApplication(), new LinkTokenConfiguration.Builder()
+                                .token(Objects.requireNonNull(linkToken))
+                                .build())
+                                .open(InitialConnectActivity.this);
+
+                        return linkToken;
+                    }
+                });
     }
-
-    private void openPlaidLink() {
-        plaidHandler.open(this);
-    }
-
-//    private void onLinkTokenSuccess(String token) {
-//        Plaid.openLink(this, new LinkConfiguration.Builder()
-//                .token(token)
-//                .clientName("Crystal")
-//                .environment(PlaidEnvironment.DEVELOPMENT)
-//                .products(Collections.singletonList(PlaidProduct.TRANSACTIONS))
-////                .accountSubtypeFilter(Collections.singletonList(AccountSubtype.CREDIT.CREDIT_CARD))
-//                .build());
-//    }
-
-//    private void onLinkTokenError(Throwable error) {
-//        Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

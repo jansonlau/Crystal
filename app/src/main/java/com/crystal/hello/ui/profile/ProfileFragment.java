@@ -22,11 +22,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.crystal.hello.MainActivity;
 import com.crystal.hello.R;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.plaid.link.Plaid;
 import com.plaid.link.configuration.LinkTokenConfiguration;
 import com.plaid.link.result.LinkResultHandler;
@@ -55,7 +57,7 @@ public class ProfileFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_profile, container, false);
         final Button button = root.findViewById(R.id.addAccountButton);
         button.setOnClickListener(view -> {
-            openPlaidLink();
+            getLinkToken(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         });
 
         final TextView logOutTextView = root.findViewById(R.id.logOutTextView);
@@ -69,21 +71,26 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
-    private void openPlaidLink() {
-        profileViewModel.getLinkToken(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (task.isSuccessful()) {
-                            final String linkToken = task.getResult();
+    private void getLinkToken(final String userId) {
+        final Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
 
-                            Plaid.create(requireActivity().getApplication(), new LinkTokenConfiguration.Builder()
-                                    .token(Objects.requireNonNull(linkToken))
-                                    .build())
-                                    .open(requireActivity());
-                        } else {
-                            task.getException();
-                        }
+        FirebaseFunctions.getInstance()
+                .getHttpsCallable("getLinkToken")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) {
+                        final Map<String, Object> result = (Map<String, Object>) Objects.requireNonNull(task.getResult()).getData();
+                        final String linkToken = (String) Objects.requireNonNull(result).get("linkToken");
+
+                        // Open Plaid link
+                        Plaid.create(requireActivity().getApplication(), new LinkTokenConfiguration.Builder()
+                                .token(Objects.requireNonNull(linkToken))
+                                .build())
+                                .open(ProfileFragment.this);
+
+                        return linkToken;
                     }
                 });
     }

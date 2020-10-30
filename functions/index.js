@@ -4,10 +4,9 @@ admin.initializeApp();
 const db = admin.firestore();
 
 const plaid = require('plaid');
-
 const plaidClient = new plaid.Client({
 	clientID: '5e9e830fd1ed690012c3be3c',
-	secret: '60accf9202c1cb270909846affe85a',
+	secret: 'ff928b844127da818fa9ae69ec45ee',
 	env: plaid.environments.development,
 });
 
